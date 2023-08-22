@@ -1,5 +1,6 @@
 type Query{
     getAllUsers: [User]
+    getBookingsByDate(date: String): [Booking]
 }
 
 type Mutation{
@@ -9,4 +10,10 @@ type Mutation{
 type User{
     pk_userid: String
     username: String
+}
+
+type Booking {
+    pk_bookingid: ID
+    bookingnumber: Int
+    date: String
 }
