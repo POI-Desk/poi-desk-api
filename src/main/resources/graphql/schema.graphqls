@@ -1,0 +1,8 @@
+type Query{
+    getAllUsers: [User]
+}
+
+type User{
+    pk_userid: String
+    username: String
+}
