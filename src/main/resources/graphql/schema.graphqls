@@ -2,6 +2,10 @@ type Query{
     getAllUsers: [User]
 }
 
+type Mutation{
+    changeUsername(id: String, name:String): User
+}
+
 type User{
     pk_userid: String
     username: String
