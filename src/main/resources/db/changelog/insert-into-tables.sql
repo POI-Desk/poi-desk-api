@@ -1,70 +1,86 @@
 -- liquibase formatted sql
 
 -- changeset liquibase:1
-INSERT INTO  Roles (pk_roleId, description)
-VALUES (gen_random_uuid(), 'Admin'),
-       (gen_random_uuid(), 'Markus'),
-       (gen_random_uuid(), 'Jupp')
+INSERT INTO Roles (roleName)
+VALUES ('Standard'),
+       ('Admin'),
+       ('Super Admin');
 
 -- changeset liquibase:2
-INSERT INTO  Users (pk_userId, username)
-VALUES (gen_random_uuid(), 'Admin'),
-       (gen_random_uuid(), 'Markus'),
-       (gen_random_uuid(), 'Jupp')
+INSERT INTO Locations (locationName)
+VALUES ('Salzburg'),
+       ('Wien'),
+       ('Hagenberg');
 
 -- changeset liquibase:3
-INSERT INTO Role_User (pk_fk_roleId, pk_fk_userId)
-VALUES ((SELECT pk_roleId FROM Roles WHERE description = 'Admin'),
-        (SELECT pk_userId FROM Users WHERE username = 'Admin')),
-       ((SELECT pk_roleId FROM Roles WHERE description = 'Markus'),
-        (SELECT pk_userId FROM Users WHERE username = 'Markus')),
-       ((SELECT pk_roleId FROM Roles WHERE description = 'Jupp'),
-        (SELECT pk_userId FROM Users WHERE username = 'Jupp'))
+INSERT INTO Users (username, fk_locationId)
+VALUES ('Alina', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
+       ('Markus', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien')),
+       ('Jupp', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg'));
 
 -- changeset liquibase:4
-INSERT INTO Locations (pk_locationId, locationName)
-VALUES (gen_random_uuid(), 'Salzburg'),
-       (gen_random_uuid(), 'Wien'),
-       (gen_random_uuid(), 'Hagenberg')
+INSERT INTO Roles_Users (pk_fk_roleId, pk_fk_userId)
+VALUES ((SELECT pk_roleId FROM Roles WHERE roleName = 'Standard'),
+        (SELECT pk_userId FROM Users WHERE username = 'Alina')),
+       ((SELECT pk_roleId FROM Roles WHERE roleName = 'Admin'),
+        (SELECT pk_userId FROM Users WHERE username = 'Markus')),
+       ((SELECT pk_roleId FROM Roles WHERE roleName = 'Super Admin'),
+        (SELECT pk_userId FROM Users WHERE username = 'Jupp'));
 
 -- changeset liquibase:5
-INSERT INTO  Seats (pk_seatId, floor, seatNum, x, y, fk_locationId)
-VALUES (gen_random_uuid(), 1, 101, 10.0, 20.0,
-        (SELECT pk_locationId FROM  Locations WHERE locationName = 'Salzburg')),
-       (gen_random_uuid(), 2, 201, 15.0, 25.0,
-        (SELECT pk_locationId FROM  Locations WHERE locationName = 'Wien')),
-       (gen_random_uuid(), 3, 301, 20.0, 30.0,
-        (SELECT pk_locationId FROM  Locations WHERE locationName = 'Hagenberg'))
+INSERT INTO Buildings (buildingName, fk_locationId)
+VALUES ('Building A', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
+       ('Building B', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien')),
+       ('Building C', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg'));
 
 -- changeset liquibase:6
-INSERT INTO  Attributes (pk_attributeId, description, color)
-VALUES (gen_random_uuid(), 'Attribute 1', 'Red'),
-       (gen_random_uuid(), 'Attribute 2', 'Blue'),
-       (gen_random_uuid(), 'Attribute 3', 'Green')
+INSERT INTO Floors (floorName, fk_buildingId)
+VALUES ('3rd Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building A')),
+       ('4th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building B')),
+       ('5th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building C'));
 
 -- changeset liquibase:7
-INSERT INTO  Seat_Attribute (pk_fk_seatId, pk_fk_attributeId)
-VALUES ((SELECT pk_seatId FROM  Seats WHERE seatNum = 101),
-        (SELECT pk_attributeId FROM  Attributes WHERE description = 'Attribute 1')),
-       ((SELECT pk_seatId FROM  Seats WHERE seatNum = 201),
-        (SELECT pk_attributeId FROM  Attributes WHERE description = 'Attribute 2')),
-       ((SELECT pk_seatId FROM  Seats WHERE seatNum = 301),
-        (SELECT pk_attributeId FROM  Attributes WHERE description = 'Attribute 3'))
+INSERT INTO Seats (seatNum, x, y, fk_floorId)
+VALUES (301, 10, 10, (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')),
+       (401, 20, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (501, 15, 15, (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor'));
 
 -- changeset liquibase:8
-INSERT INTO  Intervals (pk_intervalId, description)
-VALUES (gen_random_uuid(), 'Morning'),
-       (gen_random_uuid(), 'Afternoon'),
-       (gen_random_uuid(), 'Full Day')
+INSERT INTO Attributes (attributeName)
+VALUES ('Silent'),
+       ('Noisy'),
+       ('Loud');
 
 -- changeset liquibase:9
-INSERT INTO  Bookings (pk_bookingId, bookingNumber, fk_userId, fk_seatId, fk_intervalId)
-VALUES (gen_random_uuid(), 123, (SELECT pk_userId FROM  Users WHERE username = 'Admin'),
-        (SELECT pk_seatId FROM  Seats WHERE seatNum = 101),
-        (SELECT pk_intervalId FROM  Intervals WHERE description = 'Morning')),
-       (gen_random_uuid(), 456, (SELECT pk_userId FROM  Users WHERE username = 'Markus'),
-        (SELECT pk_seatId FROM  Seats WHERE seatNum = 201),
-        (SELECT pk_intervalId FROM  Intervals WHERE description = 'Afternoon')),
-       (gen_random_uuid(), 789, (SELECT pk_userId FROM  Users WHERE username = 'Jupp'),
-        (SELECT pk_seatId FROM  Seats WHERE seatNum = 301),
-        (SELECT pk_intervalId FROM  Intervals WHERE description = 'Full Day'))
+INSERT INTO Seats_Attributes (pk_fk_seatId, pk_fk_attributeId)
+VALUES ((SELECT pk_seatId FROM Seats WHERE seatNum = 301),
+        (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Silent')),
+       ((SELECT pk_seatId FROM Seats WHERE seatNum = 401),
+        (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Noisy')),
+       ((SELECT pk_seatId FROM Seats WHERE seatNum = 501),
+        (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Loud'));
+
+-- changeset liquibase:10
+INSERT INTO Bookings (bookingNumber, date, isMorning, isAfternoon, fk_userId, fk_seatId)
+VALUES ('B123', '2023-08-23', true, false,
+        (SELECT pk_userId FROM Users WHERE username = 'Alina'),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 101)),
+       ('B124', '2023-08-24', false, true,
+        (SELECT pk_userId FROM Users WHERE username = 'Markus'),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 202)),
+       ('B125', '2023-08-25', true, true,
+        (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 103));
+
+-- changeset liquibase:11
+INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, fk_userId, fk_seatId)
+VALUES ('B123', '2023-08-23', true, false,
+        (SELECT pk_userId FROM Users WHERE username = 'Alina'),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 101)),
+       ('B124', '2023-08-24', false, true,
+        (SELECT pk_userId FROM Users WHERE username = 'Markus'),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 202)),
+       ('B125', '2023-08-25', true, true,
+        (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 103));
+

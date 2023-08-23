@@ -38,7 +38,7 @@ public class Seat {
     @OneToMany(mappedBy = "seat", fetch = FetchType.LAZY)
     private List<BookingLog> bookinglogs;
 
-    @ManyToMany(mappedBy = "attribute", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "seats", fetch = FetchType.LAZY)
     private List<Attribute> attributes;
 
     @ManyToOne(fetch = FetchType.LAZY)

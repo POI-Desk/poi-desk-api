@@ -3,87 +3,125 @@
 -- changeset liquibase:1
 CREATE TABLE Roles
 (
-    pk_roleId   uuid UNIQUE NOT NULL,
-    description varchar(255),
-    PRIMARY KEY (pk_roleId)
-)
+    pk_roleId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    roleName  VARCHAR(255) NOT NULL,
+    createdOn TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 -- changeset liquibase:2
-CREATE TABLE Users
-(
-    pk_userId uuid UNIQUE NOT NULL,
-    username  varchar(255),
-    PRIMARY KEY (pk_userId)
-)
-
--- changeset liquibase:3
-CREATE TABLE Role_User
-(
-    pk_fk_roleId uuid,
-    pk_fk_userId uuid,
-    PRIMARY KEY (pk_fk_roleId, pk_fk_userId),
-    FOREIGN KEY (pk_fk_userId) REFERENCES Users (pk_userId),
-    FOREIGN KEY (pk_fk_roleId) REFERENCES Roles (pk_roleId)
-)
-
--- changeset liquibase:4
 CREATE TABLE Locations
 (
-    pk_locationId uuid UNIQUE NOT NULL,
-    locationName  varchar(255),
-    PRIMARY KEY (pk_locationId)
-)
+    pk_locationId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    locationName  VARCHAR(255) NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- changeset liquibase:3
+CREATE TABLE Users
+(
+    pk_userId     UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    username      VARCHAR(255) NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_locationId UUID,
+    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
+);
+
+-- changeset liquibase:4
+CREATE TABLE Roles_Users
+(
+    pk_fk_roleId UUID,
+    pk_fk_userId UUID,
+    PRIMARY KEY (pk_fk_roleId, pk_fk_userId),
+    FOREIGN KEY (pk_fk_roleId) REFERENCES Roles (pk_roleId),
+    FOREIGN KEY (pk_fk_userId) REFERENCES Users (pk_userId)
+);
 
 -- changeset liquibase:5
-CREATE TABLE Seats
+CREATE TABLE Buildings
 (
-    pk_seatId     uuid UNIQUE NOT NULL,
-    floor         int,
-    seatNum       int,
-    x             float4,
-    y             float4,
-    fk_locationId uuid,
-    PRIMARY KEY (pk_seatId),
-    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId),
-    UNIQUE (fk_locationId, seatNum)
-)
+    pk_buildingId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    buildingName  VARCHAR(255) NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_locationId UUID,
+    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
+);
 
 -- changeset liquibase:6
-CREATE TABLE Attributes
+CREATE TABLE Floors
 (
-    pk_attributeId uuid UNIQUE NOT NULL,
-    description    varchar(255),
-    color          varchar(255)
+    pk_floorId    UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    floorName     VARCHAR(255) NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_buildingId UUID,
+    FOREIGN KEY (fk_buildingId) REFERENCES Buildings (pk_buildingId)
 );
 
 -- changeset liquibase:7
-CREATE TABLE Seat_Attribute
+CREATE TABLE Seats
 (
-    pk_fk_seatId      uuid,
-    pk_fk_attributeId uuid,
+    pk_seatId  UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
+    seatNum    INT       NOT NULL,
+    x          INT       NOT NULL,
+    y          INT       NOT NULL,
+    createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_floorId UUID,
+    FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId)
+);
+
+-- changeset liquibase:8
+CREATE TABLE Bookings
+(
+    pk_bookingId  UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    bookingNumber VARCHAR(255) NOT NULL,
+    date          DATE         NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    isMorning     BOOLEAN      NOT NULL,
+    isAfternoon   BOOLEAN      NOT NULL,
+    fk_userId     UUID,
+    fk_seatId     UUID,
+    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
+    FOREIGN KEY (fk_seatId) REFERENCES Seats (pk_seatId)
+);
+
+-- changeset liquibase:9
+CREATE TABLE BookingsLog
+(
+    pk_bookingLogId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    bookingNumber   VARCHAR(255) NOT NULL,
+    date            DATE         NOT NULL,
+    createdOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    isMorning       BOOLEAN      NOT NULL,
+    isAfternoon     BOOLEAN      NOT NULL,
+    fk_userId       UUID,
+    fk_seatId       UUID,
+    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
+    FOREIGN KEY (fk_seatId) REFERENCES Seats (pk_seatId)
+);
+
+-- changeset liquibase:10
+CREATE TABLE Attributes
+(
+    pk_attributeId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    attributeName  VARCHAR(255) NOT NULL,
+    createdOn      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- changeset liquibase:11
+CREATE TABLE Seats_Attributes
+(
+    pk_fk_seatId      UUID,
+    pk_fk_attributeId UUID,
     PRIMARY KEY (pk_fk_seatId, pk_fk_attributeId),
     FOREIGN KEY (pk_fk_seatId) REFERENCES Seats (pk_seatId),
     FOREIGN KEY (pk_fk_attributeId) REFERENCES Attributes (pk_attributeId)
-)
+);
 
--- changeset liquibase:8
-CREATE TABLE Intervals
-(
-    pk_intervalId uuid UNIQUE NOT NULL,
-    description   varchar(255),
-    PRIMARY KEY (pk_intervalId)
-)
-
--- changeset liquibase:9
-CREATE TABLE Bookings
-(
-    pk_bookingId  uuid UNIQUE NOT NULL,
-    bookingNumber int,
-    fk_userId     uuid,
-    fk_seatId     uuid,
-    fk_intervalId uuid,
-    PRIMARY KEY (pk_bookingId),
-    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
-    FOREIGN KEY (fk_seatId) REFERENCES Seats (pk_seatId),
-    FOREIGN KEY (fk_intervalId) REFERENCES Intervals (pk_intervalId)
-)
