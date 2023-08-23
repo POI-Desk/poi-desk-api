@@ -11,15 +11,14 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name="roles")
-public class Role {
-
+@Table(name="locations")
+public class Location {
     @Id
-    @Column(name="pk_roleid", nullable = false, unique = true)
-    private UUID pk_roleid;
+    @Column(name="pk_locationid", nullable = false, unique = true)
+    private UUID pk_locationid;
 
-    @Column(name="rolename")
-    private String rolename;
+    @Column(name="locationname")
+    private String locationname;
 
     @Column(name="createdon")
     private Date createdon;
@@ -27,7 +26,9 @@ public class Role {
     @Column(name="updatedon")
     private Date updatedon;
 
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<User> users;
 
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    private List<Building> buildings;
 }
