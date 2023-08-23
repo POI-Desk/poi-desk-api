@@ -8,6 +8,7 @@ type Query{
 
 type Mutation{
     changeUsername(id: String, name:String): User
+    bookSeat(date: String, isMorning: Boolean, isAfternoon: Boolean, userId: String, seatId: String): Booking
 }
 
 type Attribute{
