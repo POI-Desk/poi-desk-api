@@ -1,12 +1,10 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -22,4 +20,14 @@ public class User {
     @Column(name="username")
     private String username;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "role_user",
+            joinColumns = @JoinColumn(name = "pk_fk_userid"),
+            inverseJoinColumns = @JoinColumn(name = "pk_fk_roleid")
+    )
+    private List<Role> roles;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Booking> bookings;
 }

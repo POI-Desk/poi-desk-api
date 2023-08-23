@@ -1,11 +1,13 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.stereotype.Controller;
 
+import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
+import at.porscheinformatik.desk.POIDeskAPI.Models.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.graphql.data.method.annotation.Argument;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +16,9 @@ import java.util.List;
 public class BookingController {
     @Autowired
     private BookingRepo bookingRepo;
+
+    @QueryMapping
+    public List<Booking> allBookings() { return (List<Booking>)bookingRepo.findAll(); }
 
     @QueryMapping
     public List<Booking> getBookingsByDate(@Argument Date date) {
@@ -27,4 +32,8 @@ public class BookingController {
         });
         return bookings;
     }
+  
+    @SchemaMapping
+    public User user(Booking booking) { return bookingRepo.findById(booking.getPk_bookingid()).get().getUser(); }
+    
 }

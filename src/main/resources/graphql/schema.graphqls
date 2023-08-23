@@ -1,5 +1,8 @@
 type Query{
     getAllUsers: [User]
+    getUserById(id: ID): User
+    getRolesOfUser(id: ID): [Role]
+    allBookings: [Booking]
     getBookingsByDate(date: String): [Booking]
 }
 
@@ -8,12 +11,20 @@ type Mutation{
 }
 
 type User{
-    pk_userid: String
+    pk_userid: ID
     username: String
+    roles: [Role]
+    bookings: [Booking]
 }
 
-type Booking {
+type Role{
+    pk_roleid: ID
+    description: String
+}
+
+type Booking{
     pk_bookingid: ID
     bookingnumber: Int
     date: String
+    user: User
 }
