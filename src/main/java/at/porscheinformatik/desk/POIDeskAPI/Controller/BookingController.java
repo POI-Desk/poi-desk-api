@@ -7,12 +7,11 @@ import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.graphql.data.method.annotation.Argument;
 
 import java.sql.Date;
 import java.util.ArrayList;
@@ -51,13 +50,19 @@ public class BookingController {
                             @Argument UUID userId, @Argument UUID seatId) {
         Booking booking = new Booking();
 
-        if (seatRepo.findById(seatId).isPresent() && userRepo.findById(userId).isPresent()) {
-            booking.setDate(date);
-            booking.setIsmorning(isMorning);
-            booking.setIsafternoon(isAfternoon);
-            booking.setUser(userRepo.findById(userId).get());
-            booking.setSeat(seatRepo.findById(seatId).get());
+        if (seatRepo.findById(seatId).isEmpty() && userRepo.findById(userId).isEmpty()) {
+            return null;
         }
+
+        booking.setPk_bookingid(UUID.randomUUID());
+        booking.setBookingnumber(12345);
+        booking.setDate(date);
+        booking.setIsmorning(isMorning);
+        booking.setIsafternoon(isAfternoon);
+        booking.setUser(userRepo.findById(userId).get());
+        booking.setSeat(seatRepo.findById(seatId).get());
+        booking.setCreatedon(new Date(System.currentTimeMillis()));
+        booking.setUpdatedon(new Date(System.currentTimeMillis()));
 
         return booking;
     }

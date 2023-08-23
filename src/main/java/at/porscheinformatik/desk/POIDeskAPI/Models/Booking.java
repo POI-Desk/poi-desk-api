@@ -1,22 +1,17 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
 import jakarta.persistence.*;
-import liquibase.license.LicenseService;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.awt.print.Book;
-import java.util.List;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.sql.Date;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(name="bookings")
 public class Booking {
 
