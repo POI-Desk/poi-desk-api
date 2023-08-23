@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,10 +19,10 @@ public class Attribute {
     private UUID pk_attributeid;
 
     @Column(name="createdon")
-    private Date createdon;
+    private Timestamp createdon;
 
     @Column(name="updatedon")
-    private Date updatedon;
+    private Timestamp updatedon;
 
     @Column(name="attributename")
     private String attributename;

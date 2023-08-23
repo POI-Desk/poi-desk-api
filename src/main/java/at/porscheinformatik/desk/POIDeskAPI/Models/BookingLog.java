@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
@@ -24,10 +25,10 @@ public class BookingLog {
     private Date date;
 
     @Column(name="createdon")
-    private Date createdon;
+    private Timestamp createdon;
 
     @Column(name="updatedon")
-    private Date updatedon;
+    private Timestamp updatedon;
 
     @Column(name="ismorning")
     private boolean ismorning;

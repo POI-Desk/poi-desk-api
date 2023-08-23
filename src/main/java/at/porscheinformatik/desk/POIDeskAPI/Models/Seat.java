@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,10 +28,10 @@ public class Seat {
     private float y;
 
     @Column(name="createdon")
-    private Date createdon;
+    private Timestamp createdon;
 
     @Column(name="updatedon")
-    private Date updatedon;
+    private Timestamp updatedon;
 
     @OneToMany(mappedBy = "seat", fetch = FetchType.LAZY)
     private List<Booking> bookings;
