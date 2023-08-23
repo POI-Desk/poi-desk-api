@@ -1,9 +1,8 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
+import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.UserRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
-import at.porscheinformatik.desk.POIDeskAPI.Models.User;
+import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -20,6 +19,9 @@ public class UserController
 {
     @Autowired
     private UserRepo userRepo;
+
+    @Autowired
+    private LocationRepo locationRepo;
 
     @QueryMapping
     public List<User> getAllUsers() { return (List<User>)userRepo.findAll(); }
@@ -41,7 +43,25 @@ public class UserController
         User user = u.get();
         return user.getRoles();
     }
-
+    @QueryMapping
+    public boolean hasDefaultLocation(@Argument UUID id) {
+        Optional<User> u = userRepo.findById(id);
+        if (u.isEmpty())
+            return false;
+        else return u.get().getLocation() != null;
+    }
+    @MutationMapping
+    public User setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
+    {
+        Optional<User> user = userRepo.findById(userid);
+        Optional<Location> location = locationRepo.findById(locationid);
+        if (user.isEmpty() || location.isEmpty())
+            return null;
+        user.get().setLocation(location.get());
+        User updateduser = user.get();
+        userRepo.save(updateduser);
+        return updateduser;
+    }
     @MutationMapping
     public User changeUsername(@Argument UUID id, @Argument String name)
     {
@@ -60,4 +80,8 @@ public class UserController
 
     @SchemaMapping
     public List<Booking> bookings(User user) { return userRepo.findById((user.getPk_userid())).get().getBookings(); }
+
+    @SchemaMapping
+    public List<BookingLog> bookinglogs(User user) { return userRepo.findById((user.getPk_userid())).get().getBookinglogs(); }
+
 }

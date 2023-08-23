@@ -25,7 +25,7 @@ public class Booking {
     private UUID pk_bookingid;
 
     @Column(name="bookingnumber")
-    private int bookingnumber;
+    private String bookingnumber;
 
     @Column(name = "date")
     private Date date;

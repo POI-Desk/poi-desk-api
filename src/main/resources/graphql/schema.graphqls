@@ -4,11 +4,20 @@ type Query{
     getRolesOfUser(id: ID): [Role]
     allBookings: [Booking]
     getBookingsByDate(date: String): [Booking]
+    getAllBookingLogs: [BookingLog]
+    getAllExpiredBookingLogs: [BookingLog]
+    getAllDeletedBookingLogs: [BookingLog]
+    getMorningBookingLogs: [BookingLog]
+    getAfternoonBookingLogs: [BookingLog]
+    getFullDayBookingLogs: [BookingLog]
+    getAllLocations: [Location]
+    hasDefaultLocation(id: ID): Boolean
 }
 
 type Mutation{
     changeUsername(id: String, name:String): User
     bookSeat(date: String, isMorning: Boolean, isAfternoon: Boolean, userId: String, seatId: String): Booking
+    setdefaultLocation(userid: ID, locationid: ID): User
 }
 
 type Attribute{
@@ -21,7 +30,7 @@ type Attribute{
 
 type Booking{
     pk_bookingid: ID
-    bookingnumber: Int
+    bookingnumber: String
     date: String
     createdon: String
     updatedon: String
@@ -33,7 +42,7 @@ type Booking{
 
 type BookingLog{
     pk_bookinglogid: ID
-    bookingnumber: Int
+    bookingnumber: String
     date: String
     createdon: String
     updatedon: String

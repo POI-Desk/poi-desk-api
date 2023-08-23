@@ -10,7 +10,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name="bookinglogs")
+@Table(name="bookingslog")
 public class BookingLog {
 
     @Id
@@ -18,7 +18,7 @@ public class BookingLog {
     private UUID pk_bookinglogid;
 
     @Column(name="bookingnumber")
-    private int bookingnumber;
+    private String bookingnumber;
 
     @Column(name = "date")
     private Date date;

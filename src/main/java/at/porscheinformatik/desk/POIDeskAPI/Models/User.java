@@ -29,7 +29,7 @@ public class User {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "role_user",
+            name = "roles_users",
             joinColumns = @JoinColumn(name = "pk_fk_userid"),
             inverseJoinColumns = @JoinColumn(name = "pk_fk_roleid")
     )

@@ -28,7 +28,7 @@ public class Attribute {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "seat_attribute",
+            name = "seats_attributes",
             joinColumns = @JoinColumn(name = "pk_fk_attributeid"),
             inverseJoinColumns = @JoinColumn(name = "pk_fk_seatid")
     )
