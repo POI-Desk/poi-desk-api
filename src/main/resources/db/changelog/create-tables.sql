@@ -100,6 +100,7 @@ CREATE TABLE BookingsLog
     updatedOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     isMorning       BOOLEAN      NOT NULL,
     isAfternoon     BOOLEAN      NOT NULL,
+    wasDeleted      BOOlEAN      NOT NULL,
     fk_userId       UUID,
     fk_seatId       UUID,
     FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),

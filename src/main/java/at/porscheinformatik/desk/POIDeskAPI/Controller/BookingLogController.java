@@ -21,7 +21,7 @@ public class BookingLogController
     public List<BookingLog> getAllExpiredBookingLogs()
     {
         List<BookingLog> bookings = (List<BookingLog>)bookingLogRepo.findAll();
-        return bookings.stream().filter(deletedBookings -> deletedBookings.isWasdeleted() == true).toList();
+        return bookings.stream().filter(deletedBookings -> deletedBookings.isWasdeleted() == false).toList();
     }
 
     @QueryMapping
