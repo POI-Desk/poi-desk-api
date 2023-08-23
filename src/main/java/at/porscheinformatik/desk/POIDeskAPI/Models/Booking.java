@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import liquibase.license.LicenseService;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.awt.print.Book;
 import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,8 +29,24 @@ public class Booking {
 
     @Column(name = "date")
     private Date date;
+
+    @Column(name="createdon")
+    private Date createdon;
+
+    @Column(name="updatedon")
+    private Date updatedon;
+
+    @Column(name="morning")
+    private Boolean morning;
+
+    @Column(name="afternoon")
+    private Boolean afternoon;
   
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_userid")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_seatid")
+    private Seat seat;
 }

@@ -1,6 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 
+import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;

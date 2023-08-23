@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,12 @@ public class User {
     @Column(name="username")
     private String username;
 
+    @Column(name="createdon")
+    private Date createdon;
+
+    @Column(name="updatedon")
+    private Date updatedon;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "role_user",
@@ -30,4 +37,11 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Booking> bookings;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<BookingLog> bookinglogs;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_locationid")
+    private Location location;
 }
