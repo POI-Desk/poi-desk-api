@@ -29,14 +29,14 @@ public class BookingLog {
     @Column(name="updatedon")
     private Date updatedon;
 
-    @Column(name="morning")
-    private Boolean morning;
+    @Column(name="ismorning")
+    private boolean ismorning;
 
-    @Column(name="afternoon")
-    private Boolean afternoon;
+    @Column(name="isafternoon")
+    private boolean isafternoon;
 
-    @Column(name="deleted")
-    private Boolean deleted;
+    @Column(name="wasdeleted")
+    private boolean wasdeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_userid")

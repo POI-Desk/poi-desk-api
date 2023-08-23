@@ -36,11 +36,11 @@ public class Booking {
     @Column(name="updatedon")
     private Date updatedon;
 
-    @Column(name="morning")
-    private Boolean morning;
+    @Column(name="ismorning")
+    private boolean ismorning;
 
-    @Column(name="afternoon")
-    private Boolean afternoon;
+    @Column(name="isafternoon")
+    private boolean isafternoon;
   
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_userid")
