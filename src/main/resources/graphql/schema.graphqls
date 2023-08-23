@@ -3,6 +3,7 @@ type Query{
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role]
     allBookings: [Booking]
+    getBookingsByDate(date: String): [Booking]
 }
 
 type Mutation{
@@ -24,5 +25,6 @@ type Role{
 type Booking{
     pk_bookingid: ID
     bookingnumber: Int
+    date: String
     user: User
 }
