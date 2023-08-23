@@ -24,8 +24,8 @@ type Booking{
     date: String
     createdon: String
     updatedon: String
-    morning: Boolean
-    afternoon: Boolean
+    ismorning: Boolean
+    isafternoon: Boolean
     user: User
     seat: Seat
 }
@@ -36,9 +36,9 @@ type BookingLog{
     date: String
     createdon: String
     updatedon: String
-    morning: Boolean
-    afternoon: Boolean
-    deleted: Boolean
+    ismorning: Boolean
+    isafternoon: Boolean
+    wasdeleted: Boolean
     user: User
     seat: Seat
 
@@ -94,8 +94,8 @@ type Seat{
 type User{
     pk_userid: ID
     username: String
-    createdon: Boolean
-    updatedon: Boolean
+    createdon: String
+    updatedon: String
     roles: [Role]
     bookings: [Booking]
     bookinglogs: [BookingLog]
