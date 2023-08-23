@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -22,10 +23,10 @@ public class User {
     private String username;
 
     @Column(name="createdon")
-    private Date createdon;
+    private Timestamp createdon;
 
     @Column(name="updatedon")
-    private Date updatedon;
+    private Timestamp updatedon;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(

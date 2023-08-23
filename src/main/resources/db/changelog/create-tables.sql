@@ -80,8 +80,8 @@ CREATE TABLE Bookings
     pk_bookingId  UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
     bookingNumber VARCHAR(255) NOT NULL,
     date          DATE         NOT NULL,
-    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    createdOn     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
     isMorning     BOOLEAN      NOT NULL,
     isAfternoon   BOOLEAN      NOT NULL,
     fk_userId     UUID,
@@ -124,4 +124,3 @@ CREATE TABLE Seats_Attributes
     FOREIGN KEY (pk_fk_seatId) REFERENCES Seats (pk_seatId),
     FOREIGN KEY (pk_fk_attributeId) REFERENCES Attributes (pk_attributeId)
 );
-

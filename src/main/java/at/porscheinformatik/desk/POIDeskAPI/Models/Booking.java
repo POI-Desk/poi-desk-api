@@ -1,22 +1,19 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
 import jakarta.persistence.*;
-import liquibase.license.LicenseService;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
-import java.awt.print.Book;
-import java.util.List;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(name="bookings")
 public class Booking {
 
@@ -30,11 +27,11 @@ public class Booking {
     @Column(name = "date")
     private Date date;
 
-    @Column(name="createdon")
-    private Date createdon;
+    @Column(name="createdon", insertable = false)
+    private Timestamp createdon;
 
-    @Column(name="updatedon")
-    private Date updatedon;
+    @Column(name="updatedon", insertable = false)
+    private Timestamp updatedon;
 
     @Column(name="ismorning")
     private boolean ismorning;
