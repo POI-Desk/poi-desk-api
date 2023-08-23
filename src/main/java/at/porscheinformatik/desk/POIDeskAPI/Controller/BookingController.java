@@ -66,7 +66,7 @@ public class BookingController {
         Timestamp curTime = new Timestamp(System.currentTimeMillis());
 
         booking.setPk_bookingid(UUID.randomUUID());
-        booking.setBookingnumber(12345); // TODO change
+        booking.setBookingnumber("A12345"); // TODO change
         booking.setDate(date);
         booking.setIsmorning(isMorning);
         booking.setIsafternoon(isAfternoon);
