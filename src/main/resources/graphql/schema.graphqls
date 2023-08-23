@@ -10,21 +10,94 @@ type Mutation{
     changeUsername(id: String, name:String): User
 }
 
-type User{
-    pk_userid: ID
-    username: String
-    roles: [Role]
-    bookings: [Booking]
-}
-
-type Role{
-    pk_roleid: ID
-    description: String
+type Attribute{
+    pk_attributeid: ID
+    attributename: String
+    createdon: String
+    updatedon: String
+    seats: [Seat]
 }
 
 type Booking{
     pk_bookingid: ID
     bookingnumber: Int
     date: String
+    createdon: String
+    updatedon: String
+    morning: Boolean
+    afternoon: Boolean
     user: User
+    seat: Seat
+}
+
+type BookingLog{
+    pk_bookinglogid: ID
+    bookingnumber: Int
+    date: String
+    createdon: String
+    updatedon: String
+    morning: Boolean
+    afternoon: Boolean
+    deleted: Boolean
+    user: User
+    seat: Seat
+
+}
+
+type Building{
+    pk_buildingid: ID
+    buildingname: String
+    createdon: String
+    updatedon: String
+    location: Location
+    floors: [Floor]
+}
+
+type Floor{
+    pk_floorid: ID
+    floorname: String
+    createdon: String
+    updatedon: String
+    building: Building
+    seats: [Seat]
+}
+type Location{
+    pk_locationid: ID
+    locationname: String
+    createdon: String
+    updatedon: String
+    users: [User]
+    buildings: [Building]
+}
+
+type Role{
+    pk_roleid: ID
+    rolename: String
+    createdon: String
+    updatedon: String
+    users: [User]
+}
+
+type Seat{
+    pk_seatid: ID
+    seatnum: String
+    x: Float
+    y: Float
+    createdon: String
+    updatedon: String
+    bookings: [Booking]
+    bookinglogs: [BookingLog]
+    attributes: [Attribute]
+    floor: Floor
+}
+
+type User{
+    pk_userid: ID
+    username: String
+    createdon: Boolean
+    updatedon: Boolean
+    roles: [Role]
+    bookings: [Booking]
+    bookinglogs: [BookingLog]
+    location: Location
 }

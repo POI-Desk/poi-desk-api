@@ -18,13 +18,13 @@ public class Seat {
     private UUID pk_seatid;
 
     @Column(name="seatnum")
-    private int seatnum;
+    private String seatnum;
 
     @Column(name="x")
-    private int x;
+    private float x;
 
     @Column(name="y")
-    private int y;
+    private float y;
 
     @Column(name="createdon")
     private Date createdon;
