@@ -52,23 +52,32 @@ public class BookingController {
         return bookings;
     }
 
+
     @QueryMapping
     public Booking getBookingById(@Argument UUID id){
         return bookingRepo.findById(id).get();
     }
-
     @MutationMapping
     public Booking bookSeat(@Argument LocalDateTime date, @Argument boolean isMorning, @Argument boolean isAfternoon,
                             @Argument UUID userId, @Argument UUID seatId) {
         Booking booking = new Booking();
 
-        if (seatRepo.findById(seatId).isPresent() && userRepo.findById(userId).isPresent()) {
-            booking.setDate(date);
-            booking.setIsmorning(isMorning);
-            booking.setIsafternoon(isAfternoon);
-            booking.setUser(userRepo.findById(userId).get());
-            booking.setSeat(seatRepo.findById(seatId).get());
+        if (seatRepo.findById(seatId).isEmpty() || userRepo.findById(userId).isEmpty()) {
+            return null;
         }
+        Timestamp curTime = new Timestamp(System.currentTimeMillis());
+
+        booking.setPk_bookingid(UUID.randomUUID());
+        booking.setBookingnumber("12345"); // TODO change
+        booking.setDate(date);
+        booking.setIsmorning(isMorning);
+        booking.setIsafternoon(isAfternoon);
+        booking.setUser(userRepo.findById(userId).get());
+        booking.setSeat(seatRepo.findById(seatId).get());
+        booking.setCreatedon(curTime);
+        booking.setUpdatedon(curTime);
+
+        bookingRepo.save(booking);
 
         return booking;
     }

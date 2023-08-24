@@ -1,9 +1,10 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
 import jakarta.persistence.*;
-import liquibase.license.LicenseService;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.awt.print.Book;
 import java.time.LocalDateTime;
@@ -14,13 +15,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(name="bookings")
 public class Booking {
 

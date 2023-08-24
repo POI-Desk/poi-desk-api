@@ -6,12 +6,20 @@ type Query{
     getBookingsByDate(date: String): [Booking]
     getBookingById(id: ID): Booking
     getAllBookingLogs: [BookingLog]
+    getAllExpiredBookingLogs: [BookingLog]
+    getAllDeletedBookingLogs: [BookingLog]
+    getMorningBookingLogs: [BookingLog]
+    getAfternoonBookingLogs: [BookingLog]
+    getFullDayBookingLogs: [BookingLog]
+    getAllLocations: [Location]
+    hasDefaultLocation(id: ID): Boolean
 }
 
 type Mutation{
     changeUsername(id: String, name:String): User
     bookSeat(date: String, isMorning: Boolean, isAfternoon: Boolean, userId: String, seatId: String): Booking
     deleteBooking(bookingId: ID): Boolean
+    setdefaultLocation(userid: ID, locationid: ID): User
 }
 
 type Attribute{

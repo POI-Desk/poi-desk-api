@@ -73,14 +73,14 @@ VALUES ('B123', '2023-08-23', true, false,
         (SELECT pk_seatId FROM Seats WHERE seatNum = 103));
 
 -- changeset liquibase:11
-INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, fk_userId, fk_seatId)
-VALUES ('B123', '2023-08-23', true, false,
+INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, wasDeleted, fk_userId, fk_seatId)
+VALUES ('B123', '2023-08-23', true, false, true,
         (SELECT pk_userId FROM Users WHERE username = 'Alina'),
         (SELECT pk_seatId FROM Seats WHERE seatNum = 101)),
-       ('B124', '2023-08-24', false, true,
+       ('B124', '2023-08-24', false, true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Markus'),
         (SELECT pk_seatId FROM Seats WHERE seatNum = 202)),
-       ('B125', '2023-08-25', true, true,
+       ('B125', '2023-08-25', true, true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
         (SELECT pk_seatId FROM Seats WHERE seatNum = 103));
 
