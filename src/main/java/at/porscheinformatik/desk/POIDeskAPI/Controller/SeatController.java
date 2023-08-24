@@ -1,6 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.SeatRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.SeatRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Seat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
