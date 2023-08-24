@@ -1,11 +1,10 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
-import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.LocationRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;

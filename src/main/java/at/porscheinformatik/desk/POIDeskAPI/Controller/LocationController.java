@@ -1,6 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.LocationRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
