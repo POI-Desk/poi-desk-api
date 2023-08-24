@@ -24,7 +24,7 @@ public class BookingService {
         if (booking.isEmpty())
             return false;
 
-        bookingLogRepo.save(BookingLog.toBookingLog(booking.get()));
+        bookingLogRepo.save(BookingLog.toBookingLog(booking.get(), true));
         bookingRepo.delete(booking.get());
         return true;
     }

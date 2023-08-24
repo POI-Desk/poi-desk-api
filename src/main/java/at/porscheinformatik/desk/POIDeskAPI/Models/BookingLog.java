@@ -20,11 +20,12 @@ public class BookingLog {
 
     public BookingLog(){}
 
-    public BookingLog(String bookingnumber, LocalDateTime date, boolean isafternoon, boolean ismorning, User user, Seat seat){
+    public BookingLog(String bookingnumber, LocalDateTime date, boolean isafternoon, boolean ismorning, boolean wasdeleted, User user, Seat seat){
         this.bookingnumber = bookingnumber;
         this.date = date;
         this.isafternoon = isafternoon;
         this.ismorning = ismorning;
+        this.wasdeleted = wasdeleted;
         this.user = user;
         this.seat = seat;
     }
@@ -54,8 +55,8 @@ public class BookingLog {
     @Column(name="isafternoon")
     private boolean isafternoon;
 
-//    @Column(name="wasdeleted")
-//    private boolean wasdeleted;
+    @Column(name="wasdeleted")
+    private boolean wasdeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_userid")
@@ -65,8 +66,8 @@ public class BookingLog {
     @JoinColumn(name = "fk_seatid")
     private Seat seat;
 
-    public static BookingLog toBookingLog(Booking booking){
-        return new BookingLog(booking.getBookingnumber(), booking.getDate(), booking.isIsafternoon(), booking.isIsmorning(), booking.getUser(), booking.getSeat());
+    public static BookingLog toBookingLog(Booking booking, boolean deleted){
+        return new BookingLog(booking.getBookingnumber(), booking.getDate(), booking.isIsafternoon(), booking.isIsmorning(), deleted, booking.getUser(), booking.getSeat());
     }
 
 }
