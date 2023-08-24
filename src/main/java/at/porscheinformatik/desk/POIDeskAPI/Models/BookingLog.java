@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -20,7 +21,7 @@ public class BookingLog {
 
     public BookingLog(){}
 
-    public BookingLog(String bookingnumber, LocalDateTime date, boolean isafternoon, boolean ismorning, boolean wasdeleted, User user, Seat seat){
+    public BookingLog(String bookingnumber, LocalDate date, boolean isafternoon, boolean ismorning, boolean wasdeleted, User user, Seat seat){
         this.bookingnumber = bookingnumber;
         this.date = date;
         this.isafternoon = isafternoon;
@@ -39,7 +40,7 @@ public class BookingLog {
     private String bookingnumber;
 
     @Column(name = "date")
-    private LocalDateTime date;
+    private LocalDate date;
 
     @Column(name="createdon")
     @CreationTimestamp

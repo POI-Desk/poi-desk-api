@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.awt.print.Book;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import jakarta.persistence.Column;
@@ -34,7 +35,7 @@ public class Booking {
     private String bookingnumber;
 
     @Column(name = "date")
-    private LocalDateTime date;
+    private LocalDate date;
 
     @Column(name="createdon")
     @CreationTimestamp
