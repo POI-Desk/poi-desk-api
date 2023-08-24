@@ -15,6 +15,7 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class BookingController {
         return bookingRepo.findById(id).get();
     }
     @MutationMapping
-    public Booking bookSeat(@Argument LocalDateTime date, @Argument boolean isMorning, @Argument boolean isAfternoon,
+    public Booking bookSeat(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
                             @Argument UUID userId, @Argument UUID seatId) {
 
         if (seatRepo.findById(seatId).isEmpty() || userRepo.findById(userId).isEmpty()) {
@@ -78,7 +79,7 @@ public class BookingController {
     }
 
     @MutationMapping
-    public boolean deleteBooking(@Argument UUID bookingId) { return bookingService.deleteBooking(bookingId); }
+    public UUID deleteBooking(@Argument UUID bookingId) { return bookingService.deleteBooking(bookingId); }
 
     @SchemaMapping
     public User user(Booking booking) {

@@ -19,14 +19,14 @@ public class BookingService {
     @Autowired
     private BookingLogRepo bookingLogRepo;
 
-    public boolean deleteBooking(UUID bookingId){
+    public UUID deleteBooking(UUID bookingId){
         Optional<Booking> booking = bookingRepo.findById(bookingId);
         if (booking.isEmpty())
-            return false;
+            return null;
 
         bookingLogRepo.save(BookingLog.toBookingLog(booking.get(), true));
         bookingRepo.delete(booking.get());
-        return true;
+        return bookingId;
     }
 
 }
