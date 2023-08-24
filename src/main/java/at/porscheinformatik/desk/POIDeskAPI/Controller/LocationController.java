@@ -1,6 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.LocationRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.QueryMapping;

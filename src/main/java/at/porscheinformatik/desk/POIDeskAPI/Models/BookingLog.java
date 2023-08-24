@@ -3,9 +3,13 @@ package at.porscheinformatik.desk.POIDeskAPI.Models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Getter
@@ -14,21 +18,36 @@ import java.util.UUID;
 @Table(name="bookingslog")
 public class BookingLog {
 
+    public BookingLog(){}
+
+    public BookingLog(String bookingnumber, LocalDateTime date, boolean isafternoon, boolean ismorning, boolean wasdeleted, User user, Seat seat){
+        this.bookingnumber = bookingnumber;
+        this.date = date;
+        this.isafternoon = isafternoon;
+        this.ismorning = ismorning;
+        this.wasdeleted = wasdeleted;
+        this.user = user;
+        this.seat = seat;
+    }
+
     @Id
     @Column(name="pk_bookinglogid", nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_bookinglogid;
 
     @Column(name="bookingnumber")
     private String bookingnumber;
 
     @Column(name = "date")
-    private Date date;
+    private LocalDateTime date;
 
     @Column(name="createdon")
-    private Timestamp createdon;
+    @CreationTimestamp
+    private LocalDateTime createdon;
 
     @Column(name="updatedon")
-    private Timestamp updatedon;
+    @UpdateTimestamp
+    private LocalDateTime updatedon;
 
     @Column(name="ismorning")
     private boolean ismorning;
@@ -47,5 +66,8 @@ public class BookingLog {
     @JoinColumn(name = "fk_seatid")
     private Seat seat;
 
+    public static BookingLog toBookingLog(Booking booking, boolean deleted){
+        return new BookingLog(booking.getBookingnumber(), booking.getDate(), booking.isIsafternoon(), booking.isIsmorning(), deleted, booking.getUser(), booking.getSeat());
+    }
 
 }
