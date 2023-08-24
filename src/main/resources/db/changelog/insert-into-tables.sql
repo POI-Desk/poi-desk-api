@@ -43,6 +43,13 @@ VALUES ('3rd Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = '
 INSERT INTO Seats (seatNum, x, y, fk_floorId)
 VALUES (301, 10, 10, (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')),
        (401, 20, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (402, 25, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (403, 30, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (404, 35, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (405, 40, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (406, 45, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (407, 50, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       (408, 55, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
        (501, 15, 15, (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor'));
 
 -- changeset liquibase:8
@@ -64,23 +71,23 @@ VALUES ((SELECT pk_seatId FROM Seats WHERE seatNum = 301),
 INSERT INTO Bookings (bookingNumber, date, isMorning, isAfternoon, fk_userId, fk_seatId)
 VALUES ('B123', '2023-08-23', true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Alina'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = 101)),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 301)),
        ('B124', '2023-08-24', false, true,
         (SELECT pk_userId FROM Users WHERE username = 'Markus'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = 202)),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 401)),
        ('B125', '2023-08-25', true, true,
         (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = 103));
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 501));
 
 -- changeset liquibase:11
 INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, wasDeleted, fk_userId, fk_seatId)
 VALUES ('B123', '2023-08-23', true, false, true,
         (SELECT pk_userId FROM Users WHERE username = 'Alina'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = 101)),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 301)),
        ('B124', '2023-08-24', false, true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Markus'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = 202)),
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 401)),
        ('B125', '2023-08-25', true, true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = 103));
+        (SELECT pk_seatId FROM Seats WHERE seatNum = 501));
 

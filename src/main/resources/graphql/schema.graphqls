@@ -13,8 +13,10 @@ type Query{
     getFullDayBookingLogs: [BookingLog]
     getAllLocations: [Location]
     getAllSeats: [Seat]
+    getAllFloors: [Floor]
     getSeatsOnFloor(floorid: ID): [Seat]
     hasDefaultLocation(id: ID): Boolean
+    isBookedAt(seatId: ID, date: String, dayTime: String): Boolean
 }
 
 type Mutation{

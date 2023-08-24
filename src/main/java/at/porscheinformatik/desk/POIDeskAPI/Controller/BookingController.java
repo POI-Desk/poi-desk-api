@@ -16,10 +16,8 @@ import org.springframework.stereotype.Controller;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -45,9 +43,8 @@ public class BookingController {
         List<Booking> bookings = new ArrayList<>();
         bookingRepo.findAll().forEach(booking -> {
             if (booking.getDate() != null) {
-                System.out.println(booking.getDate().toString().split("T")[0]);
-                if (booking.getDate().toString().split("T")[0].equals(date.toString())) bookings.add(booking);
-
+                // System.out.println(booking.getDate().toString().split(" ")[0]);
+                if (booking.getDate().toString().split(" ")[0].equals(date.toString())) bookings.add(booking);
             }
         });
         return bookings;
