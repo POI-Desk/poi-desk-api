@@ -45,7 +45,6 @@ public class BookingController {
             if (booking.getDate() != null) {
                 // System.out.println(booking.getDate().toString().split(" ")[0]);
                 if (booking.getDate().toString().split(" ")[0].equals(date.toString())) bookings.add(booking);
-
             }
         });
         return bookings;
