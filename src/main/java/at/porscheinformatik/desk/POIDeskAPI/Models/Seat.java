@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
+
 
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -16,25 +18,27 @@ import java.util.UUID;
 @Entity
 @Table(name="seats")
 public class Seat {
+
+
     @Id
-    @Column(name="pk_seatid", nullable = false, unique = true)
+    @Column(name = "pk_seatid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_seatid;
 
-    @Column(name="seatnum")
+    @Column(name = "seatnum")
     private String seatnum;
 
-    @Column(name="x")
+    @Column(name = "x")
     private float x;
 
-    @Column(name="y")
+    @Column(name = "y")
     private float y;
 
-    @Column(name="createdon")
+    @Column(name = "createdon")
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name = "updatedon")
     @UpdateTimestamp
     private LocalDateTime updatedon;
 

@@ -12,14 +12,18 @@ type Query{
     getAfternoonBookingLogs: [BookingLog]
     getFullDayBookingLogs: [BookingLog]
     getAllLocations: [Location]
+    getAllSeats: [Seat]
+    getAllFloors: [Floor]
+    getSeatsOnFloor(floorid: ID): [Seat]
     hasDefaultLocation(id: ID): Boolean
+    isBookedAt(seatId: ID, date: String, dayTime: String): Boolean
 }
 
 type Mutation{
     changeUsername(id: String, name:String): User
     bookSeat(date: String, isMorning: Boolean, isAfternoon: Boolean, userId: String, seatId: String): Booking
     deleteBooking(bookingId: ID): ID
-    setdefaultLocation(userid: ID, locationid: ID): User
+    setdefaultLocation(userid: ID, locationid: ID): Boolean
 }
 
 type Attribute{

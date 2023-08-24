@@ -1,7 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
@@ -9,11 +9,12 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 
 @Controller
-public class LocationController {
-
+public class FloorController {
     @Autowired
-    private LocationRepo locationRepo;
+    FloorRepo floorRepo;
 
     @QueryMapping
-    public List<Location> getAllLocations() { return (List<Location>)locationRepo.findAll(); }
+    public List<Floor> getAllFloors() {
+        return (List<Floor>) floorRepo.findAll();
+    }
 }
