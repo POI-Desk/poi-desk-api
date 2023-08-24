@@ -14,16 +14,20 @@ public class SeatController {
 
     @Autowired
     private SeatRepo seatRepo;
-    @Autowired
-    private FloorRepo floorRepo;
 
     @QueryMapping
     public List<Seat> getAllSeats () {return (List<Seat>)seatRepo.findAll();}
 
+    /**
+     * Finds all Seats on a specified floor
+     * @param floorId
+     * @return List<Seat>
+     */
     @QueryMapping
     public List<Seat> getSeatsOnFloor(UUID floorId) {
         List<Seat> seats = new ArrayList<>();
 
+        // TODO make work
         seatRepo.findAll().forEach(seat -> {
             if (seat.getFloor().getPk_floorid().equals(floorId)) seats.add(seat);
         });
