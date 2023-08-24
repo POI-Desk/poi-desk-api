@@ -6,6 +6,15 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import java.awt.print.Book;
+import java.time.LocalDateTime;
+import java.util.List;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
@@ -19,19 +28,22 @@ public class Booking {
 
     @Id
     @Column(name="pk_bookingid", nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_bookingid;
 
     @Column(name="bookingnumber")
     private String bookingnumber;
 
     @Column(name = "date")
-    private Date date;
+    private LocalDateTime date;
 
-    @Column(name="createdon", insertable = false)
-    private Timestamp createdon;
+    @Column(name="createdon")
+    @CreationTimestamp
+    private LocalDateTime createdon;
 
-    @Column(name="updatedon", insertable = false)
-    private Timestamp updatedon;
+    @Column(name="updatedon")
+    @UpdateTimestamp
+    private LocalDateTime updatedon;
 
     @Column(name="ismorning")
     private boolean ismorning;

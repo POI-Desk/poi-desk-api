@@ -3,9 +3,11 @@ package at.porscheinformatik.desk.POIDeskAPI.Models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.sql.Date;
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 public class Seat {
     @Id
     @Column(name="pk_seatid", nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_seatid;
 
     @Column(name="seatnum")
@@ -28,10 +31,12 @@ public class Seat {
     private float y;
 
     @Column(name="createdon")
-    private Timestamp createdon;
+    @CreationTimestamp
+    private LocalDateTime createdon;
 
     @Column(name="updatedon")
-    private Timestamp updatedon;
+    @UpdateTimestamp
+    private LocalDateTime updatedon;
 
     @OneToMany(mappedBy = "seat", fetch = FetchType.LAZY)
     private List<Booking> bookings;

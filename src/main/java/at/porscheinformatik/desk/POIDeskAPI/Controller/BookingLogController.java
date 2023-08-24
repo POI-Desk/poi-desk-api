@@ -1,5 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
+import at.porscheinformatik.desk.POIDeskAPI.Models.BookingLog;
+import at.porscheinformatik.desk.POIDeskAPI.Services.BookingLogService;
 import at.porscheinformatik.desk.POIDeskAPI.ModelRepos.BookingLogRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.BookingLog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ public class BookingLogController
     private BookingLogRepo bookingLogRepo;
 
     @QueryMapping
-    public List<BookingLog> getAllBookingLogs() { return (List<BookingLog>)bookingLogRepo.findAll(); }
+    public List<BookingLog> getAllBookingLogs() { return bookingLogService.getAllBookingLogs(); }
 
     @QueryMapping
     public List<BookingLog> getAllExpiredBookingLogs()
