@@ -11,7 +11,8 @@ type Query{
     getAfternoonBookingLogs: [BookingLog]
     getFullDayBookingLogs: [BookingLog]
     getAllLocations: [Location]
-    getSeatsOnFloor(id: ID): [Seat]
+    getAllSeats: [Seat]
+    getSeatsOnFloor(floorid: ID): [Seat]
     hasDefaultLocation(id: ID): Boolean
 }
 
