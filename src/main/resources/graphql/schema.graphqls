@@ -21,7 +21,7 @@ type Mutation{
     changeUsername(id: String, name:String): User
     bookSeat(date: String, isMorning: Boolean, isAfternoon: Boolean, userId: String, seatId: String): Booking
     deleteBooking(bookingId: ID): Boolean
-    setdefaultLocation(userid: ID, locationid: ID): User
+    setdefaultLocation(userid: ID, locationid: ID): Boolean
 }
 
 type Attribute{

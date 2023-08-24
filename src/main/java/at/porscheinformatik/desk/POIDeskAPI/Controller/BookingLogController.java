@@ -26,22 +26,22 @@ public class BookingLogController
     public List<BookingLog> getAllExpiredBookingLogs()
     {
         List<BookingLog> bookings = (List<BookingLog>)bookingLogRepo.findAll();
-        return bookings.stream().filter(deletedBookings -> deletedBookings.isWasdeleted() == false).toList();
+        return bookings.stream().filter(deletedBookings -> !deletedBookings.isWasdeleted()).toList();
     }
 
     @QueryMapping
     public List<BookingLog> getAllDeletedBookingLogs()
     {
         List<BookingLog> bookings = (List<BookingLog>)bookingLogRepo.findAll();
-        return bookings.stream().filter(deletedBookings -> deletedBookings.isWasdeleted() == true).toList();
+        return bookings.stream().filter(BookingLog::isWasdeleted).toList();
     }
     @QueryMapping
     public List<BookingLog> getMorningBookingLogs()
     {
         List<BookingLog> bookings = (List<BookingLog>)bookingLogRepo.findAll();
         return bookings.stream()
-                .filter(deletedBookings -> deletedBookings.isIsmorning() == true
-                        && deletedBookings.isIsafternoon() == false)
+                .filter(deletedBookings -> deletedBookings.isIsmorning()
+                        && !deletedBookings.isIsafternoon())
                 .toList();
     }
     @QueryMapping
@@ -49,8 +49,8 @@ public class BookingLogController
     {
         List<BookingLog> bookings = (List<BookingLog>)bookingLogRepo.findAll();
         List<BookingLog> b = bookings.stream()
-                .filter(deletedBookings -> deletedBookings.isIsmorning() == false
-                        && deletedBookings.isIsafternoon() == true)
+                .filter(deletedBookings -> !deletedBookings.isIsmorning()
+                        && deletedBookings.isIsafternoon())
                 .toList();
         return b;
     }
@@ -59,8 +59,8 @@ public class BookingLogController
     {
         List<BookingLog> bookings = (List<BookingLog>)bookingLogRepo.findAll();
         return bookings.stream()
-                .filter(deletedBookings -> deletedBookings.isIsmorning() == true
-                        && deletedBookings.isIsafternoon() == true)
+                .filter(deletedBookings -> deletedBookings.isIsmorning()
+                        && deletedBookings.isIsafternoon())
                 .toList();
     }
 }

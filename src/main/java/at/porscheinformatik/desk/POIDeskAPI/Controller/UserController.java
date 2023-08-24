@@ -54,16 +54,16 @@ public class UserController
         else return u.get().getLocation() != null;
     }
     @MutationMapping
-    public User setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
+    public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     {
         Optional<User> user = userRepo.findById(userid);
         Optional<Location> location = locationRepo.findById(locationid);
         if (user.isEmpty() || location.isEmpty())
-            return null;
+            return false;
         user.get().setLocation(location.get());
         User updateduser = user.get();
         userRepo.save(updateduser);
-        return updateduser;
+        return true;
     }
     @MutationMapping
     public User changeUsername(@Argument UUID id, @Argument String name)
