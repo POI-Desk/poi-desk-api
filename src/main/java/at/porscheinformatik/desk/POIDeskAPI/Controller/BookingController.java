@@ -44,8 +44,8 @@ public class BookingController {
         List<Booking> bookings = new ArrayList<>();
         bookingRepo.findAll().forEach(booking -> {
             if (booking.getDate() != null) {
-                System.out.println(booking.getDate().toString().split(" ")[0]);
-                if (booking.getDate().toString().split(" ")[0].equals(date.toString())) bookings.add(booking);
+                System.out.println(booking.getDate().toString().split("T")[0]);
+                if (booking.getDate().toString().split("T")[0].equals(date.toString())) bookings.add(booking);
 
             }
         });
