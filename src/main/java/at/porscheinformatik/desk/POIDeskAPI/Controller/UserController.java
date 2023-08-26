@@ -1,6 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.RoleRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
@@ -13,9 +14,11 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @Controller
 public class UserController
@@ -25,6 +28,14 @@ public class UserController
 
     @Autowired
     private LocationRepo locationRepo;
+
+    @Autowired
+    private RoleRepo roleRepo;
+
+    private User loggedInUser;
+
+    @QueryMapping
+    public User getLoggedInUser() { return loggedInUser; }
 
     @QueryMapping
     public List<User> getAllUsers() { return (List<User>)userRepo.findAll(); }
@@ -76,6 +87,30 @@ public class UserController
         return user;
     }
 
+    /**
+     * Log in as user, if user with entered username does not exist yet, it will be created and logged in
+     * @param username
+     * @return User
+     */
+    @MutationMapping
+    public User createOrLoginAsUser(@Argument String username) {
+        Optional<User> loggingInUser = userRepo.findByUsername(username).stream().findFirst();
+
+        if (loggingInUser.isEmpty()) loggingInUser = Optional.of(createUser(username));
+
+
+        this.loggedInUser = loggingInUser.get();
+        return loggedInUser;
+    }
+
+    public User createUser(String username) {
+        User user = new User();
+        user.setUsername(username);
+        user.setRoles(roleRepo.findByRolename("Standard"));
+        userRepo.save(user);
+        return user;
+    }
+
     @SchemaMapping
     public List<Role> roles(User user) {
         return userRepo.findById(user.getPk_userid()).get().getRoles();
@@ -86,5 +121,7 @@ public class UserController
 
     @SchemaMapping
     public List<BookingLog> bookinglogs(User user) { return userRepo.findById((user.getPk_userid())).get().getBookinglogs(); }
+
+
 
 }

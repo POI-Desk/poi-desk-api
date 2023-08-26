@@ -56,6 +56,10 @@ public class BookingController {
     public Booking getBookingById(@Argument UUID id){
         return bookingRepo.findById(id).get();
     }
+
+    @QueryMapping
+    public List<Booking> getBookingsByUserId(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
+
     @MutationMapping
     public Booking bookSeat(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
                             @Argument UUID userId, @Argument UUID seatId) {

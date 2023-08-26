@@ -17,6 +17,7 @@ type Query{
     getSeatsOnFloor(floorid: ID): [Seat]
     hasDefaultLocation(id: ID): Boolean
     isBookedAt(seatId: ID, date: String, dayTime: String): Boolean
+    getBookingsByUserId(userid: ID): [Booking]
 }
 
 type Mutation{
@@ -24,6 +25,7 @@ type Mutation{
     bookSeat(date: String, isMorning: Boolean, isAfternoon: Boolean, userId: String, seatId: String): Booking
     deleteBooking(bookingId: ID): ID
     setdefaultLocation(userid: ID, locationid: ID): Boolean
+    createOrLoginAsUser(username: String): User
 }
 
 type Attribute{
