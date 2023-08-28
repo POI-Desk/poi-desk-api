@@ -18,6 +18,8 @@ type Query{
     hasDefaultLocation(id: ID): Boolean
     isBookedAt(seatId: ID, date: String, dayTime: String): Boolean
     getBookingsByUserId(userid: ID): [Booking]
+    getFloorsInBuilding(buildingId: ID): [Floor]
+    getBuildingsInLocation(locationId: ID): [Building]
 }
 
 type Mutation{

@@ -1,8 +1,9 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BuildingRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Building;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -12,17 +13,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Controller
-public class FloorController {
+public class BuildingController {
     @Autowired
-    FloorRepo floorRepo;
+    BuildingRepo buildingRepo;
     @Autowired
-    private BuildingRepo buildingRepo;
+    private LocationRepo locationRepo;
 
     @QueryMapping
-    public List<Floor> getAllFloors() {
-        return (List<Floor>) floorRepo.findAll();
-    }
-
-    @QueryMapping
-    public List<Floor> getFloorsInBuilding(@Argument UUID buildingId) {return floorRepo.findByBuilding(buildingRepo.findById(buildingId).get());}
+    public List<Building> getBuildingsInLocation(@Argument UUID locationId) {return buildingRepo.findByLocation(locationRepo.findById(locationId).get());}
 }
