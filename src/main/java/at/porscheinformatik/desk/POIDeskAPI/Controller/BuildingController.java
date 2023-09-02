@@ -8,6 +8,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,5 +20,8 @@ public class BuildingController {
     private LocationRepo locationRepo;
 
     @QueryMapping
-    public List<Building> getBuildingsInLocation(@Argument UUID locationId) {return buildingRepo.findByLocation(locationRepo.findById(locationId).get());}
+    public List<Building> getBuildingsInLocation(@Argument UUID locationid) {
+        if (locationRepo.findById(locationid).isPresent()) return buildingRepo.findByLocation(locationRepo.findById(locationid).get());
+        return new ArrayList<>();
+    }
 }
