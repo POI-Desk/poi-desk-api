@@ -19,6 +19,14 @@ import java.util.UUID;
 @Table(name="seats")
 public class Seat {
 
+    public Seat(){}
+
+    public Seat (String seatnum, float x, float y, Floor floor){
+        this.seatnum = seatnum;
+        this.x = x;
+        this.y = y;
+        this.floor = floor;
+    }
 
     @Id
     @Column(name = "pk_seatid", nullable = false, unique = true)

@@ -65,7 +65,7 @@ CREATE TABLE Floors
 CREATE TABLE Seats
 (
     pk_seatId  UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
-    seatNum    INT       NOT NULL,
+    seatNum    VARCHAR   NOT NULL,
     x          INT       NOT NULL,
     y          INT       NOT NULL,
     createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
