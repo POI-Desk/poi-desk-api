@@ -24,9 +24,11 @@ public class FloorController {
     }
 
     @QueryMapping
-    public List<Floor> getFloorsInBuilding(@Argument UUID buildingId) {
-        return buildingRepo.findById(buildingId).isPresent() ?
-                floorRepo.findByBuilding(buildingRepo.findById(buildingId).get()) :
+    public List<Floor> getFloorsInBuilding(@Argument UUID buildingid) {
+//        if (buildingid == null) buildingRepo.fin
+
+        return buildingRepo.findById(buildingid).isPresent() ?
+                floorRepo.findByBuilding(buildingRepo.findById(buildingid).get()) :
                 List.of();
     }
 }
