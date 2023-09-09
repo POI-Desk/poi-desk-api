@@ -122,7 +122,7 @@ type User{
 }
 
 input Seatinput{
-    seatnum: String
-    x: Float
-    y: Float
+    seatnum: String!
+    x: Float!
+    y: Float!
 }
