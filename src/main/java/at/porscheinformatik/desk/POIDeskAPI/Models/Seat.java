@@ -5,10 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -22,7 +20,7 @@ public class Seat {
     public Seat(){}
 
     public Seat (String seatnum, float x, float y, Floor floor){
-        this.seatnum = seatnum;
+        this.desknum = seatnum;
         this.x = x;
         this.y = y;
         this.floor = floor;
@@ -34,7 +32,7 @@ public class Seat {
     private UUID pk_seatid;
 
     @Column(name = "seatnum")
-    private String seatnum;
+    private String desknum;
 
     @Column(name = "x")
     private float x;

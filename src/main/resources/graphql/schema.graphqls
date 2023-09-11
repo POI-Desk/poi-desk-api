@@ -26,7 +26,7 @@ type Mutation{
     deleteBooking(bookingId: ID): ID
     setdefaultLocation(userid: ID, locationid: ID): Boolean
     createOrLoginAsUser(username: String): User
-    addSeatsToFloor(floorid: ID, seats: [Seatinput]): [Seat!]!
+    addSeatsToFloor(floorid: ID, desks: [Seatinput]): [Seat!]!
 }
 
 type Attribute{
@@ -99,7 +99,7 @@ type Role{
 
 type Seat{
     pk_seatid: ID
-    seatnum: String
+    desknum: String
     x: Float
     y: Float
     createdon: String
@@ -122,7 +122,7 @@ type User{
 }
 
 input Seatinput{
-    seatnum: String!
+    desknum: String!
     x: Float!
     y: Float!
 }

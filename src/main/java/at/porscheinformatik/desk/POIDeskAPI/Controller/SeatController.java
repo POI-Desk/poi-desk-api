@@ -62,7 +62,7 @@ public class SeatController {
             throw new InvalidRelationIdException("floor id does not exist");
 
         seats.forEach(s -> {
-            newSeats.add(new Seat(s.seatnum(), s.x(), s.y(), o_floor.get()));
+            newSeats.add(new Seat(s.desknum(), s.x(), s.y(), o_floor.get()));
         });
         seatRepo.saveAll(newSeats);
 
