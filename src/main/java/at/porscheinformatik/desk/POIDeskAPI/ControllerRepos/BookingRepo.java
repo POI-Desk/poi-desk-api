@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface BookingRepo extends CrudRepository<Booking, UUID> {
     List<Booking> findBookingsByUser(User user);
+
 }
