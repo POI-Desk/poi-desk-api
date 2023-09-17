@@ -1,5 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.SeatRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Seat;
@@ -20,6 +21,9 @@ public class SeatController {
 
     @Autowired
     private SeatRepo seatRepo;
+
+    @Autowired
+    private BookingRepo bookingRepo;
 
     @QueryMapping
     public List<Seat> getAllSeats() {
@@ -43,6 +47,11 @@ public class SeatController {
         });
 
         return seats;
+    }
+
+    @QueryMapping
+    public Seat getSeatOfBooking(@Argument UUID bookingid) {
+        return seatRepo.findByBookings(bookingRepo.findById(bookingid).get()).get(0);
     }
 
     @SchemaMapping

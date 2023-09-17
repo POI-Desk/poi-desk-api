@@ -17,9 +17,10 @@ type Query{
     getSeatsOnFloor(floorid: ID): [Seat]
     hasDefaultLocation(id: ID): Boolean
     isBookedAt(seatId: ID, date: String, dayTime: String): Boolean
-    getBookingsByUserId(userid: ID): [Booking]
+    getBookingsByUserid(userid: ID): [Booking]
     getFloorsInBuilding(buildingid: ID): [Floor]
     getBuildingsInLocation(locationid: ID): [Building]
+    getSeatOfBooking(bookingid: ID): Seat
 }
 
 type Mutation{
