@@ -13,5 +13,4 @@ public interface BookingRepo extends CrudRepository<Booking, UUID> {
     List<Booking> findBookingsByUser(User user);
 
     List<Booking> findByDateAndSeat(LocalDate date, Seat seat);
-
 }
