@@ -29,6 +29,7 @@ type Mutation{
     deleteBooking(bookingId: ID): ID
     setdefaultLocation(userid: ID, locationid: ID): Boolean
     createOrLoginAsUser(username: String): User
+    editBooking(bookingInput: EditBookingInput) : Booking
 }
 
 type Attribute{
@@ -121,4 +122,12 @@ type User{
     bookings: [Booking]
     bookinglogs: [BookingLog]
     location: Location
+}
+
+input EditBookingInput{
+    pk_bookingid: ID
+    seatid: ID
+    date: String
+    isMorning: Boolean
+    isAfternoon: Boolean
 }
