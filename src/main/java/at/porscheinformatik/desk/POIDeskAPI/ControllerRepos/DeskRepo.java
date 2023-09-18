@@ -8,5 +8,4 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DeskRepo extends CrudRepository<Desk, UUID> {
-    List<Seat> findByBookings(Booking booking);
 }

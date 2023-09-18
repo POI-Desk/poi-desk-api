@@ -122,6 +122,9 @@ public class UserController
     @SchemaMapping
     public List<BookingLog> bookinglogs(User user) { return user.getBookinglogs(); }
 
+    @SchemaMapping
+    public Location location(User user) { return user.getLocation(); }
+
 
 
 }

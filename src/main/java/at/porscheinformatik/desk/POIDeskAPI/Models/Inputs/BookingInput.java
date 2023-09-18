@@ -1,4 +1,4 @@
-package at.porscheinformatik.desk.POIDeskAPI.Models;
+package at.porscheinformatik.desk.POIDeskAPI.Models.Inputs;
 
 import java.time.LocalDate;
 import java.util.UUID;

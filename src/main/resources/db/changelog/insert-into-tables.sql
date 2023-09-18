@@ -118,41 +118,41 @@ VALUES
     ('79th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building I'));
 
 -- changeset liquibase:14
-INSERT INTO Seats (seatNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, fk_floorId)
 SELECT
-        seatNum + 10,
+        concat(deskNum, '10'),
         x + 10,
         y + 10,
         (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
-FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
+FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
 LIMIT 10;
 
 -- changeset liquibase:15
-INSERT INTO Seats (seatNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, fk_floorId)
 SELECT
-        seatNum + 100,
+        concat(deskNum, '100'),
         x + 20,
         y + 20,
         (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
-FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
+FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
 LIMIT 10;
 
 -- changeset liquibase:16
-INSERT INTO Seats (seatNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, fk_floorId)
 SELECT
-        seatNum + 200,
+        concat(deskNum, '200'),
         x + 15,
         y + 15,
         (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
-FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
+FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
 LIMIT 10;
 
 -- changeset liquibase:17
-INSERT INTO Seats (seatNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, fk_floorId)
 SELECT
-        seatNum + 10,
+        concat(deskNum, '10'),
         x + 10,
         y + 10,
         (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
-FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
+FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
 LIMIT 10;

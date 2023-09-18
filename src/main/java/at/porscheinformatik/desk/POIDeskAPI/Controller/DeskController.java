@@ -1,11 +1,12 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
-import at.porscheinformatik.desk.POIDeskAPI.Models.DeskInput;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.DeskInput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -28,9 +29,17 @@ public class DeskController {
     @Autowired
     private FloorRepo floorRepo;
 
+    @Autowired
+    private BookingRepo bookingRepo;
+
     @QueryMapping
     public List<Desk> getAllDesks() {
         return (List<Desk>) deskRepo.findAll();
+    }
+
+    @QueryMapping
+    public Desk getDeskById(@Argument UUID deskid){
+        return deskRepo.findById(deskid).get();
     }
 
     /**
@@ -53,7 +62,7 @@ public class DeskController {
     }
 
     @MutationMapping
-    public  List<Desk> addDesksToFloor(@Argument UUID floorid, @Argument List<DeskInput> seats) throws InvalidRelationIdException {
+    public List<Desk> addDesksToFloor(@Argument UUID floorid, @Argument List<DeskInput> seats) throws InvalidRelationIdException {
         List<Desk> newSeats = new ArrayList<>();
         Optional<Floor> o_floor = floorRepo.findById(floorid);
         if (o_floor.isEmpty())
