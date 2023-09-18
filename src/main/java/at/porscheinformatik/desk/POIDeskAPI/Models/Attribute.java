@@ -6,9 +6,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,9 +33,9 @@ public class Attribute {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "seats_attributes",
+            name = "desks_attributes",
             joinColumns = @JoinColumn(name = "pk_fk_attributeid"),
-            inverseJoinColumns = @JoinColumn(name = "pk_fk_seatid")
+            inverseJoinColumns = @JoinColumn(name = "pk_fk_deskid")
     )
-    private List<Seat> seats;
+    private List<Desk> desks;
 }

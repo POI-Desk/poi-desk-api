@@ -62,10 +62,10 @@ CREATE TABLE Floors
 );
 
 -- changeset liquibase:7
-CREATE TABLE Seats
+CREATE TABLE Desks
 (
-    pk_seatId  UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
-    seatNum    INT       NOT NULL,
+    pk_deskId  UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
+    deskNum    VARCHAR   NOT NULL,
     x          INT       NOT NULL,
     y          INT       NOT NULL,
     createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -85,9 +85,9 @@ CREATE TABLE Bookings
     isMorning     BOOLEAN      NOT NULL,
     isAfternoon   BOOLEAN      NOT NULL,
     fk_userId     UUID,
-    fk_seatId     UUID,
+    fk_deskId     UUID,
     FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
-    FOREIGN KEY (fk_seatId) REFERENCES Seats (pk_seatId)
+    FOREIGN KEY (fk_deskId) REFERENCES Desks (pk_deskId)
 );
 
 -- changeset liquibase:9
@@ -102,9 +102,9 @@ CREATE TABLE BookingsLog
     isAfternoon     BOOLEAN      NOT NULL,
     wasDeleted      BOOlEAN      NOT NULL,
     fk_userId       UUID,
-    fk_seatId       UUID,
+    fk_deskId       UUID,
     FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
-    FOREIGN KEY (fk_seatId) REFERENCES Seats (pk_seatId)
+    FOREIGN KEY (fk_deskId) REFERENCES Desks (pk_deskId)
 );
 
 -- changeset liquibase:10
@@ -117,11 +117,11 @@ CREATE TABLE Attributes
 );
 
 -- changeset liquibase:11
-CREATE TABLE Seats_Attributes
+CREATE TABLE Desks_Attributes
 (
-    pk_fk_seatId      UUID,
+    pk_fk_deskId      UUID,
     pk_fk_attributeId UUID,
-    PRIMARY KEY (pk_fk_seatId, pk_fk_attributeId),
-    FOREIGN KEY (pk_fk_seatId) REFERENCES Seats (pk_seatId),
+    PRIMARY KEY (pk_fk_deskId, pk_fk_attributeId),
+    FOREIGN KEY (pk_fk_deskId) REFERENCES Desks (pk_deskId),
     FOREIGN KEY (pk_fk_attributeId) REFERENCES Attributes (pk_attributeId)
 );

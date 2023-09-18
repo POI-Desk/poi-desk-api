@@ -2,7 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.SeatRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.EditBookingInput;
@@ -29,7 +29,7 @@ public class BookingController {
     @Autowired
     private BookingRepo bookingRepo;
     @Autowired
-    private SeatRepo seatRepo;
+    private DeskRepo deskRepo;
     @Autowired
     private UserRepo userRepo;
 
@@ -60,10 +60,10 @@ public class BookingController {
     public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
 
     @MutationMapping
-    public Booking bookSeat(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
-                            @Argument UUID userId, @Argument UUID seatId) {
+    public Booking bookDesk(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
+                            @Argument UUID userId, @Argument UUID deskId) {
 
-        if (seatRepo.findById(seatId).isEmpty() || userRepo.findById(userId).isEmpty()) {
+        if (deskRepo.findById(deskId).isEmpty() || userRepo.findById(userId).isEmpty()) {
             return null;
         }
         Booking booking = new Booking();
@@ -73,7 +73,7 @@ public class BookingController {
         booking.setIsmorning(isMorning);
         booking.setIsafternoon(isAfternoon);
         booking.setUser(userRepo.findById(userId).get());
-        booking.setSeat(seatRepo.findById(seatId).get());
+        booking.setDesk(deskRepo.findById(deskId).get());
         bookingRepo.save(booking);
 
         return booking;
@@ -119,7 +119,7 @@ public class BookingController {
 
     @SchemaMapping
     public User user(Booking booking) {
-        return bookingRepo.findById(booking.getPk_bookingid()).get().getUser();
+        return booking.getUser();
     }
 
 }
