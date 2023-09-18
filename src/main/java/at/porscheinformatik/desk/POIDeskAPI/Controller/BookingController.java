@@ -5,7 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.EditBookingInput;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,10 +87,10 @@ public class BookingController {
         boolean morningTaken = false;
         boolean afternoonTaken = false;
         Booking currentBooking = getBookingById(bookingInput.pk_bookingid());
-        List<Booking> bookingsWithDateAndSeat = bookingRepo.findByDateAndSeat(bookingInput.date(), seatRepo.findById(bookingInput.seatid()).get());
+        List<Booking> bookingsWithDateAndSeat = bookingRepo.findByDateAndDesk(bookingInput.date(), deskRepo.findById(bookingInput.deskid()).get());
         // set trivial properties
         currentBooking.setDate(bookingInput.date());
-        currentBooking.setSeat(seatRepo.findById(bookingInput.seatid()).get());
+        currentBooking.setDesk(deskRepo.findById(bookingInput.deskid()).get());
 
         //check for morning/afternoon
         for (Booking book : bookingsWithDateAndSeat){
@@ -102,17 +102,17 @@ public class BookingController {
             }
         }
         // checks if both isMorning/isAfternoon is null. Should technically not be possible in the frontend
-        if (!bookingInput.isMorning() && !bookingInput.isAfternoon())
+        if (!bookingInput.ismorning() && !bookingInput.isafternoon())
             return null;
         // return null and cancels the booking when either morning or afternoon is not available
-        if (morningTaken && bookingInput.isMorning())
+        if (morningTaken && bookingInput.ismorning())
             return null;
-        if (afternoonTaken && bookingInput.isAfternoon())
+        if (afternoonTaken && bookingInput.isafternoon())
             return null;
 
         //set morning/afternoon properties
-        currentBooking.setIsmorning(bookingInput.isMorning());
-        currentBooking.setIsafternoon(bookingInput.isAfternoon());
+        currentBooking.setIsmorning(bookingInput.ismorning());
+        currentBooking.setIsafternoon(bookingInput.isafternoon());
         bookingRepo.save(currentBooking);
         return currentBooking;
     }

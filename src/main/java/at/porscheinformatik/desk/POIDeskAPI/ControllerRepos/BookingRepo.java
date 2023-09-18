@@ -1,7 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.ControllerRepos;
 
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Seat;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import org.springframework.data.repository.CrudRepository;
 
@@ -12,5 +12,5 @@ import java.util.UUID;
 public interface BookingRepo extends CrudRepository<Booking, UUID> {
     List<Booking> findBookingsByUser(User user);
 
-    List<Booking> findByDateAndSeat(LocalDate date, Seat seat);
+    List<Booking> findByDateAndDesk(LocalDate date, Desk desk);
 }
