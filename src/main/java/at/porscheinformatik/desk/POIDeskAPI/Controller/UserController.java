@@ -113,14 +113,14 @@ public class UserController
 
     @SchemaMapping
     public List<Role> roles(User user) {
-        return userRepo.findById(user.getPk_userid()).get().getRoles();
+        return user.getRoles();
     }
 
     @SchemaMapping
-    public List<Booking> bookings(User user) { return userRepo.findById((user.getPk_userid())).get().getBookings(); }
+    public List<Booking> bookings(User user) { return user.getBookings(); }
 
     @SchemaMapping
-    public List<BookingLog> bookinglogs(User user) { return userRepo.findById((user.getPk_userid())).get().getBookinglogs(); }
+    public List<BookingLog> bookinglogs(User user) { return user.getBookinglogs(); }
 
 
 

@@ -14,24 +14,24 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name="seats")
-public class Seat {
+@Table(name="desks")
+public class Desk {
 
-    public Seat(){}
+    public Desk(){}
 
-    public Seat (String seatnum, float x, float y, Floor floor){
-        this.desknum = seatnum;
+    public Desk(String desknum, float x, float y, Floor floor){
+        this.desknum = desknum;
         this.x = x;
         this.y = y;
         this.floor = floor;
     }
 
     @Id
-    @Column(name = "pk_seatid", nullable = false, unique = true)
+    @Column(name = "pk_deskid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID pk_seatid;
+    private UUID pk_deskid;
 
-    @Column(name = "seatnum")
+    @Column(name = "desknum")
     private String desknum;
 
     @Column(name = "x")
@@ -48,13 +48,13 @@ public class Seat {
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
-    @OneToMany(mappedBy = "seat", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "desk", fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "seat", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "desk", fetch = FetchType.LAZY)
     private List<BookingLog> bookinglogs;
 
-    @ManyToMany(mappedBy = "seats", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "desks", fetch = FetchType.LAZY)
     private List<Attribute> attributes;
 
     @ManyToOne(fetch = FetchType.LAZY)

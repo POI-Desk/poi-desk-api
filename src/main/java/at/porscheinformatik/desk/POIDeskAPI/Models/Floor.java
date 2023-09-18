@@ -6,7 +6,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,5 +36,5 @@ public class Floor {
     private Building building;
 
     @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
-    private List<Seat> seats;
+    private List<Desk> desks;
 }

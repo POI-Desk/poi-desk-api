@@ -40,7 +40,7 @@ VALUES ('3rd Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = '
        ('5th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building C'));
 
 -- changeset liquibase:7
-INSERT INTO Seats (seatNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, fk_floorId)
 VALUES ('301', 10, 10, (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')),
        ('401', 20, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
        ('402', 25, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
@@ -59,35 +59,35 @@ VALUES ('Silent'),
        ('Loud');
 
 -- changeset liquibase:9
-INSERT INTO Seats_Attributes (pk_fk_seatId, pk_fk_attributeId)
-VALUES ((SELECT pk_seatId FROM Seats WHERE seatNum = '301'),
+INSERT INTO Desks_Attributes (pk_fk_deskId, pk_fk_attributeId)
+VALUES ((SELECT pk_deskId FROM Desks WHERE deskNum = '301'),
         (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Silent')),
-       ((SELECT pk_seatId FROM Seats WHERE seatNum = '401'),
+       ((SELECT pk_deskId FROM Desks WHERE deskNum = '401'),
         (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Noisy')),
-       ((SELECT pk_seatId FROM Seats WHERE seatNum = '501'),
+       ((SELECT pk_deskId FROM Desks WHERE deskNum = '501'),
         (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Loud'));
 
 -- changeset liquibase:10
-INSERT INTO Bookings (bookingNumber, date, isMorning, isAfternoon, fk_userId, fk_seatId)
+INSERT INTO Bookings (bookingNumber, date, isMorning, isAfternoon, fk_userId, fk_deskId)
 VALUES ('B123', '2023-08-23', true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Alina'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = '301')),
+        (SELECT pk_deskId FROM Desks WHERE deskNum = '301')),
        ('B124', '2023-08-24', false, true,
         (SELECT pk_userId FROM Users WHERE username = 'Markus'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = '401')),
+        (SELECT pk_deskId FROM Desks WHERE deskNum = '401')),
        ('B125', '2023-08-25', true, true,
         (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = '501'));
+        (SELECT pk_deskId FROM Desks WHERE deskNum = '501'));
 
 -- changeset liquibase:11
-INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, wasDeleted, fk_userId, fk_seatId)
+INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, wasDeleted, fk_userId, fk_deskId)
 VALUES ('B123', '2023-08-23', true, false, true,
         (SELECT pk_userId FROM Users WHERE username = 'Alina'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = '301')),
+        (SELECT pk_deskId FROM Desks WHERE deskNum = '301')),
        ('B124', '2023-08-24', false, true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Markus'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = '401')),
+        (SELECT pk_deskId FROM Desks WHERE deskNum = '401')),
        ('B125', '2023-08-25', true, true, false,
         (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
-        (SELECT pk_seatId FROM Seats WHERE seatNum = '501'));
+        (SELECT pk_deskId FROM Desks WHERE deskNum = '501'));
 

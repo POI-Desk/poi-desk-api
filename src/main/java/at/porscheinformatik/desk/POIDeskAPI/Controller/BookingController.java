@@ -2,7 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.SeatRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
@@ -16,7 +16,6 @@ import org.springframework.stereotype.Controller;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +29,7 @@ public class BookingController {
     @Autowired
     private BookingRepo bookingRepo;
     @Autowired
-    private SeatRepo seatRepo;
+    private DeskRepo deskRepo;
     @Autowired
     private UserRepo userRepo;
 
@@ -61,10 +60,10 @@ public class BookingController {
     public List<Booking> getBookingsByUserId(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
 
     @MutationMapping
-    public Booking bookSeat(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
-                            @Argument UUID userId, @Argument UUID seatId) {
+    public Booking bookDesk(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
+                            @Argument UUID userId, @Argument UUID deskId) {
 
-        if (seatRepo.findById(seatId).isEmpty() || userRepo.findById(userId).isEmpty()) {
+        if (deskRepo.findById(deskId).isEmpty() || userRepo.findById(userId).isEmpty()) {
             return null;
         }
         Booking booking = new Booking();
@@ -74,7 +73,7 @@ public class BookingController {
         booking.setIsmorning(isMorning);
         booking.setIsafternoon(isAfternoon);
         booking.setUser(userRepo.findById(userId).get());
-        booking.setSeat(seatRepo.findById(seatId).get());
+        booking.setDesk(deskRepo.findById(deskId).get());
         bookingRepo.save(booking);
 
         return booking;
@@ -85,7 +84,7 @@ public class BookingController {
 
     @SchemaMapping
     public User user(Booking booking) {
-        return bookingRepo.findById(booking.getPk_bookingid()).get().getUser();
+        return booking.getUser();
     }
 
 }
