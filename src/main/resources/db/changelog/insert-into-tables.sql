@@ -91,3 +91,68 @@ VALUES ('B123', '2023-08-23', true, false, true,
         (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
         (SELECT pk_deskId FROM Desks WHERE deskNum = '501'));
 
+-- changeset liquibase:12
+INSERT INTO Buildings (buildingName, fk_locationId)
+VALUES
+    ('Building D', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
+    ('Building E', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
+    ('Building F', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien')),
+    ('Building G', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien')),
+    ('Building H', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg')),
+    ('Building I', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg'));
+
+-- changeset liquibase:13
+INSERT INTO Floors (floorName, fk_buildingId)
+VALUES
+    ('65th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building D')),
+    ('75th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building D')),
+    ('55th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building E')),
+    ('60th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building E')),
+    ('8th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building F')),
+    ('9th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building F')),
+    ('50th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building G')),
+    ('66th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building G')),
+    ('76th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building H')),
+    ('86th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building H')),
+    ('69th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building I')),
+    ('79th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building I'));
+
+-- changeset liquibase:14
+INSERT INTO Seats (seatNum, x, y, fk_floorId)
+SELECT
+        seatNum + 10,
+        x + 10,
+        y + 10,
+        (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
+FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
+LIMIT 10;
+
+-- changeset liquibase:15
+INSERT INTO Seats (seatNum, x, y, fk_floorId)
+SELECT
+        seatNum + 100,
+        x + 20,
+        y + 20,
+        (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
+FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
+LIMIT 10;
+
+-- changeset liquibase:16
+INSERT INTO Seats (seatNum, x, y, fk_floorId)
+SELECT
+        seatNum + 200,
+        x + 15,
+        y + 15,
+        (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
+FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
+LIMIT 10;
+
+-- changeset liquibase:17
+INSERT INTO Seats (seatNum, x, y, fk_floorId)
+SELECT
+        seatNum + 10,
+        x + 10,
+        y + 10,
+        (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
+FROM Seats WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
+LIMIT 10;

@@ -5,6 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
+import at.porscheinformatik.desk.POIDeskAPI.Models.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByDate(@Argument Date date) {
+    public List<Booking> getBookingsByDate(@Argument LocalDate date) {
         List<Booking> bookings = new ArrayList<>();
         bookingRepo.findAll().forEach(booking -> {
             if (booking.getDate() != null) {
@@ -57,7 +57,7 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByUserId(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
+    public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
 
     @MutationMapping
     public Booking bookDesk(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
@@ -81,6 +81,41 @@ public class BookingController {
 
     @MutationMapping
     public UUID deleteBooking(@Argument UUID bookingId) { return bookingService.deleteBooking(bookingId); }
+
+    @MutationMapping
+    public Booking editBooking(@Argument EditBookingInput bookingInput){
+        boolean morningTaken = false;
+        boolean afternoonTaken = false;
+        Booking currentBooking = getBookingById(bookingInput.pk_bookingid());
+        List<Booking> bookingsWithDateAndSeat = bookingRepo.findByDateAndSeat(bookingInput.date(), seatRepo.findById(bookingInput.seatid()).get());
+        // set trivial properties
+        currentBooking.setDate(bookingInput.date());
+        currentBooking.setSeat(seatRepo.findById(bookingInput.seatid()).get());
+
+        //check for morning/afternoon
+        for (Booking book : bookingsWithDateAndSeat){
+            if (!morningTaken && book.isIsmorning()){
+                morningTaken = true;
+            }
+            if(!afternoonTaken && book.isIsafternoon()){
+                afternoonTaken = true;
+            }
+        }
+        // checks if both isMorning/isAfternoon is null. Should technically not be possible in the frontend
+        if (!bookingInput.isMorning() && !bookingInput.isAfternoon())
+            return null;
+        // return null and cancels the booking when either morning or afternoon is not available
+        if (morningTaken && bookingInput.isMorning())
+            return null;
+        if (afternoonTaken && bookingInput.isAfternoon())
+            return null;
+
+        //set morning/afternoon properties
+        currentBooking.setIsmorning(bookingInput.isMorning());
+        currentBooking.setIsafternoon(bookingInput.isAfternoon());
+        bookingRepo.save(currentBooking);
+        return currentBooking;
+    }
 
     @SchemaMapping
     public User user(Booking booking) {
