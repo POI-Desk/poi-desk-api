@@ -5,6 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.BookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Services.BookingService;
@@ -60,23 +61,15 @@ public class BookingController {
     public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
 
     @MutationMapping
-    public Booking bookDesk(@Argument LocalDate date, @Argument boolean isMorning, @Argument boolean isAfternoon,
-                            @Argument UUID userId, @Argument UUID deskId) {
+    public Booking bookDesk(@Argument BookingInput booking) {
+        Booking newBooking = new Booking(booking);
 
-        if (deskRepo.findById(deskId).isEmpty() || userRepo.findById(userId).isEmpty()) {
-            return null;
-        }
-        Booking booking = new Booking();
+        newBooking.setBookingnumber("12345"); // TODO change
+        newBooking.setUser(userRepo.findById(booking.userid()).get());
+        newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
+        bookingRepo.save(newBooking);
 
-        booking.setBookingnumber("12345"); // TODO change
-        booking.setDate(date);
-        booking.setIsmorning(isMorning);
-        booking.setIsafternoon(isAfternoon);
-        booking.setUser(userRepo.findById(userId).get());
-        booking.setDesk(deskRepo.findById(deskId).get());
-        bookingRepo.save(booking);
-
-        return booking;
+        return newBooking;
     }
 
     @MutationMapping
