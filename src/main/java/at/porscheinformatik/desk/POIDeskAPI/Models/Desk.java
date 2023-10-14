@@ -60,4 +60,8 @@ public class Desk {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_floorid")
     private Floor floor;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_mapid")
+    private Map map;
 }
