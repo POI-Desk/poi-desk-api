@@ -33,6 +33,7 @@ type Mutation{
     addDesksToFloor(floorid: ID!, desks: [Deskinput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking
     addRoom(roomInput: RoomInput!): Room
+    addInterior(input: InteriorInput!): Interior
 }
 
 type Attribute{
@@ -146,10 +147,34 @@ type Room{
     map: Map
 }
 
+type Interior{
+    pk_interiorId: ID!
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
+}
+
+type Label{
+    pk_labelId: ID!
+    text: String!
+    x: Int!
+    y: Int!
+    pt: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
+}
+
 input Deskinput{
     desknum: String!
-    x: Float!
-    y: Float!
+    x: Int!
+    y: Int!
 }
 
 input Bookinginput{
@@ -174,4 +199,18 @@ input RoomInput{
     width: Int!
     height: Int!
     mapId: ID!
+}
+
+input InteriorInput{
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+}
+
+enum InteriorType{
+    Couch,
+    Aquarium
 }

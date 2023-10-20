@@ -20,14 +20,14 @@ public class Floor {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_floorid;
 
-    @Column(name="floorname")
+    @Column(name="floorname", nullable = false)
     private String floorname;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 

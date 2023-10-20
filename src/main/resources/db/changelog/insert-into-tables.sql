@@ -40,17 +40,17 @@ VALUES ('3rd Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = '
        ('5th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building C'));
 
 -- changeset liquibase:7
-INSERT INTO Desks (deskNum, x, y, fk_floorId)
-VALUES ('301', 10, 10, (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')),
-       ('401', 20, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('402', 25, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('403', 30, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('404', 35, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('405', 40, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('406', 45, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('407', 50, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('408', 55, 20, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
-       ('501', 15, 15, (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor'));
+INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
+VALUES ('301', 10, 10, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')),
+       ('401', 20, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('402', 25, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('403', 30, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('404', 35, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('405', 40, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('406', 45, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('407', 50, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('408', 55, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')),
+       ('501', 15, 15, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor'));
 
 -- changeset liquibase:8
 INSERT INTO Attributes (attributeName)
@@ -118,41 +118,45 @@ VALUES
     ('79th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building I'));
 
 -- changeset liquibase:14
-INSERT INTO Desks (deskNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
 SELECT
         concat(deskNum, '10'),
         x + 10,
         y + 10,
+        rotation,
         (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
 FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3rd Floor')
 LIMIT 10;
 
 -- changeset liquibase:15
-INSERT INTO Desks (deskNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
 SELECT
         concat(deskNum, '100'),
         x + 20,
         y + 20,
+        rotation,
         (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
 FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4th Floor')
 LIMIT 10;
 
 -- changeset liquibase:16
-INSERT INTO Desks (deskNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
 SELECT
         concat(deskNum, '200'),
         x + 15,
         y + 15,
+        rotation,
         (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
 FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5th Floor')
 LIMIT 10;
 
 -- changeset liquibase:17
-INSERT INTO Desks (deskNum, x, y, fk_floorId)
+INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
 SELECT
         concat(deskNum, '10'),
         x + 10,
         y + 10,
+        rotation,
         (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
 FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6th Floor')
 LIMIT 10;

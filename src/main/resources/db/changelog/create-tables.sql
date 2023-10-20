@@ -78,6 +78,7 @@ CREATE TABLE Desks
     deskNum    VARCHAR   NOT NULL,
     x          INT       NOT NULL,
     y          INT       NOT NULL,
+    rotation   INT       NOT NULL,
     createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_floorId UUID,
@@ -143,11 +144,44 @@ CREATE  TABLE Rooms
 (
     pk_roomId   UUID PRIMARY KEY    DEFAULT  gen_random_uuid(),
     x           INT NOT NULL,
-    y           INT NOT NULL ,
+    y           INT NOT NULL,
     width       INT NOT NULL,
     height      INT NOT NULL,
     createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     fk_mapId    UUID,
+    FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
+)
+
+-- changeset liquibase:14
+CREATE TYPE interiorType AS ENUM ('Couch', 'Aquarium')
+
+-- changeset liquibase:15
+CREATE TABLE Interiors
+(
+    pk_interiorId   UUID PRIMARY KEY    DEFAULT  gen_random_uuid(),
+    type            interiorType NOT NULL,
+    x               INT NOT NULL,
+    y               INT NOT NULL,
+    rotation        INT NOT NULL,
+    width           INT NOT NULL,
+    height          INT NOT NULL,
+    createdOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    fk_mapId        UUID,
+    FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
+)
+
+-- changeset liquibase:16
+CREATE TABLE Labels
+(
+    pk_labelId      UUID PRIMARY KEY    DEFAULT  gen_random_uuid(),
+    x               INT NOT NULL,
+    y               INT NOT NULL,
+    rotation        INT NOT NULL,
+    pt              INT NOT NULL,
+    createdOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    fk_mapId        UUID,
     FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
 )

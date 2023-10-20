@@ -1,5 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
+import at.porscheinformatik.desk.POIDeskAPI.Models.Types.InteriorType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,13 +13,15 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name="rooms")
-public class Room {
-
+@Table(name="labels")
+public class Label {
     @Id
-    @Column(name="pk_roomid", nullable = false, unique = true)
+    @Column(name="pk_labelid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID pk_roomId;
+    private UUID pk_labelId;
+
+    @Column(name = "text", nullable = false)
+    private String text;
 
     @Column(name="x", nullable = false)
     private int x;
@@ -26,11 +29,11 @@ public class Room {
     @Column(name="y", nullable = false)
     private int y;
 
-    @Column(name="width", nullable = false)
-    private int width;
+    @Column(name = "rotation", nullable = false)
+    private int rotation;
 
-    @Column(name="height", nullable = false)
-    private int height;
+    @Column(name = "pt", nullable = false)
+    private int pt;
 
     @Column(name="createdon", nullable = false)
     @CreationTimestamp

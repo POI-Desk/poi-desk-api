@@ -19,7 +19,7 @@ public class Desk {
 
     public Desk(){}
 
-    public Desk(String desknum, float x, float y, Floor floor){
+    public Desk(String desknum, int x, int y, Floor floor){
         this.desknum = desknum;
         this.x = x;
         this.y = y;
@@ -31,20 +31,23 @@ public class Desk {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_deskid;
 
-    @Column(name = "desknum")
+    @Column(name = "desknum", nullable = false)
     private String desknum;
 
-    @Column(name = "x")
-    private float x;
+    @Column(name = "x", nullable = false)
+    private int x;
 
-    @Column(name = "y")
-    private float y;
+    @Column(name = "y", nullable = false)
+    private int y;
 
-    @Column(name = "createdon")
+    @Column(name = "rotation", nullable = false)
+    private int rotation;
+
+    @Column(name = "createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name = "updatedon")
+    @Column(name = "updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 

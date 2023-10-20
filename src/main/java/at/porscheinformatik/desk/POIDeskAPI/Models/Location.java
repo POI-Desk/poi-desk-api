@@ -22,14 +22,14 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_locationid;
 
-    @Column(name="locationname")
+    @Column(name="locationname", nullable = false)
     private String locationname;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 

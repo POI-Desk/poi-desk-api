@@ -62,13 +62,13 @@ public class DeskController {
     }
 
     @MutationMapping
-    public List<Desk> addDesksToFloor(@Argument UUID floorid, @Argument List<DeskInput> seats) throws InvalidRelationIdException {
+    public List<Desk> addDesksToFloor(@Argument UUID floorid, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
         List<Desk> newSeats = new ArrayList<>();
         Optional<Floor> o_floor = floorRepo.findById(floorid);
         if (o_floor.isEmpty())
             throw new InvalidRelationIdException("floor id does not exist");
 
-        seats.forEach(s -> {
+        desks.forEach(s -> {
             newSeats.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get()));
         });
         deskRepo.saveAll(newSeats);

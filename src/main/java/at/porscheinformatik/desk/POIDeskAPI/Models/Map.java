@@ -27,11 +27,11 @@ public class Map {
     @Column(name="height", nullable = false)
     private int height;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedOn;
 
@@ -39,5 +39,11 @@ public class Map {
     private List<Room> rooms;
 
     @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
-    private List<Desk> desk;
+    private List<Desk> desks;
+
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    private List<Label> labels;
+
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    private List<Interior> interiors;
 }

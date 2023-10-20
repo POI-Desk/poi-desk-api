@@ -42,24 +42,24 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_bookingid;
 
-    @Column(name="bookingnumber")
+    @Column(name="bookingnumber", nullable = false)
     private String bookingnumber;
 
-    @Column(name = "date")
+    @Column(name = "date", nullable = false)
     private LocalDate date;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
-    @Column(name="ismorning")
+    @Column(name="ismorning", nullable = false)
     private boolean ismorning;
 
-    @Column(name="isafternoon")
+    @Column(name="isafternoon", nullable = false)
     private boolean isafternoon;
 
     @ManyToOne(fetch = FetchType.LAZY)
