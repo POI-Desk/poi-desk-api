@@ -108,3 +108,67 @@ CREATE TABLE Desks_Attributes
     FOREIGN KEY (pk_fk_deskId) REFERENCES Desks (pk_deskId),
     FOREIGN KEY (pk_fk_attributeId) REFERENCES Attributes (pk_attributeId)
 );
+
+-- changeset liquibase:11
+create table YearlyBookings(
+    pk_yearlyBookingId uuid DEFAULT gen_random_uuid(),
+    year char(4) DEFAULT to_char(current_date, 'YYYY'),
+    fk_Location UUID NOT NULL,
+    totalBookings INTEGER DEFAULT 0,
+    amountOfDesks INT,
+    highestBookings INT,
+    averageBookings INT,
+    lowestBookings INT,
+    PRIMARY KEY (pk_yearlyBookingId),
+    FOREIGN KEY (fk_Location) REFERENCES locations (pk_locationid)
+);
+-- changeset liquibase:12
+create table QuarterlyBookings(
+    pk_quarterlyBookingId uuid DEFAULT gen_random_uuid(),
+    year char(4) DEFAULT to_char(current_date, 'YYYY'),
+    fk_Location UUID NOT NULL ,
+    quarter Varchar(2) NOT NULL CHECK ( quarter IN ('Q1','Q2','Q3','Q4')),
+    totalBookings INTEGER DEFAULT 0,
+    amountOfDesks INT,
+    highestBookings INT,
+    averageBookings INT,
+    lowestBookings INT,
+    fk_yearlyBookingId UUID NOT NULL,
+    PRIMARY KEY (pk_quarterlyBookingId),
+    FOREIGN KEY (fk_Location) REFERENCES locations (pk_locationid),
+    FOREIGN KEY (fk_yearlyBookingId) REFERENCES YearlyBookings (pk_yearlyBookingId)
+);
+-- changeset liquibase:13
+create table MonthlyBookings(
+    pk_monthlyBookingId uuid DEFAULT gen_random_uuid(),
+    month char(7) DEFAULT to_char(current_date, 'YYYY-MM'),
+    fk_Location UUID NOT NULL ,
+    totalBookings INTEGER DEFAULT 0 ,
+    amountOfDesks INT,
+    highestBookings INT,
+    averageBookings INT,
+    lowestBookings INT,
+    fk_quarterlyBookingId UUID,
+    PRIMARY KEY (pk_monthlyBookingId),
+    FOREIGN KEY (fk_Location) REFERENCES locations (pk_locationid),
+    FOREIGN KEY (fk_quarterlyBookingId) REFERENCES QuarterlyBookings (pk_quarterlyBookingId)
+);
+-- changeset liquibase:14
+create table DailyBookings(
+    pk_day char(10) DEFAULT to_char(CURRENT_DATE, 'YYYY-MM-DD'),
+    pk_fk_Location UUID NOT NULL ,
+    totalBookings INTEGER NOT NULL ,
+    fk_monthlyBookingId UUID NOT NULL ,
+    PRIMARY KEY (pk_day, pk_fk_Location),
+    FOREIGN KEY (pk_fk_Location) REFERENCES locations (pk_locationid),
+    FOREIGN KEY (fk_monthlyBookingId) REFERENCES MonthlyBookings (pk_monthlyBookingId)
+);
+-- changeset liquibase:15
+CREATE TABLE UserAnalytic (
+    pk_useranalyticid UUID PRIMARY KEY  DEFAULT gen_random_uuid(),
+    fk_userid              UUID      NOT NULL,
+    year              INTEGER   NOT NULL,
+    result            JSONB     NOT NULL,
+    createdOn         TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (fk_userid) REFERENCES Users (pk_userId)
+);

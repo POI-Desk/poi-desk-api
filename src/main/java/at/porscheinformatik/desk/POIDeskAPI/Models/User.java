@@ -47,4 +47,7 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_locationid")
     private Location location;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserAnalytic> userAnalytics;
 }
