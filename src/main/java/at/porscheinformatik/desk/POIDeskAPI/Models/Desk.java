@@ -51,9 +51,6 @@ public class Desk {
     @OneToMany(mappedBy = "desk", fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "desk", fetch = FetchType.LAZY)
-    private List<BookingLog> bookinglogs;
-
     @ManyToMany(mappedBy = "desks", fetch = FetchType.LAZY)
     private List<Attribute> attributes;
 

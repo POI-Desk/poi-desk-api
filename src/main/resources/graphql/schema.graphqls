@@ -5,12 +5,6 @@ type Query{
     allBookings: [Booking!]
     getBookingsByDate(date: String): [Booking!]
     getBookingById(id: ID): Booking
-    getAllBookingLogs: [BookingLog!]
-    getAllExpiredBookingLogs: [BookingLog!]
-    getAllDeletedBookingLogs: [BookingLog!]
-    getMorningBookingLogs: [BookingLog!]
-    getAfternoonBookingLogs: [BookingLog!]
-    getFullDayBookingLogs: [BookingLog!]
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
@@ -50,19 +44,6 @@ type Booking{
     updatedon: String!
     ismorning: Boolean!
     isafternoon: Boolean!
-    user: User
-    desk: Desk
-}
-
-type BookingLog{
-    pk_bookinglogid: ID!
-    bookingnumber: String!
-    date: String!
-    createdon: String!
-    updatedon: String!
-    ismorning: Boolean!
-    isafternoon: Boolean!
-    wasdeleted: Boolean!
     user: User
     desk: Desk
 }
@@ -110,7 +91,6 @@ type Desk{
     createdon: String!
     updatedon: String!
     bookings: [Booking!]
-    bookinglogs: [BookingLog!]
     attributes: [Attribute!]
     floor: Floor
 }
@@ -122,7 +102,6 @@ type User{
     updatedon: String!
     roles: [Role!]
     bookings: [Booking!]
-    bookinglogs: [BookingLog!]
     location: Location
 }
 

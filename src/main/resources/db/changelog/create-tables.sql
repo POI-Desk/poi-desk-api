@@ -91,23 +91,6 @@ CREATE TABLE Bookings
 );
 
 -- changeset liquibase:9
-CREATE TABLE BookingsLog
-(
-    pk_bookingLogId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
-    bookingNumber   VARCHAR(255) NOT NULL,
-    date            DATE         NOT NULL,
-    createdOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    isMorning       BOOLEAN      NOT NULL,
-    isAfternoon     BOOLEAN      NOT NULL,
-    wasDeleted      BOOlEAN      NOT NULL,
-    fk_userId       UUID,
-    fk_deskId       UUID,
-    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
-    FOREIGN KEY (fk_deskId) REFERENCES Desks (pk_deskId)
-);
-
--- changeset liquibase:10
 CREATE TABLE Attributes
 (
     pk_attributeId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
@@ -116,7 +99,7 @@ CREATE TABLE Attributes
     updatedOn      TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- changeset liquibase:11
+-- changeset liquibase:10
 CREATE TABLE Desks_Attributes
 (
     pk_fk_deskId      UUID,
