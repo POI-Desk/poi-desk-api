@@ -120,9 +120,6 @@ public class UserController
     public List<Booking> bookings(User user) { return user.getBookings(); }
 
     @SchemaMapping
-    public List<BookingLog> bookinglogs(User user) { return user.getBookinglogs(); }
-
-    @SchemaMapping
     public Location location(User user) { return user.getLocation(); }
 
 

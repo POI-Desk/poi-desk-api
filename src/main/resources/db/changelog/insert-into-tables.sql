@@ -80,18 +80,6 @@ VALUES ('B123', '2023-08-23', true, false,
         (SELECT pk_deskId FROM Desks WHERE deskNum = '501'));
 
 -- changeset liquibase:11
-INSERT INTO BookingsLog (bookingNumber, date, isMorning, isAfternoon, wasDeleted, fk_userId, fk_deskId)
-VALUES ('B123', '2023-08-23', true, false, true,
-        (SELECT pk_userId FROM Users WHERE username = 'Alina'),
-        (SELECT pk_deskId FROM Desks WHERE deskNum = '301')),
-       ('B124', '2023-08-24', false, true, false,
-        (SELECT pk_userId FROM Users WHERE username = 'Markus'),
-        (SELECT pk_deskId FROM Desks WHERE deskNum = '401')),
-       ('B125', '2023-08-25', true, true, false,
-        (SELECT pk_userId FROM Users WHERE username = 'Jupp'),
-        (SELECT pk_deskId FROM Desks WHERE deskNum = '501'));
-
--- changeset liquibase:12
 INSERT INTO Buildings (buildingName, fk_locationId)
 VALUES
     ('Building D', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
@@ -101,7 +89,7 @@ VALUES
     ('Building H', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg')),
     ('Building I', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg'));
 
--- changeset liquibase:13
+-- changeset liquibase:12
 INSERT INTO Floors (floorName, fk_buildingId)
 VALUES
     ('65th Floor', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'Building D')),

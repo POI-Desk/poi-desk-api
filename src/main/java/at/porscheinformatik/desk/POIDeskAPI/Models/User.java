@@ -44,9 +44,6 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<BookingLog> bookinglogs;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_locationid")
     private Location location;
