@@ -16,6 +16,7 @@ type Query{
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
+    getYearlyBookings: [YearlyBooking!]
 }
 
 type Mutation{
@@ -36,6 +37,59 @@ type Attribute{
     createdon: String!
     updatedon: String!
     desks: [Desk!]!
+}
+type DailyBooking{
+    pk_day: String!
+    pk_fk_Location: Location!
+    totalBookings: Int!
+    fk_monthlyBookingId: MonthlyBooking!
+}
+
+type MonthlyBooking{
+    pk_monthlyBookingId: ID!
+    month: String!
+    fk_Location: Location!
+    totalBookings: Int
+    amountOfDesks: Int
+    highestBookings: Int
+    averageBookings: Int
+    lowestBookings: Int
+    fk_quarterlyBookingId: QuarterlyBooking!
+    dailyBooking: [DailyBooking!]
+}
+
+type QuarterlyBooking{
+    pk_quarterlyBookingId: ID!
+    year: String!
+    fk_Location: Location!
+    quarter: String!
+    totalBookings: Int
+    amountOfDesks: Int
+    highestBookings: Int
+    averageBookings: Int
+    lowestBookings: Int
+    fk_yearlyBookingId: Location!
+    monthlyBookings: [MonthlyBooking!]
+}
+
+type YearlyBooking{
+    pk_yearlyBookingId: ID!
+    year: String!
+    fk_Location: Location!
+    totalBookings: Int
+    amountOfDesks: Int
+    highestBookings: Int
+    averageBookings: Int
+    lowestBookings: Int
+    quarterlyBookings: [QuarterlyBooking!]
+}
+
+type UserAnalytics{
+    pk_useranalyticid: ID!
+    user: User!
+    year : String!
+    result: String!
+    createdon: String!
 }
 
 type Booking{
@@ -75,6 +129,10 @@ type Location{
     updatedon: String!
     users: [User!]
     buildings: [Building!]
+    dailyBookings: [DailyBooking!]
+    monthlyBookings: [MonthlyBooking!]
+    quarterlyBookings: [QuarterlyBooking!]
+    yearlyBookings: [YearlyBooking!]
 }
 
 type Role{
@@ -105,6 +163,7 @@ type User{
     roles: [Role!]
     bookings: [Booking!]
     location: Location
+    userAnalytics: [UserAnalytics!]
 }
 
 type Map{
