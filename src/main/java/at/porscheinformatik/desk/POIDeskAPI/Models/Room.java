@@ -7,34 +7,40 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Getter
 @Setter
 @Entity
-@Table(name="floors")
-public class Floor {
-    @Id
-    @Column(name="pk_floorid", nullable = false, unique = true)
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID pk_floorid;
+@Table(name="rooms")
+public class Room {
 
-    @Column(name="floorname", nullable = false)
-    private String floorname;
+    @Id
+    @Column(name="pk_roomid", nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID pk_roomId;
+
+    @Column(name="x", nullable = false)
+    private int x;
+
+    @Column(name="y", nullable = false)
+    private int y;
+
+    @Column(name="width", nullable = false)
+    private int width;
+
+    @Column(name="height", nullable = false)
+    private int height;
 
     @Column(name="createdon", nullable = false)
     @CreationTimestamp
-    private LocalDateTime createdon;
+    private LocalDateTime createdOn;
 
     @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
-    private LocalDateTime updatedon;
+    private LocalDateTime updatedOn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_buildingid")
-    private Building building;
-
-    @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
-    private List<Desk> desks;
+    @JoinColumn(name = "fk_mapid")
+    private Map map;
 }

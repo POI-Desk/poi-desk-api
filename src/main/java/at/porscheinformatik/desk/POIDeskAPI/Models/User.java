@@ -22,14 +22,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_userid;
 
-    @Column(name="username")
+    @Column(name="username", nullable = false)
     private String username;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 

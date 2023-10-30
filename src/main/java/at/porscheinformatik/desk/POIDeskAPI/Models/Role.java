@@ -22,14 +22,14 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_roleid;
 
-    @Column(name="rolename")
+    @Column(name="rolename", nullable = false)
     private String rolename;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
