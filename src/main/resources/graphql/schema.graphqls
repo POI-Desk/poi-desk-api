@@ -15,11 +15,8 @@ type Query{
     getBookingsByUserid(userid: ID!): [Booking!]
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
-<<<<<<< HEAD
-=======
     getSeatOfBooking(bookingid: ID!): Desk
     getYearlyBookings: [YearlyBooking!]
->>>>>>> a803a6cb7c354dd5cfd30d59a98345e1c7e33cc7
 }
 
 type Mutation{
