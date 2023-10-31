@@ -22,14 +22,14 @@ public class Location {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_locationid;
 
-    @Column(name="locationname")
+    @Column(name="locationname", nullable = false)
     private String locationname;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
@@ -38,4 +38,16 @@ public class Location {
 
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Building> buildings;
+
+    @OneToMany(mappedBy = "pk_fk_Location", fetch = FetchType.LAZY)
+    private List<DailyBooking> dailyBookings;
+
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
+    private List<MonthlyBooking> monthlyBookings;
+
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
+    private List<QuarterlyBooking> quarterlyBookings;
+
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
+    private List<YearlyBooking> yearlyBookings;
 }

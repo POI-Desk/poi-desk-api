@@ -20,15 +20,15 @@ public class Attribute {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_attributeid;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
-    @Column(name="attributename")
+    @Column(name="attributename", nullable = false)
     private String attributename;
 
     @ManyToMany(fetch = FetchType.LAZY)

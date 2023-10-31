@@ -58,7 +58,7 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
+        public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
 
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {

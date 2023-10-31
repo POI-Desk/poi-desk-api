@@ -22,14 +22,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_userid;
 
-    @Column(name="username")
+    @Column(name="username", nullable = false)
     private String username;
 
-    @Column(name="createdon")
+    @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdon;
 
-    @Column(name="updatedon")
+    @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
@@ -44,10 +44,10 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<BookingLog> bookinglogs;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_locationid")
     private Location location;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<UserAnalytic> userAnalytics;
 }

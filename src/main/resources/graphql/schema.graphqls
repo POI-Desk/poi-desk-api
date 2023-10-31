@@ -5,12 +5,6 @@ type Query{
     allBookings: [Booking!]
     getBookingsByDate(date: String): [Booking!]
     getBookingById(id: ID): Booking
-    getAllBookingLogs: [BookingLog!]
-    getAllExpiredBookingLogs: [BookingLog!]
-    getAllDeletedBookingLogs: [BookingLog!]
-    getMorningBookingLogs: [BookingLog!]
-    getAfternoonBookingLogs: [BookingLog!]
-    getFullDayBookingLogs: [BookingLog!]
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
@@ -21,6 +15,11 @@ type Query{
     getBookingsByUserid(userid: ID!): [Booking!]
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
+<<<<<<< HEAD
+=======
+    getSeatOfBooking(bookingid: ID!): Desk
+    getYearlyBookings: [YearlyBooking!]
+>>>>>>> a803a6cb7c354dd5cfd30d59a98345e1c7e33cc7
 }
 
 type Mutation{
@@ -31,6 +30,8 @@ type Mutation{
     createOrLoginAsUser(username: String!): User
     addDesksToFloor(floorid: ID!, desks: [Deskinput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking
+    addRoom(roomInput: RoomInput!): Room
+    addInterior(input: InteriorInput!): Interior
 }
 
 type Attribute{
@@ -39,6 +40,59 @@ type Attribute{
     createdon: String!
     updatedon: String!
     desks: [Desk!]!
+}
+type DailyBooking{
+    pk_day: String!
+    pk_fk_Location: Location!
+    totalBookings: Int!
+    fk_monthlyBookingId: MonthlyBooking!
+}
+
+type MonthlyBooking{
+    pk_monthlyBookingId: ID!
+    month: String!
+    fk_Location: Location!
+    totalBookings: Int
+    amountOfDesks: Int
+    highestBookings: Int
+    averageBookings: Int
+    lowestBookings: Int
+    fk_quarterlyBookingId: QuarterlyBooking!
+    dailyBooking: [DailyBooking!]
+}
+
+type QuarterlyBooking{
+    pk_quarterlyBookingId: ID!
+    year: String!
+    fk_Location: Location!
+    quarter: String!
+    totalBookings: Int
+    amountOfDesks: Int
+    highestBookings: Int
+    averageBookings: Int
+    lowestBookings: Int
+    fk_yearlyBookingId: Location!
+    monthlyBookings: [MonthlyBooking!]
+}
+
+type YearlyBooking{
+    pk_yearlyBookingId: ID!
+    year: String!
+    fk_Location: Location!
+    totalBookings: Int
+    amountOfDesks: Int
+    highestBookings: Int
+    averageBookings: Int
+    lowestBookings: Int
+    quarterlyBookings: [QuarterlyBooking!]
+}
+
+type UserAnalytics{
+    pk_useranalyticid: ID!
+    user: User!
+    year : String!
+    result: String!
+    createdon: String!
 }
 
 type Booking{
@@ -49,19 +103,6 @@ type Booking{
     updatedon: String!
     ismorning: Boolean!
     isafternoon: Boolean!
-    user: User
-    desk: Desk
-}
-
-type BookingLog{
-    pk_bookinglogid: ID!
-    bookingnumber: String!
-    date: String!
-    createdon: String!
-    updatedon: String!
-    ismorning: Boolean!
-    isafternoon: Boolean!
-    wasdeleted: Boolean!
     user: User
     desk: Desk
 }
@@ -91,6 +132,10 @@ type Location{
     updatedon: String!
     users: [User!]
     buildings: [Building!]
+    dailyBookings: [DailyBooking!]
+    monthlyBookings: [MonthlyBooking!]
+    quarterlyBookings: [QuarterlyBooking!]
+    yearlyBookings: [YearlyBooking!]
 }
 
 type Role{
@@ -109,7 +154,6 @@ type Desk{
     createdon: String!
     updatedon: String!
     bookings: [Booking!]
-    bookinglogs: [BookingLog!]
     attributes: [Attribute!]
     floor: Floor
 }
@@ -121,8 +165,51 @@ type User{
     updatedon: String!
     roles: [Role!]
     bookings: [Booking!]
-    bookinglogs: [BookingLog!]
     location: Location
+    userAnalytics: [UserAnalytics!]
+}
+
+type Map{
+    pk_mapId: ID!
+    width: Int!
+    height: Int!
+    createdOn: String!
+    updatedOn: String!
+}
+
+type Room{
+    pk_roomId: ID!
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
+}
+
+type Interior{
+    pk_interiorId: ID!
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
+}
+
+type Label{
+    pk_labelId: ID!
+    text: String!
+    x: Int!
+    y: Int!
+    pt: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
 }
 
 type UserConnection{
@@ -144,8 +231,8 @@ type UserInfo{
 
 input Deskinput{
     desknum: String!
-    x: Float!
-    y: Float!
+    x: Int!
+    y: Int!
 }
 
 input Bookinginput{
@@ -162,4 +249,26 @@ input EditBookingInput{
     date: String!
     ismorning: Boolean!
     isafternoon: Boolean!
+}
+
+input RoomInput{
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
+    mapId: ID!
+}
+
+input InteriorInput{
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+}
+
+enum InteriorType{
+    Couch,
+    Aquarium
 }
