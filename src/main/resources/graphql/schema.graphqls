@@ -1,5 +1,5 @@
 type Query{
-    getAllUsers: [User!]
+    getAllUsers(input: String, pageNumber: Int, pageSize: Int): [User!]
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
@@ -207,6 +207,23 @@ type Label{
     createdOn: String!
     updatedOn: String!
     map: Map
+}
+
+type UserConnection{
+    edges: [UserEdge]
+    pageInfo: UserInfo!
+}
+
+type UserEdge{
+    cursor: String
+    node: User!
+}
+
+type UserInfo{
+    startCursor: String
+    endCursor: String
+    hasNextPage: Boolean!
+    hasPreviousPage: Boolean!
 }
 
 input Deskinput{

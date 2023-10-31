@@ -8,6 +8,9 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -38,7 +41,9 @@ public class UserController
     public User getLoggedInUser() { return loggedInUser; }
 
     @QueryMapping
-    public List<User> getAllUsers() { return (List<User>)userRepo.findAll(); }
+    public List<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
+        return userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).getContent();
+    }
 
     @QueryMapping
     public User getUserById(@Argument UUID id)
