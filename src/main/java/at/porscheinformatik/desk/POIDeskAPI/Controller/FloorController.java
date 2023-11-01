@@ -3,6 +3,8 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BuildingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
+import at.porscheinformatik.desk.POIDeskAPI.Services.FloorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -16,6 +18,8 @@ public class FloorController {
     @Autowired
     FloorRepo floorRepo;
     @Autowired
+    private FloorService floorService;
+    @Autowired
     private BuildingRepo buildingRepo;
 
     @QueryMapping
@@ -28,5 +32,10 @@ public class FloorController {
         return buildingRepo.findById(buildingid).isPresent() ?
                 floorRepo.findByBuilding(buildingRepo.findById(buildingid).get()) :
                 List.of();
+    }
+
+    @QueryMapping
+    public Map getMapByFloor(@Argument UUID floorId){
+        return floorService.getMapByFloor(floorId);
     }
 }

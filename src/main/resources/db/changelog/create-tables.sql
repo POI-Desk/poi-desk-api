@@ -19,16 +19,27 @@ CREATE TABLE Locations
 );
 
 -- changeset liquibase:3
-CREATE TABLE Maps
+CREATE TABLE Buildings
 (
-    pk_mapId    UUID PRIMARY KEY    DEFAULT gen_random_uuid(),
-    width       INT NOT NULL,
-    height      INT NOT NULL,
-    createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-    updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP
+    pk_buildingId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    buildingName  VARCHAR(255) NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_locationId UUID,
+    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
+);
+-- changeset liquibase:4
+CREATE TABLE Floors
+(
+    pk_floorId    UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    floorName     VARCHAR(255) NOT NULL,
+    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_buildingId UUID,
+    FOREIGN KEY (fk_buildingId) REFERENCES Buildings (pk_buildingId)
 );
 
--- changeset liquibase:4
+-- changeset liquibase:5
 CREATE TABLE Users
 (
     pk_userId     UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
@@ -39,7 +50,7 @@ CREATE TABLE Users
     FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
 );
 
--- changeset liquibase:5
+-- changeset liquibase:6
 CREATE TABLE Roles_Users
 (
     pk_fk_roleId UUID,
@@ -49,26 +60,16 @@ CREATE TABLE Roles_Users
     FOREIGN KEY (pk_fk_userId) REFERENCES Users (pk_userId)
 );
 
--- changeset liquibase:6
-CREATE TABLE Buildings
-(
-    pk_buildingId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
-    buildingName  VARCHAR(255) NOT NULL,
-    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fk_locationId UUID,
-    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
-);
-
 -- changeset liquibase:7
-CREATE TABLE Floors
+CREATE TABLE Maps
 (
-    pk_floorId    UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
-    floorName     VARCHAR(255) NOT NULL,
-    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fk_buildingId UUID,
-    FOREIGN KEY (fk_buildingId) REFERENCES Buildings (pk_buildingId)
+    pk_mapId    UUID PRIMARY KEY    DEFAULT gen_random_uuid(),
+    width       INT NOT NULL,
+    height      INT NOT NULL,
+    createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    fk_floorId  UUID,
+    FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId)
 );
 
 -- changeset liquibase:8
@@ -231,3 +232,29 @@ CREATE TABLE UserAnalytic (
     createdOn         TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (fk_userid) REFERENCES Users (pk_userId)
 );
+
+--changeset liquibase:21
+CREATE TABLE Walls (
+    pk_wallId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    x           INT NOT NULL,
+    y           INT NOT NULL,
+    rotation    INT NOT NULL,
+    width       INT NOT NULL,
+    createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    fk_mapId    UUID,
+    FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
+)
+
+--changeset liquibase:22
+CREATE TABLE Doors (
+    pk_doorId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    x           INT NOT NULL,
+    y           INT NOT NULL,
+    rotation    INT NOT NULL,
+    width       INT NOT NULL,
+    createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    fk_mapId    UUID,
+    FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
+)

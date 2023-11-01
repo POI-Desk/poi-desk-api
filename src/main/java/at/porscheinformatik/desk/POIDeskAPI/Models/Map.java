@@ -46,4 +46,15 @@ public class Map {
 
     @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Interior> interiors;
+
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    private List<Door> doors;
+
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    private List<Wall> walls;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_floorid")
+    private Floor floor;
+
 }

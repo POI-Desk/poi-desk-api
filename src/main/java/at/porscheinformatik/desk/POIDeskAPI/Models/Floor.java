@@ -37,4 +37,7 @@ public class Floor {
 
     @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
     private List<Desk> desks;
+
+    @OneToOne(mappedBy = "floor", fetch = FetchType.LAZY)
+    private Map map;
 }
