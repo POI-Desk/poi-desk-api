@@ -3,10 +3,12 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.DeskInput;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -31,6 +33,8 @@ public class DeskController {
 
     @Autowired
     private BookingRepo bookingRepo;
+    @Autowired
+    private MapRepo mapRepo;
 
     @QueryMapping
     public List<Desk> getAllDesks() {
@@ -62,14 +66,18 @@ public class DeskController {
     }
 
     @MutationMapping
-    public List<Desk> addDesksToFloor(@Argument UUID floorid, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
+    public List<Desk> addDesksToFloor(@Argument UUID floorId, @Argument UUID mapId, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
         List<Desk> newSeats = new ArrayList<>();
-        Optional<Floor> o_floor = floorRepo.findById(floorid);
+        Optional<Floor> o_floor = floorRepo.findById(floorId);
         if (o_floor.isEmpty())
             throw new InvalidRelationIdException("floor id does not exist");
 
+        Optional<Map> o_map = mapRepo.findById(mapId);
+        if (o_map.isEmpty())
+            throw new InvalidRelationIdException("map id does not exist");
+
         desks.forEach(s -> {
-            newSeats.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get()));
+            newSeats.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get(), o_map.get()));
         });
         deskRepo.saveAll(newSeats);
 

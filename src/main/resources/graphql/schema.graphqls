@@ -26,10 +26,11 @@ type Mutation{
     deleteBooking(bookingId: ID!): ID
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
-    addDesksToFloor(floorid: ID!, desks: [Deskinput!]!): [Desk!]
+    addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
+    createMap(floorId: ID!, mapInput: MapInput!): Map
 }
 
 type Attribute{
@@ -257,7 +258,7 @@ type UserInfo{
     hasPreviousPage: Boolean!
 }
 
-input Deskinput{
+input DeskInput{
     desknum: String!
     x: Int!
     y: Int!
@@ -299,4 +300,9 @@ input InteriorInput{
 enum InteriorType{
     Couch,
     Aquarium
+}
+
+input MapInput{
+    width: Int!
+    height: Int!
 }

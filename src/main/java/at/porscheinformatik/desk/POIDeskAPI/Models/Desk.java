@@ -19,11 +19,12 @@ public class Desk {
 
     public Desk(){}
 
-    public Desk(String desknum, int x, int y, Floor floor){
+    public Desk(String desknum, int x, int y, Floor floor, Map map){
         this.desknum = desknum;
         this.x = x;
         this.y = y;
         this.floor = floor;
+        this.map = map;
     }
 
     @Id

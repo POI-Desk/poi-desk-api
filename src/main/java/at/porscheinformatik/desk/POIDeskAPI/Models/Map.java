@@ -16,6 +16,15 @@ import java.util.UUID;
 @Table(name="maps")
 public class Map {
 
+    public Map (){}
+
+    public Map (int width, int height, Floor floor)
+    {
+        this.width = width;
+        this.height = height;
+        this.floor = floor;
+    }
+
     @Id
     @Column(name="pk_mapid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
