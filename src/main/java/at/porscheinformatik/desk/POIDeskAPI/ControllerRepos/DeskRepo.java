@@ -9,4 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DeskRepo extends CrudRepository<Desk, UUID> {
+
+    List<Desk> findAllByMap(Map map);
+
 }

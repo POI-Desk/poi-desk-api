@@ -31,6 +31,7 @@ type Mutation{
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
     createMap(floorId: ID!, mapInput: MapInput!): Map
+    updateMapObjects(mapId: ID!, deskInputs: [UpdateDeskInput!]!, roomInputs: [UpdateRoomInput!]!, wallInputs: [UpdateWallInput!]!, doorInputs: [UpdateDoorInput!]!): Map
 }
 
 type Attribute{
@@ -181,6 +182,7 @@ type Map{
     labels: [Label!]
     walls: [Wall!]
     doors: [Door!]
+    floor: Floor!
 }
 
 type Door{
@@ -264,6 +266,13 @@ input DeskInput{
     y: Int!
 }
 
+input UpdateDeskInput{
+    id: ID
+    desknum: String!
+    x: Int!
+    y: Int!
+}
+
 input Bookinginput{
     date: String!
     ismorning: Boolean!
@@ -285,10 +294,27 @@ input RoomInput{
     y: Int!
     width: Int!
     height: Int!
-    mapId: ID!
+}
+
+input UpdateRoomInput{
+    id: ID
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
 }
 
 input InteriorInput{
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+}
+
+input UpdateInteriorInput{
+    id: ID
     type: InteriorType!
     x: Int!
     y: Int!
@@ -305,4 +331,40 @@ enum InteriorType{
 input MapInput{
     width: Int!
     height: Int!
+}
+
+input UpdateMapInput{
+    id: ID
+    width: Int!
+    height: Int!
+}
+
+input DoorInput{
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+}
+
+input UpdateDoorInput{
+    id: ID
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+}
+
+input WallInput{
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+}
+
+input UpdateWallInput{
+    id: ID
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
 }

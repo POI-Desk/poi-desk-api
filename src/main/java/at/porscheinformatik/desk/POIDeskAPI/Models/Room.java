@@ -15,6 +15,16 @@ import java.util.UUID;
 @Table(name="rooms")
 public class Room {
 
+    public Room(){}
+
+    public Room(int x, int y, int width, int height, Map map){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.map = map;
+    }
+
     @Id
     @Column(name="pk_roomid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,4 +53,12 @@ public class Room {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_mapid")
     private Map map;
+
+    public void updateProps(int x, int y, int width, int height){
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
 }

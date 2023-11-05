@@ -14,6 +14,17 @@ import java.util.UUID;
 @Entity
 @Table(name="walls")
 public class Wall {
+
+    public Wall(){}
+
+    public Wall(int x, int y, int rotation, int width, Map map){
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+        this.width = width;
+        this.map = map;
+    }
+
     @Id
     @Column(name = "pk_wallid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -42,4 +53,13 @@ public class Wall {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_mapid")
     private Map map;
+
+
+    public void updateProps(int x, int y, int rotation, int width){
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+        this.width = width;
+    }
+
 }

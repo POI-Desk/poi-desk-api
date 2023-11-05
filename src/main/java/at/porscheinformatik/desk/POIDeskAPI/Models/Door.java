@@ -15,6 +15,16 @@ import java.util.UUID;
 @Table(name="doors")
 public class Door {
 
+    public Door(){}
+
+    public Door(int x, int y, int rotation, int width, Map map){
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+        this.width = width;
+        this.map = map;
+    }
+
     @Id
     @Column(name = "pk_doorid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,4 +53,12 @@ public class Door {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_mapid")
     private Map map;
+
+    public void updateProps(int x, int y, int rotation, int width){
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+        this.width = width;
+    }
+
 }
