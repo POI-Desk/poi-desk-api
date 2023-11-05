@@ -37,11 +37,11 @@ public class RoomService {
         List<Room> rooms = roomRepo.findAllByMap(map);
         List<Room> finalRooms = new ArrayList<>();
         for (UpdateRoomInput roomInput : roomInputs) {
-            if (roomInput.id() == null) {
+            if (roomInput.pk_roomId() == null) {
                 finalRooms.add(new Room(roomInput.x(), roomInput.y(), roomInput.width(), roomInput.height(), map));
                 continue;
             }
-            Optional<Room> o_room = rooms.stream().filter(room -> Objects.equals(room.getPk_roomId().toString(), roomInput.id().toString())).findFirst();
+            Optional<Room> o_room = rooms.stream().filter(room -> Objects.equals(room.getPk_roomId().toString(), roomInput.pk_roomId().toString())).findFirst();
             if (o_room.isEmpty()) {
                 continue;
             }

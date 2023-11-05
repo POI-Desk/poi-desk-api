@@ -33,21 +33,21 @@ public class Location {
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
     private List<User> users;
 
-    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "location", fetch = FetchType.EAGER)
     private List<Building> buildings;
 
-    @OneToMany(mappedBy = "pk_fk_Location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "pk_fk_Location", fetch = FetchType.EAGER)
     private List<DailyBooking> dailyBookings;
 
-    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.EAGER)
     private List<MonthlyBooking> monthlyBookings;
 
-    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.EAGER)
     private List<QuarterlyBooking> quarterlyBookings;
 
-    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.EAGER)
     private List<YearlyBooking> yearlyBookings;
 }

@@ -46,19 +46,17 @@ public class DoorService {
      * @param map The map the doors belong to.
      * @param doorInputs The new/updated door inputs.
      * @return The new/updated doors.
-     *
-     * @throws Exception if any given door number is already in use
      */
     @Async
-    public CompletableFuture<List<Door>> updateDoors(Map map, List<UpdateDoorInput> doorInputs) throws Exception{
+    public CompletableFuture<List<Door>> updateDoors(Map map, List<UpdateDoorInput> doorInputs){
         List<Door> doors = doorRepo.findAllByMap(map);
         List<Door> finalDoors = new ArrayList<>();
         for (UpdateDoorInput doorInput : doorInputs) {
-            if (doorInput.id() == null) {
+            if (doorInput.pk_doorId() == null) {
                 finalDoors.add(new Door(doorInput.x(), doorInput.y(), doorInput.rotation(), doorInput.width(), map));
                 continue;
             }
-            Optional<Door> o_door = doors.stream().filter(door -> Objects.equals(door.getPk_doorId().toString(), doorInput.id().toString())).findFirst();
+            Optional<Door> o_door = doors.stream().filter(door -> Objects.equals(door.getPk_doorId().toString(), doorInput.pk_doorId().toString())).findFirst();
             if (o_door.isEmpty()) {
                 continue;
             }

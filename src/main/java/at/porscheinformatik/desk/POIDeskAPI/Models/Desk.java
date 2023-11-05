@@ -53,17 +53,17 @@ public class Desk {
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
-    @OneToMany(mappedBy = "desk", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "desk", fetch = FetchType.EAGER)
     private List<Booking> bookings;
 
-    @ManyToMany(mappedBy = "desks", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "desks", fetch = FetchType.EAGER)
     private List<Attribute> attributes;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_floorid")
     private Floor floor;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_mapid")
     private Map map;
 

@@ -47,19 +47,17 @@ public class WallService {
      * @param map The map the walls belong to.
      * @param wallInputs The new/updated wall inputs.
      * @return The new/updated walls.
-     *
-     * @throws Exception if any given wall number is already in use
      */
     @Async
-    public CompletableFuture<List<Wall>> updateWalls(Map map, List<UpdateWallInput> wallInputs) throws Exception{
+    public CompletableFuture<List<Wall>> updateWalls(Map map, List<UpdateWallInput> wallInputs){
         List<Wall> walls = wallRepo.findAllByMap(map);
         List<Wall> finalWalls = new ArrayList<>();
         for (UpdateWallInput wallInput : wallInputs) {
-            if (wallInput.id() == null) {
+            if (wallInput.pk_wallId() == null) {
                 finalWalls.add(new Wall(wallInput.x(), wallInput.y(), wallInput.rotation(), wallInput.width(), map));
                 continue;
             }
-            Optional<Wall> o_wall = walls.stream().filter(wall -> Objects.equals(wall.getPk_wallId().toString(), wallInput.id().toString())).findFirst();
+            Optional<Wall> o_wall = walls.stream().filter(wall -> Objects.equals(wall.getPk_wallId().toString(), wallInput.pk_wallId().toString())).findFirst();
             if (o_wall.isEmpty()) {
                 continue;
             }

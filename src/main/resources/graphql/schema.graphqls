@@ -266,13 +266,6 @@ input DeskInput{
     y: Int!
 }
 
-input UpdateDeskInput{
-    id: ID
-    desknum: String!
-    x: Int!
-    y: Int!
-}
-
 input Bookinginput{
     date: String!
     ismorning: Boolean!
@@ -296,25 +289,7 @@ input RoomInput{
     height: Int!
 }
 
-input UpdateRoomInput{
-    id: ID
-    x: Int!
-    y: Int!
-    width: Int!
-    height: Int!
-}
-
 input InteriorInput{
-    type: InteriorType!
-    x: Int!
-    y: Int!
-    rotation: Int!
-    width: Int!
-    height: Int!
-}
-
-input UpdateInteriorInput{
-    id: ID
     type: InteriorType!
     x: Int!
     y: Int!
@@ -333,21 +308,7 @@ input MapInput{
     height: Int!
 }
 
-input UpdateMapInput{
-    id: ID
-    width: Int!
-    height: Int!
-}
-
 input DoorInput{
-    x: Int!
-    y: Int!
-    rotation: Int!
-    width: Int!
-}
-
-input UpdateDoorInput{
-    id: ID
     x: Int!
     y: Int!
     rotation: Int!
@@ -361,10 +322,55 @@ input WallInput{
     width: Int!
 }
 
-input UpdateWallInput{
-    id: ID
+input UpdateDoorInput{
+    pk_doorId: ID
     x: Int!
     y: Int!
     rotation: Int!
     width: Int!
+    delete: Boolean!
+}
+
+input UpdateWallInput{
+    pk_wallId: ID
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    delete: Boolean!
+}
+
+input UpdateDeskInput{
+    pk_deskid: ID       #TODO: change to camelCase
+    desknum: String!    #TODO: change to camelCase
+    x: Int!
+    y: Int!
+    delete: Boolean!
+}
+
+input UpdateMapInput{
+    pk_mapId: ID
+    width: Int!
+    height: Int!
+    delete: Boolean!
+}
+
+input UpdateInteriorInput{
+    pk_interiorId: ID
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+    delete: Boolean!
+}
+
+input UpdateRoomInput{
+    pk_roomId: ID
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
+    delete: Boolean!
 }

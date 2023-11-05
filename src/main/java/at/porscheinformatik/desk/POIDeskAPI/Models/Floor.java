@@ -31,13 +31,13 @@ public class Floor {
     @UpdateTimestamp
     private LocalDateTime updatedon;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_buildingid")
     private Building building;
 
-    @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "floor", fetch = FetchType.EAGER)
     private List<Desk> desks;
 
-    @OneToOne(mappedBy = "floor", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "floor", fetch = FetchType.EAGER)
     private Map map;
 }

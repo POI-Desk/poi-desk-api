@@ -50,7 +50,7 @@ public class Door {
     @UpdateTimestamp
     private LocalDateTime updatedOn;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "fk_mapid")
     private Map map;
 

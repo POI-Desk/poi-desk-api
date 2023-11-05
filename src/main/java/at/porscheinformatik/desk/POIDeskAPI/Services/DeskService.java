@@ -54,14 +54,14 @@ public class DeskService {
         List<Desk> desks = deskRepo.findAllByMap(map);
         List<Desk> finalDesks = new ArrayList<>();
         for (UpdateDeskInput deskInput : deskInputs) {
-            if (deskInput.id() == null) {
+            if (deskInput.pk_deskid() == null) {
                 if (desks.stream().anyMatch(d -> Objects.equals(d.getDesknum(), deskInput.desknum()))) {
                     throw new Exception("DeskNum already exists " + deskInput.desknum());
                 }
                 finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map.getFloor(), map));
                 continue;
             }
-            Optional<Desk> o_desk = desks.stream().filter(desk -> Objects.equals(desk.getPk_deskid().toString(), deskInput.id().toString())).findFirst();
+            Optional<Desk> o_desk = desks.stream().filter(desk -> Objects.equals(desk.getPk_deskid().toString(), deskInput.pk_deskid().toString())).findFirst();
             if (o_desk.isEmpty()) {
                 continue;
             }
