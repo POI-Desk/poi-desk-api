@@ -44,25 +44,25 @@ public class Map {
     @UpdateTimestamp
     private LocalDateTime updatedOn;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Room> rooms;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Desk> desks;
 
     @OneToMany(mappedBy = "map", fetch = FetchType.LAZY) //TODO: ask if lazy or Async
     private List<Label> labels;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Interior> interiors;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Door> doors;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Wall> walls;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_floorid")
     private Floor floor;
 

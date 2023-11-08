@@ -48,7 +48,8 @@ public class MapService {
 
     //ASYNC OR LAZY fetching!!!!
     //List<UpdateInteriorInput> interiorInputs
-    public Map updateMapObjects(UUID mapId, List<UpdateDeskInput> deskInputs, List<UpdateRoomInput> roomInputs, List<UpdateWallInput> wallInputs, List<UpdateDoorInput> doorInputs) throws Exception {
+    @Async
+    public CompletableFuture<Map> updateMapObjects(UUID mapId, List<UpdateDeskInput> deskInputs, List<UpdateRoomInput> roomInputs, List<UpdateWallInput> wallInputs, List<UpdateDoorInput> doorInputs) throws Exception {
         Optional<at.porscheinformatik.desk.POIDeskAPI.Models.Map> o_map = mapRepo.findById(mapId);
         if (o_map.isEmpty())
             throw new Exception("No map found with given id");
@@ -60,6 +61,6 @@ public class MapService {
         CompletableFuture<List<Door>> doorFuture = doorService.updateDoors(map, doorInputs);
 
         CompletableFuture.allOf(deskFuture, roomFuture, wallFuture, doorFuture).join();
-        return map;
+        return CompletableFuture.completedFuture(map);
     }
 }

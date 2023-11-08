@@ -29,7 +29,7 @@ public class MapController {
     //ASYNC OR LAZY fetching!!!!
     @MutationMapping
     public Map updateMapObjects (@Argument UUID mapId, @Argument List<UpdateDeskInput> deskInputs, @Argument List<UpdateRoomInput> roomInputs, @Argument List<UpdateWallInput> wallInputs, @Argument List<UpdateDoorInput> doorInputs) throws Exception {
-        Map map = mapService.updateMapObjects(mapId, deskInputs, roomInputs, wallInputs, doorInputs);
+        Map map = mapService.updateMapObjects(mapId, deskInputs, roomInputs, wallInputs, doorInputs).get();
         return map;
     }
 

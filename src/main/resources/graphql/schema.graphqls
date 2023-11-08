@@ -328,7 +328,7 @@ input UpdateDoorInput{
     y: Int!
     rotation: Int!
     width: Int!
-    delete: Boolean!
+    #delete: Boolean!
 }
 
 input UpdateWallInput{
@@ -337,7 +337,7 @@ input UpdateWallInput{
     y: Int!
     rotation: Int!
     width: Int!
-    delete: Boolean!
+    #delete: Boolean!
 }
 
 input UpdateDeskInput{
@@ -345,14 +345,14 @@ input UpdateDeskInput{
     desknum: String!    #TODO: change to camelCase
     x: Int!
     y: Int!
-    delete: Boolean!
+    #delete: Boolean!
 }
 
 input UpdateMapInput{
     pk_mapId: ID
     width: Int!
     height: Int!
-    delete: Boolean!
+    #delete: Boolean!
 }
 
 input UpdateInteriorInput{
@@ -363,7 +363,7 @@ input UpdateInteriorInput{
     rotation: Int!
     width: Int!
     height: Int!
-    delete: Boolean!
+    #delete: Boolean!
 }
 
 input UpdateRoomInput{
@@ -372,5 +372,5 @@ input UpdateRoomInput{
     y: Int!
     width: Int!
     height: Int!
-    delete: Boolean!
+    #delete: Boolean!
 }
