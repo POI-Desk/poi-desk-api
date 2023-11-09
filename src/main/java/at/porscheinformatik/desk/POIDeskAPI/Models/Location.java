@@ -39,7 +39,7 @@ public class Location {
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Building> buildings;
 
-    @OneToMany(mappedBy = "pk_fk_Location", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)
     private List<DailyBooking> dailyBookings;
 
     @OneToMany(mappedBy = "fk_Location", fetch = FetchType.LAZY)

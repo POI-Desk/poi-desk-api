@@ -16,7 +16,7 @@ public class DailyBooking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pk_fk_location", nullable = false)
-    private Location pk_fk_Location;
+    private Location fk_Location;
 
     @Column(name = "totalbookings")
     private Integer totalBooking;
