@@ -21,16 +21,14 @@ public class MapController {
     @Autowired
     private MapService mapService;
 
+    @QueryMapping
+    public Map getMapById(@Argument UUID mapId){
+        return mapService.getMapById(mapId);
+    }
+
     @MutationMapping
     public Map createMap(@Argument UUID floorId, @Argument MapInput mapInput) throws Exception {
         return mapService.createMap(floorId, mapInput);
-    }
-
-    //ASYNC OR LAZY fetching!!!!
-    @MutationMapping
-    public Map updateMapObjects (@Argument UUID mapId, @Argument List<UpdateDeskInput> deskInputs, @Argument List<UpdateRoomInput> roomInputs, @Argument List<UpdateWallInput> wallInputs, @Argument List<UpdateDoorInput> doorInputs) throws Exception {
-        Map map = mapService.updateMapObjects(mapId, deskInputs, roomInputs, wallInputs, doorInputs).get();
-        return map;
     }
 
     @SchemaMapping

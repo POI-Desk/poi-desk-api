@@ -24,14 +24,6 @@ public class MapService {
     private MapRepo mapRepo;
     @Autowired
     private FloorRepo floorRepo;
-    @Autowired
-    private DeskService deskService;
-    @Autowired
-    private RoomService roomService;
-    @Autowired
-    private WallService wallService;
-    @Autowired
-    private DoorService doorService;
 
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
@@ -46,21 +38,17 @@ public class MapService {
         return map;
     }
 
-    //ASYNC OR LAZY fetching!!!!
-    //List<UpdateInteriorInput> interiorInputs
-    @Async
-    public CompletableFuture<Map> updateMapObjects(UUID mapId, List<UpdateDeskInput> deskInputs, List<UpdateRoomInput> roomInputs, List<UpdateWallInput> wallInputs, List<UpdateDoorInput> doorInputs) throws Exception {
-        Optional<at.porscheinformatik.desk.POIDeskAPI.Models.Map> o_map = mapRepo.findById(mapId);
+    /**
+     * @param mapId The mapId the map to find.
+     * @return The map.
+     *
+     * @throws IllegalArgumentException if map with given map ID does not exist
+     */
+    public Map getMapById(UUID mapId){
+        Optional<Map> o_map = mapRepo.findById(mapId);
         if (o_map.isEmpty())
-            throw new Exception("No map found with given id");
-        Map map = o_map.get();
-
-        CompletableFuture<List<Desk>> deskFuture = deskService.updateDesks(map, deskInputs);
-        CompletableFuture<List<Room>> roomFuture = roomService.updateRooms(map, roomInputs);
-        CompletableFuture<List<Wall>> wallFuture = wallService.updateWalls(map, wallInputs);
-        CompletableFuture<List<Door>> doorFuture = doorService.updateDoors(map, doorInputs);
-
-        CompletableFuture.allOf(deskFuture, roomFuture, wallFuture, doorFuture).join();
-        return CompletableFuture.completedFuture(map);
+            throw new IllegalArgumentException("no map with given ID: " + mapId);
+        return o_map.get();
     }
+
 }

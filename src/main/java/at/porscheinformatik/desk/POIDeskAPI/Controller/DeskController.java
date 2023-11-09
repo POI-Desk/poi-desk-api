@@ -1,14 +1,12 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
+import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.DeskInput;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateDeskInput;
+import at.porscheinformatik.desk.POIDeskAPI.Services.DeskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -21,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class DeskController {
@@ -29,10 +28,11 @@ public class DeskController {
     private DeskRepo deskRepo;
 
     @Autowired
-    private FloorRepo floorRepo;
+    private DeskService deskService;
 
     @Autowired
-    private BookingRepo bookingRepo;
+    private FloorRepo floorRepo;
+
     @Autowired
     private MapRepo mapRepo;
 
@@ -41,16 +41,11 @@ public class DeskController {
         return (List<Desk>) deskRepo.findAll();
     }
 
-    @QueryMapping
-    public Desk getDeskById(@Argument UUID deskid){
-        return deskRepo.findById(deskid).get();
-    }
-
     /**
      * Finds all Seats on a specified floor
      *
      * @param floorid
-     * @return List<Seat>
+     * @return List<Desk>
      */
     @QueryMapping
     public List<Desk> getDesksOnFloor(@Argument UUID floorid) {
@@ -65,9 +60,14 @@ public class DeskController {
         return seats;
     }
 
+    @QueryMapping
+    public Desk getDeskById(@Argument UUID deskId) throws ExecutionException, InterruptedException {
+        return deskService.getDeskById(deskId).get();
+    }
+
     @MutationMapping
     public List<Desk> addDesksToFloor(@Argument UUID floorId, @Argument UUID mapId, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
-        List<Desk> newSeats = new ArrayList<>();
+        List<Desk> newDesks = new ArrayList<>();
         Optional<Floor> o_floor = floorRepo.findById(floorId);
         if (o_floor.isEmpty())
             throw new InvalidRelationIdException("floor id does not exist");
@@ -77,14 +77,27 @@ public class DeskController {
             throw new InvalidRelationIdException("map id does not exist");
 
         desks.forEach(s -> {
-            newSeats.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get(), o_map.get()));
+            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get(), o_map.get()));
         });
-        deskRepo.saveAll(newSeats);
+        deskRepo.saveAll(newDesks);
 
-        return newSeats;
+        return newDesks;
+    }
+
+    @MutationMapping
+    public List<Desk> updateDesksOnMap(@Argument UUID mapId, @Argument List<UpdateDeskInput> deskInputs) throws Exception {
+        return deskService.updateDesks(mapId, deskInputs).get();
+    }
+
+    @MutationMapping
+    public List<Desk> deleteDesks(@Argument List<UUID> deskIds) throws ExecutionException, InterruptedException {
+        return deskService.deleteDesks(deskIds).get();
     }
 
     @SchemaMapping
     public List<Booking> bookings(Desk desk) {return desk.getBookings();}
+
+    @SchemaMapping
+    public Map map(Desk desk) { return desk.getMap(); }
 
 }

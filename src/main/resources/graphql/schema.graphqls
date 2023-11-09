@@ -8,7 +8,6 @@ type Query{
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
-    getDeskById(deskid: ID!): Desk
     getDesksOnFloor(floorid: ID!): [Desk!]
     getBookingsByUserId(userid: ID!): [Booking!]
     isBookedAt(deskId: ID!, date: String!, dayTime: String!): Boolean
@@ -18,6 +17,8 @@ type Query{
     getSeatOfBooking(bookingid: ID!): Desk
     getYearlyBookings: [YearlyBooking!]
     getMapByFloor(floorId: ID!): Map
+    getMapById(mapId: ID!): Map
+    getDeskById(deskId: ID!): Desk
 }
 
 type Mutation{
@@ -31,7 +32,14 @@ type Mutation{
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
     createMap(floorId: ID!, mapInput: MapInput!): Map
-    updateMapObjects(mapId: ID!, deskInputs: [UpdateDeskInput!]!, roomInputs: [UpdateRoomInput!]!, wallInputs: [UpdateWallInput!]!, doorInputs: [UpdateDoorInput!]!): Map
+    updateDoorsOnMap(mapId: ID!, doorInputs: [UpdateDoorInput!]!): [Door!]
+    updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
+    updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
+    updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
+    deleteRooms(roomIds: [ID!]!): [Room!]
+    deleteWalls(wallIds: [ID!]!): [Wall!]
+    deleteDoors(doorIds: [ID!]!): [Door!]
+    deleteDesks(deskIds: [ID!]!): [Desk!]
 }
 
 type Attribute{
@@ -157,6 +165,7 @@ type Desk{
     bookings: [Booking!]
     attributes: [Attribute!]
     floor: Floor
+    map: Map
 }
 
 type User{
@@ -218,6 +227,7 @@ type Room{
     map: Map
 }
 
+#TODO: impl service and controller
 type Interior{
     pk_interiorId: ID!
     type: InteriorType!

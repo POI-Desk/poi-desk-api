@@ -2,7 +2,6 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.WallRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateWallInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Wall;
@@ -22,14 +21,14 @@ public class WallService {
 
 
     /**
-     * Updates give walls on map.
+     * Updates given walls on map.
      *
      * @param mapId The mapId the walls belong to.
      * @param wallInputs The new/updated wall inputs.
      * @return The new/updated walls.
      *
      * @throws IllegalArgumentException if map with given map ID does not exist
-     * @throws Exception if any given wall number is already in use
+     * @throws Exception if any given wall ID does not exist
      */
     @Async
     public CompletableFuture<List<Wall>> updateWalls(UUID mapId, List<UpdateWallInput> wallInputs) throws Exception {
@@ -42,14 +41,35 @@ public class WallService {
     }
 
     /**
-     * Updates give walls on map.
+     * Deletes the walls with given IDs.
      *
+     * @return List of deleted walls.
+     */
+     @Async
+     public CompletableFuture<List<Wall>> deleteWalls(List<UUID> wallIds){
+         Iterable<Wall> i_walls = wallRepo.findAllById(wallIds);
+         List<Wall> delWalls = new ArrayList<>();
+         for (Wall wall :
+                 i_walls) {
+             delWalls.add(wall);
+         }
+
+         wallRepo.deleteAll(delWalls);
+         return CompletableFuture.completedFuture(delWalls);
+     }
+
+    /**
+     * <b>No side effects</b>
+     * <br />
+     * Calculates List of Walls with given input
      * @param map The map the walls belong to.
      * @param wallInputs The new/updated wall inputs.
      * @return The new/updated walls.
+     *
+     * @throws Exception if any given wall ID does not exist
      */
     @Async
-    public CompletableFuture<List<Wall>> updateWalls(Map map, List<UpdateWallInput> wallInputs){
+    public CompletableFuture<List<Wall>> updateWalls(Map map, List<UpdateWallInput> wallInputs) throws Exception {
         List<Wall> walls = wallRepo.findAllByMap(map);
         List<Wall> finalWalls = new ArrayList<>();
         for (UpdateWallInput wallInput : wallInputs) {
@@ -59,7 +79,7 @@ public class WallService {
             }
             Optional<Wall> o_wall = walls.stream().filter(wall -> Objects.equals(wall.getPk_wallId().toString(), wallInput.pk_wallId().toString())).findFirst();
             if (o_wall.isEmpty()) {
-                continue;
+                throw new Exception("any given wall ID does not exist");
             }
             Wall c_wall = o_wall.get();
             c_wall.updateProps(wallInput.x(), wallInput.y(), wallInput.rotation(), wallInput.width());

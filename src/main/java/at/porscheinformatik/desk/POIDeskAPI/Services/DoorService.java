@@ -21,14 +21,14 @@ public class DoorService {
 
 
     /**
-     * Updates give doors on map.
+     * Updates given doors on map.
      *
      * @param mapId The mapId the doors belong to.
      * @param doorInputs The new/updated door inputs.
      * @return The new/updated doors.
      *
      * @throws IllegalArgumentException if map with given map ID does not exist
-     * @throws Exception if any given door number is already in use
+     * @throws Exception if any given door ID does not exist
      */
     @Async
     public CompletableFuture<List<Door>> updateDoors(UUID mapId, List<UpdateDoorInput> doorInputs) throws Exception {
@@ -37,18 +37,43 @@ public class DoorService {
         if (o_map.isEmpty())
             throw new IllegalArgumentException("No map found with given id");
         Map map = o_map.get();
-        return updateDoors(map, doorInputs);
+        List<Door> doors = updateDoors(map, doorInputs).get();
+        doorRepo.saveAll(doors);
+        return CompletableFuture.completedFuture(doors);
+    }
+
+
+    /**
+     * Deletes the doors with given IDs.
+     *
+     * @return List of deleted doors.
+     */
+    @Async
+    public CompletableFuture<List<Door>> deleteDoors(List<UUID> doorIds){
+        Iterable<Door> i_doors = doorRepo.findAllById(doorIds);
+        List<Door> delRooms = new ArrayList<>();
+        for (Door room:
+                i_doors) {
+            delRooms.add(room);
+        }
+
+        doorRepo.deleteAll(delRooms);
+        return CompletableFuture.completedFuture(delRooms);
     }
 
     /**
-     * Updates give doors on map.
+     * <b>No side effects</b>
+     * <br />
+     * Calculates List of Doors with given input
      *
      * @param map The map the doors belong to.
      * @param doorInputs The new/updated door inputs.
      * @return The new/updated doors.
+     *
+     * @throws Exception if any given door ID does not exist
      */
     @Async
-    public CompletableFuture<List<Door>> updateDoors(Map map, List<UpdateDoorInput> doorInputs){
+    public CompletableFuture<List<Door>> updateDoors(Map map, List<UpdateDoorInput> doorInputs) throws Exception {
         List<Door> doors = doorRepo.findAllByMap(map);
         List<Door> finalDoors = new ArrayList<>();
         for (UpdateDoorInput doorInput : doorInputs) {
@@ -58,14 +83,12 @@ public class DoorService {
             }
             Optional<Door> o_door = doors.stream().filter(door -> Objects.equals(door.getPk_doorId().toString(), doorInput.pk_doorId().toString())).findFirst();
             if (o_door.isEmpty()) {
-                continue;
+                throw new Exception("any given door ID does not exist");
             }
             Door c_door = o_door.get();
             c_door.updateProps(doorInput.x(), doorInput.y(), doorInput.rotation(), doorInput.width());
             finalDoors.add(c_door);
         }
-
-        doorRepo.saveAll(finalDoors);
         return CompletableFuture.completedFuture(finalDoors);
     }
 }
