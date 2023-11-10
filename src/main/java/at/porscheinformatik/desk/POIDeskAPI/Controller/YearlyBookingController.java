@@ -9,17 +9,35 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+
 @Controller
 public class YearlyBookingController {
     @Autowired
     private YearlyBookingRepo yearlyBookingRepo;
 
     @QueryMapping
-    public Iterable<YearlyBooking> getYearlyBookings()
+    public YearlyBooking getYearlyBooking(@Argument String year, @Argument UUID location)
     {
-        Iterable<YearlyBooking> yearlyBookings = yearlyBookingRepo.findAll();
-        return yearlyBookings;
+        List<YearlyBooking> yearlyBookings = (List<YearlyBooking>) yearlyBookingRepo.findAll();
+        Optional<YearlyBooking> yearlyBooking = yearlyBookings.stream()
+                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
+                .filter(booking -> Objects.equals(booking.getYear(), year))
+                .findFirst();
+        return yearlyBooking.orElse(null);
+    }
+
+    @QueryMapping
+    public List<String> getAlLYears(){
+        List<YearlyBooking> yearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
+        List<String> uniqueYears = new ArrayList<>();
+        for (YearlyBooking yearlyBooking : yearlyBookings) {
+            if (!uniqueYears.contains(yearlyBooking.getYear())) {
+                uniqueYears.add(yearlyBooking.getYear());
+            }
+        }
+        if(uniqueYears.isEmpty())
+            return null;
+       return uniqueYears;
     }
 }
