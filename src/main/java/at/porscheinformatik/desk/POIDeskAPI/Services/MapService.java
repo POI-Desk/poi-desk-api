@@ -44,11 +44,22 @@ public class MapService {
      *
      * @throws IllegalArgumentException if map with given map ID does not exist
      */
-    public Map getMapById(UUID mapId){
+    @Async
+    public CompletableFuture<Map> getMapById(UUID mapId){
         Optional<Map> o_map = mapRepo.findById(mapId);
         if (o_map.isEmpty())
             throw new IllegalArgumentException("no map with given ID: " + mapId);
-        return o_map.get();
+        return CompletableFuture.completedFuture(o_map.get());
     }
 
+    @Async
+    public CompletableFuture<Map> updateMap(UUID mapId, MapInput mapInput){
+        Optional<Map> o_map = mapRepo.findById(mapId);
+        if (o_map.isEmpty())
+            throw new IllegalArgumentException("No map with given ID: " + mapId);
+        Map map = o_map.get();
+        map.updateProps(mapInput.width(), mapInput.height(), map.getFloor());
+        mapRepo.save(map);
+        return CompletableFuture.completedFuture(map);
+    }
 }

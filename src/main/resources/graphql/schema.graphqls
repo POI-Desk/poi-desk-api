@@ -40,6 +40,7 @@ type Mutation{
     deleteWalls(wallIds: [ID!]!): [Wall!]
     deleteDoors(doorIds: [ID!]!): [Door!]
     deleteDesks(deskIds: [ID!]!): [Desk!]
+    updateMap(mapId: ID!, mapInput: MapInput!): Map
 }
 
 type Attribute{

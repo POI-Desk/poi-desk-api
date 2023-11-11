@@ -15,6 +15,7 @@ import javax.management.relation.InvalidRelationIdException;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class MapController {
@@ -22,13 +23,18 @@ public class MapController {
     private MapService mapService;
 
     @QueryMapping
-    public Map getMapById(@Argument UUID mapId){
-        return mapService.getMapById(mapId);
+    public Map getMapById(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return mapService.getMapById(mapId).get();
     }
 
     @MutationMapping
     public Map createMap(@Argument UUID floorId, @Argument MapInput mapInput) throws Exception {
         return mapService.createMap(floorId, mapInput);
+    }
+
+    @MutationMapping
+    public Map updateMap(@Argument UUID mapId, @Argument MapInput mapInput) throws ExecutionException, InterruptedException {
+        return mapService.updateMap(mapId, mapInput).get();
     }
 
     @SchemaMapping

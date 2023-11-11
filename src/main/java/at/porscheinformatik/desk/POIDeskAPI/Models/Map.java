@@ -50,7 +50,7 @@ public class Map {
     @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Desk> desks;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY) //TODO: ask if lazy or Async
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Label> labels;
 
     @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
@@ -65,5 +65,11 @@ public class Map {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_floorid")
     private Floor floor;
+
+    public void updateProps(int width, int height, Floor floor){
+        this.width = width;
+        this.height = height;
+        this.floor = floor;
+    }
 
 }
