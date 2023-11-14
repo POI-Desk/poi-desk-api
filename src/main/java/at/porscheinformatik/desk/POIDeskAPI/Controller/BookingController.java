@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class BookingController {
@@ -40,15 +41,8 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByDate(@Argument LocalDate date) {
-        List<Booking> bookings = new ArrayList<>();
-        bookingRepo.findAll().forEach(booking -> {
-            if (booking.getDate() != null) {
-                // System.out.println(booking.getDate().toString().split(" ")[0]);
-                if (booking.getDate().toString().split(" ")[0].equals(date.toString())) bookings.add(booking);
-            }
-        });
-        return bookings;
+    public List<Booking> getBookingsByDate(@Argument LocalDate date) throws ExecutionException, InterruptedException {
+        return bookingService.getBookingsOnDate(date).get();
     }
 
 

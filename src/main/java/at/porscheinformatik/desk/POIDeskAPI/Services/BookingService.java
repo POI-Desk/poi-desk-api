@@ -3,10 +3,12 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class BookingService {
@@ -21,6 +23,17 @@ public class BookingService {
 
         bookingRepo.delete(booking.get());
         return bookingId;
+    }
+
+    @Async
+    public CompletableFuture<List<Booking>> getBookingsOnDate(LocalDate date){
+        Iterable<Booking> i_bookings = bookingRepo.findBookingsByDate(date);
+        List<Booking> bookings = new ArrayList<>();
+        for (Booking booking:
+             i_bookings) {
+            bookings.add(booking);
+        }
+        return CompletableFuture.completedFuture(bookings);
     }
 
 }
