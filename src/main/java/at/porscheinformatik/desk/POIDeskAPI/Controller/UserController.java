@@ -7,21 +7,18 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
+import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
 
 @Controller
 public class UserController
@@ -41,8 +38,8 @@ public class UserController
     public User getLoggedInUser() { return loggedInUser; }
 
     @QueryMapping
-    public List<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
-        return userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).getContent();
+    public UserPageResponse<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
+        return new UserPageResponse<>(userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).getContent(), userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).hasNext());
     }
 
     @QueryMapping
@@ -126,7 +123,4 @@ public class UserController
 
     @SchemaMapping
     public Location location(User user) { return user.getLocation(); }
-
-
-
 }
