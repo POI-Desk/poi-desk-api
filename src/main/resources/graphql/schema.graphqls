@@ -16,8 +16,11 @@ type Query{
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
-    getYearlyBookings: [YearlyBooking!]
-
+    getDailyBookings: [DailyBooking!]
+    getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
+    getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
+    getYearlyBooking(year: String!, location: ID!): YearlyBooking
+    getAlLYears: [String]
 }
 
 type Mutation{
@@ -41,8 +44,8 @@ type Attribute{
 }
 type DailyBooking{
     pk_day: String!
-    pk_fk_Location: Location!
-    totalBookings: Int!
+    fk_Location: Location!
+    totalBooking: Int!
     fk_monthlyBookingId: MonthlyBooking!
 }
 
@@ -50,13 +53,13 @@ type MonthlyBooking{
     pk_monthlyBookingId: ID!
     month: String!
     fk_Location: Location!
-    totalBookings: Int
+    totalBooking: Int
     amountOfDesks: Int
     highestBookings: Int
     averageBookings: Int
     lowestBookings: Int
     fk_quarterlyBookingId: QuarterlyBooking!
-    dailyBooking: [DailyBooking!]
+    dailyBookings: [DailyBooking]
 }
 
 type QuarterlyBooking{
@@ -64,7 +67,7 @@ type QuarterlyBooking{
     year: String!
     fk_Location: Location!
     quarter: String!
-    totalBookings: Int
+    totalBooking: Int
     amountOfDesks: Int
     highestBookings: Int
     averageBookings: Int
@@ -77,7 +80,7 @@ type YearlyBooking{
     pk_yearlyBookingId: ID!
     year: String!
     fk_Location: Location!
-    totalBookings: Int
+    totalBooking: Int
     amountOfDesks: Int
     highestBookings: Int
     averageBookings: Int
