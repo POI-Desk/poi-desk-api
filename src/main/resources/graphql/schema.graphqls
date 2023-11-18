@@ -1,5 +1,5 @@
 type Query{
-    getAllUsers(input: String, pageNumber: Int, pageSize: Int): [User!]
+    getAllUsers(input: String, pageNumber: Int, pageSize: Int): UserPageResponse!
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
@@ -228,6 +228,11 @@ type UserInfo{
     endCursor: String
     hasNextPage: Boolean!
     hasPreviousPage: Boolean!
+}
+
+type UserPageResponse {
+    content: [User!]!
+    hasNextPage: Boolean!
 }
 
 input Deskinput{
