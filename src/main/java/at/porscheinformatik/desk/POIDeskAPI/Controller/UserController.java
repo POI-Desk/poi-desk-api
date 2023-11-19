@@ -9,7 +9,9 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -39,7 +41,20 @@ public class UserController
 
     @QueryMapping
     public UserPageResponse<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
-        return new UserPageResponse<>(userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).getContent(), userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).hasNext());
+
+        // List<User> userAtBeginning = userRepo.findByUsernameContainsIgnoreCase(input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent();
+
+        Page<User> userPage = userRepo.findByUsernameStartsWithIgnoreCase(
+                input,
+                PageRequest.of(pageNumber, pageSize, Sort.by("username"))
+        );
+
+        // userAtBeginning.addAll(userPage.getContent());
+        // System.out.println(userAtBeginning);
+
+        return new UserPageResponse<>(userPage.getContent(), userPage.hasNext());
+
+        // return new UserPageResponse<>(userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent(), userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).hasNext());
     }
 
     @QueryMapping
