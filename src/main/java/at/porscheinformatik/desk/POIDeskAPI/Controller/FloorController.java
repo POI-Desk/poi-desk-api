@@ -13,16 +13,34 @@ import java.util.UUID;
 
 @Controller
 public class FloorController {
+
+    /**
+     * The floor repository
+     */
     @Autowired
-    FloorRepo floorRepo;
+    private FloorRepo floorRepo;
+
+    /**
+     * The building repository
+     */
     @Autowired
     private BuildingRepo buildingRepo;
 
+    /**
+     * Finds all desks in database
+     * @return List of floors
+     */
     @QueryMapping
     public List<Floor> getAllFloors() {
         return (List<Floor>) floorRepo.findAll();
     }
 
+    /**
+     * Finds all floors in building with the specified id
+     * returns empty list if the there isn't any building associated with the id
+     * @param buildingid UUID, search for floors here
+     * @return List of floors
+     */
     @QueryMapping
     public List<Floor> getFloorsInBuilding(@Argument UUID buildingid) {
         return buildingRepo.findById(buildingid).isPresent() ?

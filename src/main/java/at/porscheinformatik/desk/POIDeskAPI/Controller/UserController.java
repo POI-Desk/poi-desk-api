@@ -21,19 +21,34 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Controller
-public class UserController
-{
+public class UserController {
+    /**
+     * The user repository
+     */
     @Autowired
     private UserRepo userRepo;
 
+    /**
+     * The location repository
+     */
     @Autowired
     private LocationRepo locationRepo;
 
+    /**
+     * The role repository
+     */
     @Autowired
     private RoleRepo roleRepo;
 
+    /**
+     * The currently logged-in user
+     */
     private User loggedInUser;
 
+    /**
+     * Getter for the currently logged-in user
+     * @return User, currently logged-in user
+     */
     @QueryMapping
     public User getLoggedInUser() { return loggedInUser; }
 
@@ -59,6 +74,7 @@ public class UserController
         User user = u.get();
         return user.getRoles();
     }
+
     @QueryMapping
     public boolean hasDefaultLocation(@Argument UUID id) {
         Optional<User> u = userRepo.findById(id);
@@ -66,6 +82,7 @@ public class UserController
             return false;
         else return u.get().getLocation() != null;
     }
+
     @MutationMapping
     public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     {
@@ -78,6 +95,7 @@ public class UserController
         userRepo.save(updateduser);
         return true;
     }
+
     @MutationMapping
     public User changeUsername(@Argument UUID id, @Argument String name)
     {

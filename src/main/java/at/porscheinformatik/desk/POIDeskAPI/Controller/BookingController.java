@@ -17,6 +17,7 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,16 +25,34 @@ import java.util.UUID;
 @Controller
 public class BookingController {
 
+    /**
+     * The bookingService class, needed for helper methods
+     */
     @Autowired
     private BookingService bookingService;
 
+    /**
+     * The booking repository
+     */
     @Autowired
     private BookingRepo bookingRepo;
+
+    /**
+     * The desk repository
+     */
     @Autowired
     private DeskRepo deskRepo;
+
+    /**
+     * The user repository
+     */
     @Autowired
     private UserRepo userRepo;
 
+    /**
+     * Return all bookings in the database
+     * @return List of bookings
+     */
     @QueryMapping
     public List<Booking> allBookings() {
         return (List<Booking>) bookingRepo.findAll();
@@ -60,11 +79,27 @@ public class BookingController {
     @QueryMapping
         public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
 
+    /**
+     * Creates a new booking and saves it in the database
+     * <p>
+     * Generates a booking number like this
+     * <ul>
+     *     <li>booking date: YYYYMMDD</li>
+     *     <li>interval abbreviation: M(orning) or A(fternoon)</li>
+     *     <li>desk number: number of the desk in database</li>
+     * </ul>
+     * @param booking BookingInput
+     * @return Booking
+     */
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {
         Booking newBooking = new Booking(booking);
+        String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
+        String interval = booking.ismorning() ? "M" : "A";
+        String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
+        String bookingNumber = basicDate + interval + deskNum;
 
-        newBooking.setBookingnumber("12345"); // TODO change
+        newBooking.setBookingnumber(bookingNumber);
         newBooking.setUser(userRepo.findById(booking.userid()).get());
         newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
         bookingRepo.save(newBooking);
@@ -110,6 +145,13 @@ public class BookingController {
         return currentBooking;
     }
 
+    /**
+     * unused i think...
+     * <p>
+     * todo remove
+     * @param booking
+     * @return
+     */
     @SchemaMapping
     public User user(Booking booking) {
         return booking.getUser();
