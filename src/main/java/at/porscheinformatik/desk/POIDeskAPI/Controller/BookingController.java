@@ -95,7 +95,7 @@ public class BookingController {
     public Booking bookDesk(@Argument BookingInput booking) {
         Booking newBooking = new Booking(booking);
         String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
-        String interval = booking.ismorning() ? "M" : "A";
+        String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
         String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
         String bookingNumber = basicDate + interval + deskNum;
 
