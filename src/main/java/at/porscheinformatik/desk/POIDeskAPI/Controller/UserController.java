@@ -7,7 +7,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
-import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponse;
+import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +40,7 @@ public class UserController
     public User getLoggedInUser() { return loggedInUser; }
 
     @QueryMapping
-    public UserPageResponse<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
+    public UserPageResponseService<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
 
         // List<User> userAtBeginning = userRepo.findByUsernameContainsIgnoreCase(input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent();
 
@@ -52,7 +52,7 @@ public class UserController
         // userAtBeginning.addAll(userPage.getContent());
         // System.out.println(userAtBeginning);
 
-        return new UserPageResponse<>(userPage.getContent(), userPage.hasNext());
+        return new UserPageResponseService<>(userPage.getContent(), userPage.hasNext());
 
         // return new UserPageResponse<>(userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent(), userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).hasNext());
     }

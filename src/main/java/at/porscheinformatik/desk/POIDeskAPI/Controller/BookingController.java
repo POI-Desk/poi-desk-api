@@ -17,9 +17,7 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class BookingController {
@@ -58,7 +56,11 @@ public class BookingController {
     }
 
     @QueryMapping
-        public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
+        public List<Booking> getBookingsByUserid(@Argument UUID userid) {
+            List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
+            Collections.sort(bookings);
+            return bookings;
+        }
 
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {

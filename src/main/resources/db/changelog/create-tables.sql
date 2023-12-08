@@ -217,7 +217,7 @@ create table DailyBookings(
     pk_day char(10) DEFAULT to_char(CURRENT_DATE, 'YYYY-MM-DD'),
     pk_fk_Location UUID NOT NULL ,
     totalBookings INTEGER NOT NULL ,
-    fk_monthlyBookingId UUID NOT NULL ,
+    fk_monthlyBookingId UUID,
     PRIMARY KEY (pk_day, pk_fk_Location),
     FOREIGN KEY (pk_fk_Location) REFERENCES locations (pk_locationid),
     FOREIGN KEY (fk_monthlyBookingId) REFERENCES MonthlyBookings (pk_monthlyBookingId)

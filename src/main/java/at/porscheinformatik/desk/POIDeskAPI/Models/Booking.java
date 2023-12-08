@@ -28,7 +28,7 @@ import java.util.UUID;
 @ToString
 @Table(name="bookings")
 @NoArgsConstructor
-public class Booking {
+public class Booking implements Comparable<Booking>{
     public Booking(BookingInput booking) {
         this.setDate(booking.date());
         this.setIsmorning(booking.ismorning());
@@ -69,4 +69,9 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_deskid")
     private Desk desk;
+
+    @Override
+    public int compareTo(Booking o) {
+        return this.getDate().compareTo(o.getDate());
+    }
 }
