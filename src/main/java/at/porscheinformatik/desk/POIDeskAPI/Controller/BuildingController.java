@@ -14,11 +14,26 @@ import java.util.UUID;
 
 @Controller
 public class BuildingController {
+    /**
+     * The building repository
+     */
     @Autowired
-    BuildingRepo buildingRepo;
+    private BuildingRepo buildingRepo;
+
+    /**
+     * The location repository
+     */
     @Autowired
     private LocationRepo locationRepo;
 
+
+    /**
+     * Finds all buildings in a location with the specified id
+     * <p>
+     * Returns empty ArrayList if location is not present
+     * @param locationid UUID, search for buildings here
+     * @return List of building
+     */
     @QueryMapping
     public List<Building> getBuildingsInLocation(@Argument UUID locationid) {
         if (locationRepo.findById(locationid).isPresent()) return buildingRepo.findByLocation(locationRepo.findById(locationid).get());

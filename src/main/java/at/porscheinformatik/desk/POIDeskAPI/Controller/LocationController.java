@@ -10,10 +10,16 @@ import java.util.List;
 
 @Controller
 public class LocationController {
-
+    /**
+     * The location repository
+     */
     @Autowired
     private LocationRepo locationRepo;
 
+    /**
+     * Finds all locations in the database
+     * @return List of all locations
+     */
     @QueryMapping
     public List<Location> getAllLocations() { return (List<Location>)locationRepo.findAll(); }
 }
