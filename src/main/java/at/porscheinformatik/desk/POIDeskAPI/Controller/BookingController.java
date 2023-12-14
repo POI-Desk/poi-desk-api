@@ -21,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class BookingController {
@@ -77,7 +78,11 @@ public class BookingController {
     }
 
     @QueryMapping
-        public List<Booking> getBookingsByUserid(@Argument UUID userid) { return bookingRepo.findBookingsByUser(userRepo.findById(userid).get()); }
+        public List<Booking> getBookingsByUserid(@Argument UUID userid) {
+            List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
+            Collections.sort(bookings);
+            return bookings;
+        }
 
     /**
      * Creates a new booking and saves it in the database

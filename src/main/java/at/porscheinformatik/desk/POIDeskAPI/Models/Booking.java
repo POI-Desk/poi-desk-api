@@ -19,13 +19,13 @@ import java.util.UUID;
 @ToString
 @Table(name="bookings")
 @NoArgsConstructor
-public class Booking {
     /**
      * Booking Constructor
      * <p>
      * Creates a new booking using a booking input and creates a new user and desk
      * @param booking BookingInput -> date, ismorning, isafternoon, userid, deskid
      */
+public class Booking implements Comparable<Booking>{
     public Booking(BookingInput booking) {
         this.setDate(booking.date());
         this.setIsmorning(booking.ismorning());
@@ -66,4 +66,9 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_deskid")
     private Desk desk;
+
+    @Override
+    public int compareTo(Booking o) {
+        return this.getDate().compareTo(o.getDate());
+    }
 }
