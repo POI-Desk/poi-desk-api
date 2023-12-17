@@ -39,4 +39,16 @@ public class Building {
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY)
     private List<Floor> floors;
 
+    @OneToMany(mappedBy = "fk_building", fetch = FetchType.LAZY)
+    private List<DailyBooking> dailyBookings;
+
+    @OneToMany(mappedBy = "fk_building", fetch = FetchType.LAZY)
+    private List<MonthlyBooking> monthlyBookings;
+
+    @OneToMany(mappedBy = "fk_building", fetch = FetchType.LAZY)
+    private List<QuarterlyBooking> quarterlyBookings;
+
+    @OneToMany(mappedBy = "fk_building", fetch = FetchType.LAZY)
+    private List<YearlyBooking> yearlyBookings;
+
 }
