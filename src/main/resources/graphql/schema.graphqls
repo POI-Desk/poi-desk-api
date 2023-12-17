@@ -324,7 +324,7 @@ type UserPageResponse {
     hasNextPage: Boolean!
 }
 
-input Deskinput{
+input DeskInput{
     desknum: String!
     x: Int!
     y: Int!

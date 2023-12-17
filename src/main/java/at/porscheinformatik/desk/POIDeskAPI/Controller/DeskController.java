@@ -46,16 +46,6 @@ public class DeskController {
     }
 
     /**
-     * Finds the desk with the specified id
-     * @param deskid UUID
-     * @return Desk with id - deskid
-     */
-    @QueryMapping
-    public Desk getDeskById(@Argument UUID deskid){
-        return deskRepo.findById(deskid).get();
-    }
-
-    /**
      * Finds all desks on the floor with the specified id
      * @param floorid UUID, search for desks here
      * @return List of Desks on Floor
