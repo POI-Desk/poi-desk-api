@@ -7,42 +7,69 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
+import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
 
 @Controller
-public class UserController
-{
+public class UserController {
+    /**
+     * The user repository
+     */
     @Autowired
     private UserRepo userRepo;
 
+    /**
+     * The location repository
+     */
     @Autowired
     private LocationRepo locationRepo;
 
+    /**
+     * The role repository
+     */
     @Autowired
     private RoleRepo roleRepo;
 
+    /**
+     * The currently logged-in user
+     */
     private User loggedInUser;
 
+    /**
+     * Getter for the currently logged-in user
+     * @return User, currently logged-in user
+     */
     @QueryMapping
     public User getLoggedInUser() { return loggedInUser; }
 
     @QueryMapping
-    public List<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
-        return userRepo.findByUsernameContainingIgnoreCase(input, PageRequest.of(pageNumber, pageSize)).getContent();
+    public UserPageResponseService<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
+
+        // List<User> userAtBeginning = userRepo.findByUsernameContainsIgnoreCase(input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent();
+
+        Page<User> userPage = userRepo.findByUsernameStartsWithIgnoreCase(
+                input,
+                PageRequest.of(pageNumber, pageSize, Sort.by("username"))
+        );
+
+        // userAtBeginning.addAll(userPage.getContent());
+        // System.out.println(userAtBeginning);
+
+        return new UserPageResponseService<>(userPage.getContent(), userPage.hasNext());
+
+        // return new UserPageResponse<>(userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent(), userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).hasNext());
     }
 
     @QueryMapping
@@ -62,6 +89,7 @@ public class UserController
         User user = u.get();
         return user.getRoles();
     }
+
     @QueryMapping
     public boolean hasDefaultLocation(@Argument UUID id) {
         Optional<User> u = userRepo.findById(id);
@@ -69,6 +97,7 @@ public class UserController
             return false;
         else return u.get().getLocation() != null;
     }
+
     @MutationMapping
     public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     {
@@ -81,6 +110,7 @@ public class UserController
         userRepo.save(updateduser);
         return true;
     }
+
     @MutationMapping
     public User changeUsername(@Argument UUID id, @Argument String name)
     {
@@ -126,7 +156,4 @@ public class UserController
 
     @SchemaMapping
     public Location location(User user) { return user.getLocation(); }
-
-
-
 }

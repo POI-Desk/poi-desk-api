@@ -12,7 +12,7 @@ $$
 LANGUAGE plpgsql;
 -- changeset liquibase:2
 CREATE OR REPLACE FUNCTION getQuarterFromCurrentMonth()
-    RETURNS INTEGER
+    RETURNS VARCHAR(2)
 AS $$
 BEGIN
     return CASE

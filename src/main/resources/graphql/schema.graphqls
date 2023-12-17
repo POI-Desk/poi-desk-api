@@ -1,5 +1,5 @@
 type Query{
-    getAllUsers(input: String, pageNumber: Int, pageSize: Int): [User!]
+    getAllUsers(input: String, pageNumber: Int, pageSize: Int): UserPageResponse!
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
@@ -19,6 +19,11 @@ type Query{
     getMapByFloor(floorId: ID!): Map
     getMapById(mapId: ID!): Map
     getDeskById(deskId: ID!): Desk
+    getDailyBookings: [DailyBooking!]
+    getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
+    getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
+    getYearlyBooking(year: String!, location: ID!): YearlyBooking
+    getAlLYears: [String]
 }
 
 type Mutation{
@@ -51,35 +56,70 @@ type Attribute{
     desks: [Desk!]!
 }
 type DailyBooking{
-    pk_day: String!
-    pk_fk_Location: Location!
+    pk_dailyBookingId: ID!
+    day: String!
+    morning: Int!
+    afternoon: Int!
     totalBookings: Int!
+    createdon: String!
+    updatedon: String!
+    fk_Location: Location!
+    fk_building: Building!
+    fk_floor: Floor!
     fk_monthlyBookingId: MonthlyBooking!
+    month_morning_highestBooking: [MonthlyBooking!]
+    quarter_morning_highestBooking: [QuarterlyBooking!]
+    year_morning_highestBooking: [YearlyBooking!]
+    month_morning_lowestBooking: [MonthlyBooking!]
+    quarter_morning_lowestBooking: [QuarterlyBooking!]
+    year_morning_lowestBooking: [YearlyBooking!]
+    month_afternoon_highestBooking: [MonthlyBooking!]
+    quarter_afternoon_highestBooking: [QuarterlyBooking!]
+    year_afternoon_highestBooking: [YearlyBooking!]
+    month_afternoon_lowestBooking: [MonthlyBooking!]
+    quarter_afternoon_lowestBooking: [QuarterlyBooking!]
+    year_afternoon_lowestBooking: [YearlyBooking!]
 }
 
 type MonthlyBooking{
     pk_monthlyBookingId: ID!
     month: String!
+    totalBookings: Int!
+    days: Int!
+    amountOfDesks: Int!
+    morning_highestBooking: DailyBooking
+    morningAverageBooking: Float
+    morning_lowestBooking: DailyBooking
+    afternoon_highestBooking: DailyBooking
+    afternoonAverageBooking: Float
+    afternoon_lowestBooking: DailyBooking
+    createdon: String!
+    updatedon: String!
     fk_Location: Location!
-    totalBookings: Int
-    amountOfDesks: Int
-    highestBookings: Int
-    averageBookings: Int
-    lowestBookings: Int
+    fk_building: Building!
+    fk_floor: Floor!
     fk_quarterlyBookingId: QuarterlyBooking!
-    dailyBooking: [DailyBooking!]
+    dailyBookings: [DailyBooking]
 }
 
 type QuarterlyBooking{
     pk_quarterlyBookingId: ID!
     year: String!
-    fk_Location: Location!
     quarter: String!
-    totalBookings: Int
-    amountOfDesks: Int
-    highestBookings: Int
-    averageBookings: Int
-    lowestBookings: Int
+    totalBookings: Int!
+    days: Int!
+    amountOfDesks: Int!
+    morning_highestBooking: DailyBooking
+    morningAverageBooking: Float
+    morning_lowestBooking: DailyBooking
+    afternoon_highestBooking: DailyBooking
+    afternoonAverageBooking: Float
+    afternoon_lowestBooking: DailyBooking
+    createdon: String!
+    updatedon: String!
+    fk_Location: Location!
+    fk_building: Building!
+    fk_floor: Floor!
     fk_yearlyBookingId: Location!
     monthlyBookings: [MonthlyBooking!]
 }
@@ -87,12 +127,20 @@ type QuarterlyBooking{
 type YearlyBooking{
     pk_yearlyBookingId: ID!
     year: String!
+    totalBookings: Int!
+    days: Int!
+    amountOfDesks: Int!
+    morning_highestBooking: DailyBooking
+    morningAverageBooking: Float
+    morning_lowestBooking: DailyBooking
+    afternoon_highestBooking: DailyBooking
+    afternoonAverageBooking: Float
+    afternoon_lowestBooking: DailyBooking
+    createdon: String!
+    updatedon: String!
     fk_Location: Location!
-    totalBookings: Int
-    amountOfDesks: Int
-    highestBookings: Int
-    averageBookings: Int
-    lowestBookings: Int
+    fk_building: Building!
+    fk_floor: Floor!
     quarterlyBookings: [QuarterlyBooking!]
 }
 
@@ -271,7 +319,12 @@ type UserInfo{
     hasPreviousPage: Boolean!
 }
 
-input DeskInput{
+type UserPageResponse {
+    content: [User!]!
+    hasNextPage: Boolean!
+}
+
+input Deskinput{
     desknum: String!
     x: Int!
     y: Int!

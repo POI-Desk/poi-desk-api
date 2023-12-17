@@ -40,4 +40,16 @@ public class Floor {
 
     @OneToOne(mappedBy = "floor", fetch = FetchType.LAZY)
     private Map map;
+    
+    @OneToMany(mappedBy = "fk_floor", fetch = FetchType.LAZY)
+    private List<DailyBooking> dailyBookings;
+
+    @OneToMany(mappedBy = "fk_floor", fetch = FetchType.LAZY)
+    private List<MonthlyBooking> monthlyBookings;
+
+    @OneToMany(mappedBy = "fk_floor", fetch = FetchType.LAZY)
+    private List<QuarterlyBooking> quarterlyBookings;
+
+    @OneToMany(mappedBy = "fk_floor", fetch = FetchType.LAZY)
+    private List<YearlyBooking> yearlyBookings;
 }

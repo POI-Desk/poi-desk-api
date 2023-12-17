@@ -1,25 +1,16 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.BookingInput;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.UUID;
 
 @Getter
@@ -28,7 +19,13 @@ import java.util.UUID;
 @ToString
 @Table(name="bookings")
 @NoArgsConstructor
-public class Booking {
+    /**
+     * Booking Constructor
+     * <p>
+     * Creates a new booking using a booking input and creates a new user and desk
+     * @param booking BookingInput -> date, ismorning, isafternoon, userid, deskid
+     */
+public class Booking implements Comparable<Booking>{
     public Booking(BookingInput booking) {
         this.setDate(booking.date());
         this.setIsmorning(booking.ismorning());
@@ -69,4 +66,9 @@ public class Booking {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_deskid")
     private Desk desk;
+
+    @Override
+    public int compareTo(Booking o) {
+        return this.getDate().compareTo(o.getDate());
+    }
 }

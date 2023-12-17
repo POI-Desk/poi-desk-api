@@ -36,28 +36,33 @@ public class DeskController {
     @Autowired
     private MapRepo mapRepo;
 
+    /**
+     * Returns all desks in database
+     * @return List of all Desks
+     */
     @QueryMapping
     public List<Desk> getAllDesks() {
         return (List<Desk>) deskRepo.findAll();
     }
 
     /**
-     * Finds all Seats on a specified floor
-     *
-     * @param floorid
-     * @return List<Desk>
+     * Finds the desk with the specified id
+     * @param deskid UUID
+     * @return Desk with id - deskid
+     */
+    @QueryMapping
+    public Desk getDeskById(@Argument UUID deskid){
+        return deskRepo.findById(deskid).get();
+    }
+
+    /**
+     * Finds all desks on the floor with the specified id
+     * @param floorid UUID, search for desks here
+     * @return List of Desks on Floor
      */
     @QueryMapping
     public List<Desk> getDesksOnFloor(@Argument UUID floorid) {
-        List<Desk> seats = new ArrayList<>();
-
-        deskRepo.findAll().forEach(seat -> {
-            if (seat.getFloor().getPk_floorid().equals(floorid)) {
-                seats.add(seat);
-            }
-        });
-
-        return seats;
+        return deskRepo.findByFloor(floorRepo.findById(floorid).get());
     }
 
     @QueryMapping
