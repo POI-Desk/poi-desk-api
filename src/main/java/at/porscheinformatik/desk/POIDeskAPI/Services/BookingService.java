@@ -26,6 +26,20 @@ public class BookingService {
     }
 
     @Async
+    public CompletableFuture<List<Booking>> deleteBookings(List<UUID> bookingIds){
+        Iterable<Booking> i_booking = bookingRepo.findAllById(bookingIds);
+
+        List<Booking> delBookings = new ArrayList<>();
+        for (Booking booking:
+             i_booking) {
+            delBookings.add(booking);
+        }
+
+        bookingRepo.deleteAll(delBookings);
+        return CompletableFuture.completedFuture(delBookings);
+    }
+
+    @Async
     public CompletableFuture<List<Booking>> getBookingsOnDate(LocalDate date){
         Iterable<Booking> i_bookings = bookingRepo.findBookingsByDate(date);
         List<Booking> bookings = new ArrayList<>();

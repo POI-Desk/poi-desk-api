@@ -46,6 +46,7 @@ type Mutation{
     deleteDoors(doorIds: [ID!]!): [Door!]
     deleteDesks(deskIds: [ID!]!): [Desk!]
     updateMap(mapId: ID!, mapInput: MapInput!): Map
+    deleteMap(mapId: ID!): Boolean
 }
 
 type Attribute{

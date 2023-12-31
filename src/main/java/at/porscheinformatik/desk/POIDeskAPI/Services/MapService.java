@@ -1,22 +1,16 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
-import org.apache.qpid.proton.reactor.Task;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.InvalidRelationIdException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.StreamSupport;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class MapService {
@@ -24,6 +18,18 @@ public class MapService {
     private MapRepo mapRepo;
     @Autowired
     private FloorRepo floorRepo;
+    @Autowired
+    private DoorService doorService;
+    @Autowired
+    private RoomService roomService;
+    @Autowired
+    private InteriorService interiorService;
+    @Autowired
+    private WallService wallService;
+    @Autowired
+    private LabelService labelService;
+    @Autowired
+    private DeskService deskService;
 
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
@@ -61,5 +67,27 @@ public class MapService {
         map.updateProps(mapInput.width(), mapInput.height(), map.getFloor());
         mapRepo.save(map);
         return CompletableFuture.completedFuture(map);
+    }
+
+    @Async
+    public CompletableFuture<Boolean> deleteMap(UUID mapId) throws ExecutionException, InterruptedException {
+
+        Optional<Map> o_map = mapRepo.findById(mapId);
+        if (o_map.isEmpty())
+            return CompletableFuture.completedFuture(false);
+
+        Map map = o_map.get();
+
+        CompletableFuture<List<Door>> doorFuture = doorService.deleteDoors(map);
+        CompletableFuture<List<Room>> roomFuture = roomService.deleteRooms(map);
+        CompletableFuture<List<Interior>> interiorFuture = interiorService.deleteInteriors(map);
+        CompletableFuture<List<Wall>> wallFuture = wallService.deleteWalls(map);
+        CompletableFuture<List<Label>> labelFuture = labelService.deleteLabels(map);
+        CompletableFuture<List<Desk>> deskFuture = deskService.deleteDesks(map);
+
+        CompletableFuture.allOf(doorFuture, roomFuture, interiorFuture, wallFuture, labelFuture, deskFuture).get();
+        mapRepo.delete(map);
+
+        return CompletableFuture.completedFuture(true);
     }
 }

@@ -20,8 +20,8 @@ public class Label {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_labelId;
 
-    @Column(name = "text", nullable = false)
-    private String text;
+//    @Column(name = "text", nullable = false)
+//    private String text;
 
     @Column(name="x", nullable = false)
     private int x;

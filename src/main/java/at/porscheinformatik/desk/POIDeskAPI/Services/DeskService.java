@@ -2,6 +2,8 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Attribute;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateDeskInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class DeskService {
@@ -18,6 +21,10 @@ public class DeskService {
     DeskRepo deskRepo;
     @Autowired
     MapRepo mapRepo;
+    @Autowired
+    BookingService bookingService;
+    @Autowired
+    AttributeService attributeService;
 
 
     /**
@@ -60,10 +67,11 @@ public class DeskService {
     /**
      * Deletes the desks with given IDs.
      *
+     * @param deskIds Ids of desks to delete
      * @return List of deleted desks.
      */
     @Async
-    public CompletableFuture<List<Desk>> deleteDesks(List<UUID> deskIds){
+    public CompletableFuture<List<Desk>> deleteDesks(List<UUID> deskIds) throws ExecutionException, InterruptedException {
         Iterable<Desk> i_desks = deskRepo.findAllById(deskIds);
         List<Desk> delDesks = new ArrayList<>();
         for (Desk desk :
@@ -71,8 +79,21 @@ public class DeskService {
             delDesks.add(desk);
         }
 
+        List<UUID> bookingIds = delDesks.stream().map(Desk::getBookings).flatMap(bookings -> bookings.stream().map(Booking::getPk_bookingid)).toList();
+
+        CompletableFuture<List<Booking>> delBookings = bookingService.deleteBookings(bookingIds);
+        CompletableFuture<List<Attribute>> delAttributes = attributeService.deleteAttributes(delDesks);
+
+        CompletableFuture.allOf(delBookings, delAttributes);
+
         deskRepo.deleteAll(delDesks);
         return CompletableFuture.completedFuture(delDesks);
+    }
+
+    @Async
+    public CompletableFuture<List<Desk>> deleteDesks(Map map) throws ExecutionException, InterruptedException {
+        List<UUID> desksIds = deskRepo.findAllByMap(map).stream().map(Desk::getPk_deskid).toList();
+        return deleteDesks(desksIds);
     }
 
     /**
