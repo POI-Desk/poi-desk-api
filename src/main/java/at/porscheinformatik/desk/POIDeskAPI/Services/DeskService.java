@@ -81,12 +81,10 @@ public class DeskService {
 
         List<UUID> bookingIds = delDesks.stream().map(Desk::getBookings).flatMap(bookings -> bookings.stream().map(Booking::getPk_bookingid)).toList();
 
-        CompletableFuture<List<Booking>> delBookings = bookingService.deleteBookings(bookingIds);
-        CompletableFuture<List<Attribute>> delAttributes = attributeService.deleteAttributes(delDesks);
+        bookingService.deleteBookings(bookingIds);
+        attributeService.deleteAttributes(delDesks);
 
-        CompletableFuture.allOf(delBookings, delAttributes);
-
-        deskRepo.deleteAll(delDesks);
+        deskRepo.deleteAll(deskRepo.findAllById(deskIds));
         return CompletableFuture.completedFuture(delDesks);
     }
 

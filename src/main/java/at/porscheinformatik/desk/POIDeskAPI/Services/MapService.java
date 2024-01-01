@@ -30,6 +30,8 @@ public class MapService {
     private LabelService labelService;
     @Autowired
     private DeskService deskService;
+    @Autowired
+    private BookingService bookingService;
 
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
@@ -69,6 +71,7 @@ public class MapService {
         return CompletableFuture.completedFuture(map);
     }
 
+    // TODO: performance optimisation with db and async :(((((((((((
     @Async
     public CompletableFuture<Boolean> deleteMap(UUID mapId) throws ExecutionException, InterruptedException {
 
@@ -86,6 +89,7 @@ public class MapService {
         CompletableFuture<List<Desk>> deskFuture = deskService.deleteDesks(map);
 
         CompletableFuture.allOf(doorFuture, roomFuture, interiorFuture, wallFuture, labelFuture, deskFuture).get();
+
         mapRepo.delete(map);
 
         return CompletableFuture.completedFuture(true);

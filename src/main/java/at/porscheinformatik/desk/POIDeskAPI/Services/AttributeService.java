@@ -15,16 +15,18 @@ public class AttributeService {
     @Autowired
     AttributeRepo attributeRepo;
 
-    @Async
-    public CompletableFuture<List<Attribute>> deleteAttributes(List<Desk> desks) {
+    //@Async
+    public List<Attribute> deleteAttributes(List<Desk> desks) {
         Iterable<Attribute> i_attributes = attributeRepo.findAll();
 
         for (Attribute attribute:
              i_attributes) {
-            attribute.setDesks(attribute.getDesks().stream().filter(desk -> !desks.contains(desk)).toList());
+            for (Desk desk:
+                 desks) {
+                attribute.setDesks(attribute.getDesks().stream().filter(d -> d.getPk_deskid().equals(desk.getPk_deskid())).toList());
+            }
         }
-
         attributeRepo.saveAll(i_attributes);
-        return CompletableFuture.completedFuture((List<Attribute>)i_attributes);
+        return (List<Attribute>)i_attributes;
     }
 }

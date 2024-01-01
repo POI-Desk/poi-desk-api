@@ -34,7 +34,7 @@ public class MapController {
 
     @MutationMapping
     public boolean deleteMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
-        return  mapService.deleteMap(mapId).get();
+        return mapService.deleteMap(mapId).get();
     }
 
     @MutationMapping
