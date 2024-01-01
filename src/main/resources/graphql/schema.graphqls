@@ -5,6 +5,7 @@ type Query{
     allBookings: [Booking!]
     getBookingsByDate(date: String): [Booking!]
     getBookingById(id: ID): Booking
+    getBookingsByBookingnumberContains(string: String): [Booking!]
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
@@ -247,6 +248,7 @@ input Bookinginput{
     isafternoon: Boolean!
     userid: String!
     deskid: String!
+    extendedid: String!
 }
 
 input EditBookingInput{
