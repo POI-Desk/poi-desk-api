@@ -181,7 +181,7 @@ create table DailyBookings(
                               fk_Location             UUID NOT NULL ,
                               fk_building             UUID,
                               fk_floor                UUID,
-                              fk_monthlyBookingId     UUID NOT NULL ,
+                              fk_monthlyBookingId     UUID, -- INFO: Was not null
                               FOREIGN KEY (fk_Location)        REFERENCES locations (pk_locationid),
                               Foreign Key (fk_building)           REFERENCES buildings (pk_buildingid),
                               Foreign Key (fk_floor)              REFERENCES floors (pk_floorid)
