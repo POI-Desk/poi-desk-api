@@ -10,6 +10,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -91,6 +93,11 @@ public class BookingController {
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {
         Booking newBooking = new Booking(booking);
+
+        if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2))){
+            return null;
+        }
+
         String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
         String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
         String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
