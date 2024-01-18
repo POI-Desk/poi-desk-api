@@ -18,7 +18,6 @@ import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -61,10 +60,9 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByDate(@Argument LocalDate date) throws ExecutionException, InterruptedException {
-        return bookingService.getBookingsOnDate(date).get();
+    public List<Booking> getBookingsByDateOnFloor(@Argument LocalDate date, @Argument UUID floorId) throws ExecutionException, InterruptedException {
+        return bookingService.getBookingsByDateOnFloor(date, floorId).get();
     }
-
 
     @QueryMapping
     public Booking getBookingById(@Argument UUID id){

@@ -3,7 +3,7 @@ type Query{
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
-    getBookingsByDate(date: String): [Booking!]!
+    getBookingsByDateOnFloor(date: String!, floorId: ID!): [Booking!]!
     getBookingById(id: ID): Booking
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
