@@ -4,9 +4,12 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.UpdateTimestamp;
 
 
+import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -19,11 +22,12 @@ public class Desk {
 
     public Desk(){}
 
-    public Desk(String desknum, int x, int y, Floor floor){
+    public Desk(String desknum, int x, int y, Floor floor, Map map){
         this.desknum = desknum;
         this.x = x;
         this.y = y;
         this.floor = floor;
+        this.map = map;
     }
 
     @Id
@@ -64,4 +68,10 @@ public class Desk {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_mapid")
     private Map map;
+
+    public void updateProps(String deskNum, int x, int y){
+        this.desknum = deskNum;
+        this.x = x;
+        this.y = y;
+    }
 }

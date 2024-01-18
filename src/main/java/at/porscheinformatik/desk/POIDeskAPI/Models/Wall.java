@@ -12,41 +12,41 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name="rooms")
-public class Room {
+@Table(name="walls")
+public class Wall {
 
-    public Room(){}
+    public Wall(){}
 
-    public Room(int x, int y, int width, int height, Map map){
+    public Wall(int x, int y, int rotation, int width, Map map){
         this.x = x;
         this.y = y;
+        this.rotation = rotation;
         this.width = width;
-        this.height = height;
         this.map = map;
     }
 
     @Id
-    @Column(name="pk_roomid", nullable = false, unique = true)
+    @Column(name = "pk_wallid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID pk_roomId;
+    private UUID pk_wallId;
 
-    @Column(name="x", nullable = false)
+    @Column(name = "x", nullable = false)
     private int x;
 
-    @Column(name="y", nullable = false)
+    @Column(name = "y", nullable = false)
     private int y;
 
-    @Column(name="width", nullable = false)
+    @Column(name = "rotation", nullable = false)
+    private int rotation;
+
+    @Column(name = "width", nullable = false)
     private int width;
 
-    @Column(name="height", nullable = false)
-    private int height;
-
-    @Column(name="createdon", nullable = false)
+    @Column(name = "createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
 
-    @Column(name="updatedon", nullable = false)
+    @Column(name = "updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedOn;
 
@@ -54,11 +54,12 @@ public class Room {
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
-    public void updateProps(int x, int y, int width, int height){
+
+    public void updateProps(int x, int y, int rotation, int width){
         this.x = x;
         this.y = y;
+        this.rotation = rotation;
         this.width = width;
-        this.height = height;
     }
 
 }

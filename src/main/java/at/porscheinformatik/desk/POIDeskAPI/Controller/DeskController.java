@@ -1,12 +1,12 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.DeskInput;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateDeskInput;
+import at.porscheinformatik.desk.POIDeskAPI.Services.DeskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class DeskController {
@@ -27,10 +28,13 @@ public class DeskController {
     private DeskRepo deskRepo;
 
     @Autowired
+    private DeskService deskService;
+
+    @Autowired
     private FloorRepo floorRepo;
 
     @Autowired
-    private BookingRepo bookingRepo;
+    private MapRepo mapRepo;
 
     /**
      * Returns all desks in database
@@ -39,16 +43,6 @@ public class DeskController {
     @QueryMapping
     public List<Desk> getAllDesks() {
         return (List<Desk>) deskRepo.findAll();
-    }
-
-    /**
-     * Finds the desk with the specified id
-     * @param deskid UUID
-     * @return Desk with id - deskid
-     */
-    @QueryMapping
-    public Desk getDeskById(@Argument UUID deskid){
-        return deskRepo.findById(deskid).get();
     }
 
     /**
@@ -61,22 +55,44 @@ public class DeskController {
         return deskRepo.findByFloor(floorRepo.findById(floorid).get());
     }
 
+    @QueryMapping
+    public Desk getDeskById(@Argument UUID deskId) throws ExecutionException, InterruptedException {
+        return deskService.getDeskById(deskId).get();
+    }
+
     @MutationMapping
-    public List<Desk> addDesksToFloor(@Argument UUID floorid, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
-        List<Desk> newSeats = new ArrayList<>();
-        Optional<Floor> o_floor = floorRepo.findById(floorid);
+    public List<Desk> addDesksToFloor(@Argument UUID floorId, @Argument UUID mapId, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
+        List<Desk> newDesks = new ArrayList<>();
+        Optional<Floor> o_floor = floorRepo.findById(floorId);
         if (o_floor.isEmpty())
             throw new InvalidRelationIdException("floor id does not exist");
 
-        desks.forEach(s -> {
-            newSeats.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get()));
-        });
-        deskRepo.saveAll(newSeats);
+        Optional<Map> o_map = mapRepo.findById(mapId);
+        if (o_map.isEmpty())
+            throw new InvalidRelationIdException("map id does not exist");
 
-        return newSeats;
+        desks.forEach(s -> {
+            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get(), o_map.get()));
+        });
+        deskRepo.saveAll(newDesks);
+
+        return newDesks;
+    }
+
+    @MutationMapping
+    public List<Desk> updateDesksOnMap(@Argument UUID mapId, @Argument List<UpdateDeskInput> deskInputs) throws Exception {
+        return deskService.updateDesks(mapId, deskInputs).get();
+    }
+
+    @MutationMapping
+    public List<Desk> deleteDesks(@Argument List<UUID> deskIds) throws ExecutionException, InterruptedException {
+        return deskService.deleteDesks(deskIds).get();
     }
 
     @SchemaMapping
     public List<Booking> bookings(Desk desk) {return desk.getBookings();}
+
+    @SchemaMapping
+    public Map map(Desk desk) { return desk.getMap(); }
 
 }

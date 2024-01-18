@@ -3,13 +3,12 @@ type Query{
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
-    getBookingsByDate(date: String): [Booking!]
+    getBookingsByDateOnFloor(date: String!, floorId: ID!): [Booking!]!
     getBookingById(id: ID): Booking
     getBookingsByBookingnumberContains(string: String): [Booking!]
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
-    getDeskById(deskid: ID!): Desk
     getDesksOnFloor(floorid: ID!): [Desk!]
     getBookingsByUserId(userid: ID!): [Booking!]
     isBookedAt(deskId: ID!, date: String!, dayTime: String!): Boolean
@@ -17,6 +16,10 @@ type Query{
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
+    getYearlyBookings: [YearlyBooking!]
+    getMapByFloor(floorId: ID!): Map
+    getMapById(mapId: ID!): Map
+    getDeskById(deskId: ID!): Desk
     getDailyBookings: [DailyBooking!]
     getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
     getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
@@ -30,10 +33,21 @@ type Mutation{
     deleteBooking(bookingId: ID!): ID
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
-    addDesksToFloor(floorid: ID!, desks: [Deskinput!]!): [Desk!]
+    addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
+    createMap(floorId: ID!, mapInput: MapInput!): Map
+    updateDoorsOnMap(mapId: ID!, doorInputs: [UpdateDoorInput!]!): [Door!]
+    updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
+    updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
+    updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
+    deleteRooms(roomIds: [ID!]!): [Room!]
+    deleteWalls(wallIds: [ID!]!): [Wall!]
+    deleteDoors(doorIds: [ID!]!): [Door!]
+    deleteDesks(deskIds: [ID!]!): [Desk!]
+    updateMap(mapId: ID!, mapInput: MapInput!): Map
+    deleteMap(mapId: ID!): Boolean
 }
 
 type Attribute{
@@ -44,21 +58,48 @@ type Attribute{
     desks: [Desk!]!
 }
 type DailyBooking{
-    pk_day: String!
+    pk_dailyBookingId: ID!
+    day: String!
+    morning: Int!
+    afternoon: Int!
+    totalBookings: Int!
+    createdon: String!
+    updatedon: String!
     fk_Location: Location!
-    totalBooking: Int!
+    fk_building: Building!
+    fk_floor: Floor!
     fk_monthlyBookingId: MonthlyBooking!
+    month_morning_highestBooking: [MonthlyBooking!]
+    quarter_morning_highestBooking: [QuarterlyBooking!]
+    year_morning_highestBooking: [YearlyBooking!]
+    month_morning_lowestBooking: [MonthlyBooking!]
+    quarter_morning_lowestBooking: [QuarterlyBooking!]
+    year_morning_lowestBooking: [YearlyBooking!]
+    month_afternoon_highestBooking: [MonthlyBooking!]
+    quarter_afternoon_highestBooking: [QuarterlyBooking!]
+    year_afternoon_highestBooking: [YearlyBooking!]
+    month_afternoon_lowestBooking: [MonthlyBooking!]
+    quarter_afternoon_lowestBooking: [QuarterlyBooking!]
+    year_afternoon_lowestBooking: [YearlyBooking!]
 }
 
 type MonthlyBooking{
     pk_monthlyBookingId: ID!
     month: String!
+    totalBookings: Int!
+    days: Int!
+    amountOfDesks: Int!
+    morning_highestBooking: DailyBooking
+    morningAverageBooking: Float
+    morning_lowestBooking: DailyBooking
+    afternoon_highestBooking: DailyBooking
+    afternoonAverageBooking: Float
+    afternoon_lowestBooking: DailyBooking
+    createdon: String!
+    updatedon: String!
     fk_Location: Location!
-    totalBooking: Int
-    amountOfDesks: Int
-    highestBookings: Int
-    averageBookings: Int
-    lowestBookings: Int
+    fk_building: Building!
+    fk_floor: Floor!
     fk_quarterlyBookingId: QuarterlyBooking!
     dailyBookings: [DailyBooking]
 }
@@ -66,13 +107,21 @@ type MonthlyBooking{
 type QuarterlyBooking{
     pk_quarterlyBookingId: ID!
     year: String!
-    fk_Location: Location!
     quarter: String!
-    totalBooking: Int
-    amountOfDesks: Int
-    highestBookings: Int
-    averageBookings: Int
-    lowestBookings: Int
+    totalBookings: Int!
+    days: Int!
+    amountOfDesks: Int!
+    morning_highestBooking: DailyBooking
+    morningAverageBooking: Float
+    morning_lowestBooking: DailyBooking
+    afternoon_highestBooking: DailyBooking
+    afternoonAverageBooking: Float
+    afternoon_lowestBooking: DailyBooking
+    createdon: String!
+    updatedon: String!
+    fk_Location: Location!
+    fk_building: Building!
+    fk_floor: Floor!
     fk_yearlyBookingId: Location!
     monthlyBookings: [MonthlyBooking!]
 }
@@ -80,12 +129,20 @@ type QuarterlyBooking{
 type YearlyBooking{
     pk_yearlyBookingId: ID!
     year: String!
+    totalBookings: Int!
+    days: Int!
+    amountOfDesks: Int!
+    morning_highestBooking: DailyBooking
+    morningAverageBooking: Float
+    morning_lowestBooking: DailyBooking
+    afternoon_highestBooking: DailyBooking
+    afternoonAverageBooking: Float
+    afternoon_lowestBooking: DailyBooking
+    createdon: String!
+    updatedon: String!
     fk_Location: Location!
-    totalBooking: Int
-    amountOfDesks: Int
-    highestBookings: Int
-    averageBookings: Int
-    lowestBookings: Int
+    fk_building: Building!
+    fk_floor: Floor!
     quarterlyBookings: [QuarterlyBooking!]
 }
 
@@ -105,8 +162,8 @@ type Booking{
     updatedon: String!
     ismorning: Boolean!
     isafternoon: Boolean!
-    user: User
-    desk: Desk
+    user: User!
+    desk: Desk!
 }
 
 type Building{
@@ -153,11 +210,13 @@ type Desk{
     desknum: String!
     x: Float!
     y: Float!
+    rotation: Int!
     createdon: String!
     updatedon: String!
     bookings: [Booking!]
     attributes: [Attribute!]
     floor: Floor
+    map: Map
 }
 
 type User{
@@ -177,6 +236,35 @@ type Map{
     height: Int!
     createdOn: String!
     updatedOn: String!
+    rooms: [Room!]
+    desks: [Desk!]
+    interiors: [Interior!]
+    labels: [Label!]
+    walls: [Wall!]
+    doors: [Door!]
+    floor: Floor!
+}
+
+type Door{
+    pk_doorId: ID!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
+}
+
+type Wall{
+    pk_wallId: ID!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    createdOn: String!
+    updatedOn: String!
+    map: Map
 }
 
 type Room{
@@ -190,6 +278,7 @@ type Room{
     map: Map
 }
 
+#TODO: impl service and controller
 type Interior{
     pk_interiorId: ID!
     type: InteriorType!
@@ -208,6 +297,7 @@ type Label{
     text: String!
     x: Int!
     y: Int!
+    rotation: Int!
     pt: Int!
     createdOn: String!
     updatedOn: String!
@@ -236,7 +326,7 @@ type UserPageResponse {
     hasNextPage: Boolean!
 }
 
-input Deskinput{
+input DeskInput{
     desknum: String!
     x: Int!
     y: Int!
@@ -264,7 +354,6 @@ input RoomInput{
     y: Int!
     width: Int!
     height: Int!
-    mapId: ID!
 }
 
 input InteriorInput{
@@ -279,4 +368,76 @@ input InteriorInput{
 enum InteriorType{
     Couch,
     Aquarium
+}
+
+input MapInput{
+    width: Int!
+    height: Int!
+}
+
+input DoorInput{
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+}
+
+input WallInput{
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+}
+
+input UpdateDoorInput{
+    pk_doorId: ID
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    #delete: Boolean!
+}
+
+input UpdateWallInput{
+    pk_wallId: ID
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    #delete: Boolean!
+}
+
+input UpdateDeskInput{
+    pk_deskid: ID       #TODO: change to camelCase
+    desknum: String!    #TODO: change to camelCase
+    x: Int!
+    y: Int!
+    #delete: Boolean!
+}
+
+input UpdateMapInput{
+    pk_mapId: ID
+    width: Int!
+    height: Int!
+    #delete: Boolean!
+}
+
+input UpdateInteriorInput{
+    pk_interiorId: ID
+    type: InteriorType!
+    x: Int!
+    y: Int!
+    rotation: Int!
+    width: Int!
+    height: Int!
+    #delete: Boolean!
+}
+
+input UpdateRoomInput{
+    pk_roomId: ID
+    x: Int!
+    y: Int!
+    width: Int!
+    height: Int!
+    #delete: Boolean!
 }

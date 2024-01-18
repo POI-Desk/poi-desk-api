@@ -16,6 +16,15 @@ import java.util.UUID;
 @Table(name="maps")
 public class Map {
 
+    public Map (){}
+
+    public Map (int width, int height, Floor floor)
+    {
+        this.width = width;
+        this.height = height;
+        this.floor = floor;
+    }
+
     @Id
     @Column(name="pk_mapid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -46,4 +55,21 @@ public class Map {
 
     @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
     private List<Interior> interiors;
+
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    private List<Door> doors;
+
+    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    private List<Wall> walls;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_floorid")
+    private Floor floor;
+
+    public void updateProps(int width, int height, Floor floor){
+        this.width = width;
+        this.height = height;
+        this.floor = floor;
+    }
+
 }
