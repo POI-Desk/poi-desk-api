@@ -48,6 +48,7 @@ type Mutation{
     deleteDesks(deskIds: [ID!]!): [Desk!]
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
+    getBookingsByDate(date: String!): [Booking]
 }
 
 type Attribute{

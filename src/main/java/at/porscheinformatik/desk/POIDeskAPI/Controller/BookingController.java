@@ -82,6 +82,11 @@ public class BookingController {
         return bookingRepo.findByBookingnumberContains(string);
     }
 
+    @QueryMapping
+    public List<Booking> getBookingsByDate(@Argument LocalDate date) {
+        return bookingRepo.findBookingsByDate(date);
+    }
+
     /**
      * Creates a new booking and saves it in the database
      * <p>
