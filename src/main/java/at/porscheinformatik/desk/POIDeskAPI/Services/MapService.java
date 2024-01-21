@@ -71,7 +71,6 @@ public class MapService {
         return CompletableFuture.completedFuture(map);
     }
 
-    // TODO: performance optimisation with db and async :(((((((((((
     @Async
     public CompletableFuture<Boolean> deleteMap(UUID mapId) throws ExecutionException, InterruptedException {
 

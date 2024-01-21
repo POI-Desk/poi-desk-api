@@ -41,12 +41,14 @@ type Mutation{
     updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
     updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
     updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
+    updateLabelsOnMap(mapId: ID!, labelInputs: [UpdateLabelInput!]!): [Label!]
     deleteRooms(roomIds: [ID!]!): [Room!]
     deleteWalls(wallIds: [ID!]!): [Wall!]
     deleteDoors(doorIds: [ID!]!): [Door!]
     deleteDesks(deskIds: [ID!]!): [Desk!]
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
+    deleteLabels(labelIds: [ID!]!): [Label!]
 }
 
 type Attribute{
@@ -387,6 +389,13 @@ input WallInput{
     width: Int!
 }
 
+input LabelInput{
+    text: String!
+    x: Int!
+    y: Int!
+    rotation: Int!
+}
+
 input UpdateDoorInput{
     pk_doorId: ID
     x: Int!
@@ -438,4 +447,12 @@ input UpdateRoomInput{
     width: Int!
     height: Int!
     #delete: Boolean!
+}
+
+input UpdateLabelInput{
+    pk_labelId: ID
+    text: String!
+    x: Int!
+    y: Int!
+    rotation: Int!
 }

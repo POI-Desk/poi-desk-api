@@ -160,6 +160,7 @@ CREATE TABLE Interiors
 CREATE TABLE Labels
 (
     pk_labelId      UUID PRIMARY KEY    DEFAULT  gen_random_uuid(),
+    text            VARCHAR,
     x               INT NOT NULL,
     y               INT NOT NULL,
     rotation        INT NOT NULL,
