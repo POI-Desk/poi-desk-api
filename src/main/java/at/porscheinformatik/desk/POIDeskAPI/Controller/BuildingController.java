@@ -5,6 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Building;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -38,5 +39,14 @@ public class BuildingController {
     public List<Building> getBuildingsInLocation(@Argument UUID locationid) {
         if (locationRepo.findById(locationid).isPresent()) return buildingRepo.findByLocation(locationRepo.findById(locationid).get());
         return new ArrayList<>();
+    }
+
+    @MutationMapping
+    public Building addBuilding(@Argument String name, @Argument UUID locationid) {
+        Building building = new Building();
+        building.setBuildingname(name);
+        building.setLocation(locationRepo.findById(locationid).get());
+        buildingRepo.save(building);
+        return building;
     }
 }

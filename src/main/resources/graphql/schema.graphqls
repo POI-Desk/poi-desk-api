@@ -33,7 +33,9 @@ type Mutation{
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
+    addLocation(name: String!): Location
     editBooking(bookingInput: EditBookingInput!) : Booking
+    addBuilding(name: String!, locationid: ID!): Building
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
     createMap(floorId: ID!, mapInput: MapInput!): Map
