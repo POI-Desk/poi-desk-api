@@ -27,6 +27,9 @@ public class LocationController {
 
     @MutationMapping
     public Location addLocation(@Argument String name) {
+        if (locationRepo.existsLocationByLocationname(name)) {
+            return null;
+        }
         Location location = new Location();
         location.setLocationname(name);
         locationRepo.save(location);
