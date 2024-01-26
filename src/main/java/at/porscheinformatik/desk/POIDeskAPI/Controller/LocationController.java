@@ -37,7 +37,7 @@ public class LocationController {
 
     @MutationMapping
     public Location deleteLocation(@Argument UUID id) {
-        if (!locationRepo.existsByPk_locationid(id)) return null;
+        if (!locationRepo.existsById(id)) return null;
         Location location = locationRepo.findById(id).get();
         locationRepo.delete(location);
         return location;

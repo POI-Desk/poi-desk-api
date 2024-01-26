@@ -7,5 +7,4 @@ import java.util.UUID;
 
 public interface LocationRepo extends CrudRepository<Location, UUID> {
     boolean existsLocationByLocationname(String name);
-    boolean existsByPk_locationid(UUID id);
 }
