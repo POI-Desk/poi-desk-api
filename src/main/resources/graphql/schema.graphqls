@@ -34,6 +34,7 @@ type Mutation{
     createOrLoginAsUser(username: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     addLocation(name: String!): Location
+    deleteLocation(id: ID): Location
     editBooking(bookingInput: EditBookingInput!) : Booking
     addBuilding(name: String!, locationid: ID!): Building
     addRoom(roomInput: RoomInput!): Room
