@@ -26,7 +26,7 @@ CREATE TABLE Buildings
     createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_locationId UUID,
-    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
+    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId) on delete cascade
 );
 -- changeset liquibase:4
 CREATE TABLE Floors
@@ -36,7 +36,7 @@ CREATE TABLE Floors
     createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_buildingId UUID,
-    FOREIGN KEY (fk_buildingId) REFERENCES Buildings (pk_buildingId)
+    FOREIGN KEY (fk_buildingId) REFERENCES Buildings (pk_buildingId) on delete cascade
 );
 
 -- changeset liquibase:5
