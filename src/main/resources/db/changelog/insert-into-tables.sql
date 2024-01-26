@@ -150,14 +150,14 @@ FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '
 LIMIT 10;
 
 -- changeset liquibase:18
-select createEmptyAnalysisEntries();
-
--- changeset liquibase:19
-select createemptymonthlyanalysisentries();
-
--- changeset liquibase:20
-insert into DailyBookings( pk_dailyBookingId, day, morning, afternoon, totalBookings, createdOn, updatedOn, fk_Location, fk_building, fk_floor, fk_monthlyBookingId)
-values
-    (default, '2023-12-15', 120, 231, 351, default, default, (select pk_locationid from locations where locationname = 'Wien'), null, null, (select pk_monthlyBookingId from monthlybookings where month = '2023-12' and fk_location = (select pk_locationid from locations where locationname = 'Wien'))),
-    (default, '2023-12-16', 94, 42, 136, default, default, (select pk_locationid from locations where locationname = 'Wien'), null, null, (select pk_monthlyBookingId from monthlybookings where month = '2023-12' and fk_location = (select pk_locationid from locations where locationname = 'Wien'))),
-    (default, '2023-12-17', 289, 154, 443, default, default, (select pk_locationid from locations where locationname = 'Wien'), null, null, (select pk_monthlyBookingId from monthlybookings where month = '2023-12' and fk_location = (select pk_locationid from locations where locationname = 'Wien')));
+-- select createEmptyAnalysisEntries();
+--
+-- -- changeset liquibase:19
+-- select createemptymonthlyanalysisentries();
+--
+-- -- changeset liquibase:20
+-- insert into DailyBookings( pk_dailyBookingId, day, morning, afternoon, totalBookings, createdOn, updatedOn, fk_Location, fk_building, fk_floor, fk_monthlyBookingId)
+-- values
+--     (default, '2023-12-15', 120, 231, 351, default, default, (select pk_locationid from locations where locationname = 'Wien'), null, null, (select pk_monthlyBookingId from monthlybookings where month = '2023-12' and fk_location = (select pk_locationid from locations where locationname = 'Wien'))),
+--     (default, '2023-12-16', 94, 42, 136, default, default, (select pk_locationid from locations where locationname = 'Wien'), null, null, (select pk_monthlyBookingId from monthlybookings where month = '2023-12' and fk_location = (select pk_locationid from locations where locationname = 'Wien'))),
+--     (default, '2023-12-17', 289, 154, 443, default, default, (select pk_locationid from locations where locationname = 'Wien'), null, null, (select pk_monthlyBookingId from monthlybookings where month = '2023-12' and fk_location = (select pk_locationid from locations where locationname = 'Wien')));
