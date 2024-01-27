@@ -48,5 +48,15 @@ public class BookingService {
         }
         return CompletableFuture.completedFuture(bookings);
     }
+    @Async
+    public CompletableFuture<List<Booking>> getBookingsBetweenDates(LocalDate startDate, LocalDate endDate) {
+        Iterable<Booking> i_bookings = bookingRepo.findBookingsByDateBetween(startDate, endDate);
+        List<Booking> bookings = new ArrayList<>();
+        for (Booking booking : i_bookings) {
+            bookings.add(booking);
+        }
+        return CompletableFuture.completedFuture(bookings);
+    }
+
 
 }

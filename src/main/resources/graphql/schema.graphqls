@@ -25,6 +25,7 @@ type Query{
     getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
     getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
     getYearlyBooking(year: String!, location: ID!): YearlyBooking
+    getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
     getAlLYears: [String]
 }
 
