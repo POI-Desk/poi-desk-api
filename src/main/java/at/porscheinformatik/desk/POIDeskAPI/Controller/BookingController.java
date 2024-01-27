@@ -19,7 +19,6 @@ import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -54,6 +53,7 @@ public class BookingController {
 
     /**
      * Return all bookings in the database
+     *
      * @return List of bookings
      */
     @QueryMapping
@@ -62,9 +62,10 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByDate(@Argument LocalDate date) throws ExecutionException, InterruptedException {
-        return bookingService.getBookingsOnDate(date).get();
+    public List<Booking> getBookingsByDateOnFloor(@Argument LocalDate date, @Argument UUID floorId) throws ExecutionException, InterruptedException {
+        return bookingService.getBookingsByDateOnFloor(date, floorId).get();
     }
+
 
     @QueryMapping
     public List<Booking> getBookingsByDateBetween(@Argument LocalDate startDate, @Argument LocalDate endDate) throws ExecutionException, InterruptedException {
@@ -73,16 +74,26 @@ public class BookingController {
 
 
     @QueryMapping
-    public Booking getBookingById(@Argument UUID id){
+    public Booking getBookingById(@Argument UUID id) {
         return bookingRepo.findById(id).get();
     }
 
     @QueryMapping
-        public List<Booking> getBookingsByUserid(@Argument UUID userid) {
-            List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
-            Collections.sort(bookings);
-            return bookings;
-        }
+    public List<Booking> getBookingsByUserid(@Argument UUID userid) {
+        List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
+        Collections.sort(bookings);
+        return bookings;
+    }
+
+    @QueryMapping
+    public List<Booking> getBookingsByBookingnumberContains(@Argument String string) {
+        return bookingRepo.findByBookingnumberContains(string);
+    }
+
+    @QueryMapping
+    public List<Booking> getBookingsByDate(@Argument LocalDate date) {
+        return bookingRepo.findBookingsByDate(date);
+    }
 
     /**
      * Creates a new booking and saves it in the database
@@ -93,6 +104,7 @@ public class BookingController {
      *     <li>interval abbreviation: M(orning) or A(fternoon)</li>
      *     <li>desk number: number of the desk in database</li>
      * </ul>
+     *
      * @param booking BookingInput
      * @return Booking
      */
@@ -102,7 +114,7 @@ public class BookingController {
         String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
         String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
         String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
-        String bookingNumber = basicDate + interval + deskNum;
+        String bookingNumber = basicDate + interval + deskNum + booking.extendedid();
 
         newBooking.setBookingnumber(bookingNumber);
         newBooking.setUser(userRepo.findById(booking.userid()).get());
@@ -113,10 +125,12 @@ public class BookingController {
     }
 
     @MutationMapping
-    public UUID deleteBooking(@Argument UUID bookingId) { return bookingService.deleteBooking(bookingId); }
+    public UUID deleteBooking(@Argument UUID bookingId) {
+        return bookingService.deleteBooking(bookingId);
+    }
 
     @MutationMapping
-    public Booking editBooking(@Argument EditBookingInput bookingInput){
+    public Booking editBooking(@Argument EditBookingInput bookingInput) {
         boolean morningTaken = false;
         boolean afternoonTaken = false;
         Booking currentBooking = getBookingById(bookingInput.pk_bookingid());
@@ -126,11 +140,11 @@ public class BookingController {
         currentBooking.setDesk(deskRepo.findById(bookingInput.deskid()).get());
 
         //check for morning/afternoon
-        for (Booking book : bookingsWithDateAndSeat){
-            if (!morningTaken && book.isIsmorning()){
+        for (Booking book : bookingsWithDateAndSeat) {
+            if (!morningTaken && book.isIsmorning()) {
                 morningTaken = true;
             }
-            if(!afternoonTaken && book.isIsafternoon()){
+            if (!afternoonTaken && book.isIsafternoon()) {
                 afternoonTaken = true;
             }
         }
@@ -154,6 +168,7 @@ public class BookingController {
      * unused i think...
      * <p>
      * todo remove
+     *
      * @param booking
      * @return
      */
