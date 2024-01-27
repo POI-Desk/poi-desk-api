@@ -98,6 +98,12 @@ public class UserController {
         else return u.get().getLocation() != null;
     }
 
+    @QueryMapping
+    public List<User> getUsersInTeam() {
+        // TODO implement team functionality
+        return (List<User>) userRepo.findAll();
+    }
+
     @MutationMapping
     public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     {

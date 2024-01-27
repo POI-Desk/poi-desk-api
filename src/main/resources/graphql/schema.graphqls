@@ -1,10 +1,12 @@
 type Query{
     getAllUsers(input: String, pageNumber: Int, pageSize: Int): UserPageResponse!
+    getUsersInTeam: [User]
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
     getBookingsByDateOnFloor(date: String!, floorId: ID!): [Booking!]!
     getBookingById(id: ID): Booking
+    getBookingsByBookingnumberContains(string: String): [Booking!]
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
@@ -47,6 +49,7 @@ type Mutation{
     deleteDesks(deskIds: [ID!]!): [Desk!]
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
+    getBookingsByDate(date: String!): [Booking]
 }
 
 type Attribute{
@@ -337,6 +340,7 @@ input Bookinginput{
     isafternoon: Boolean!
     userid: String!
     deskid: String!
+    extendedid: String!
 }
 
 input EditBookingInput{
