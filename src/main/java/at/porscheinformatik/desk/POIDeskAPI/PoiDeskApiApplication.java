@@ -10,7 +10,8 @@ import java.util.concurrent.Executor;
 
 @SpringBootApplication
 @EnableAsync
-public class PoiDeskApiApplication {
+public class
+PoiDeskApiApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PoiDeskApiApplication.class, args);

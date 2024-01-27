@@ -1,5 +1,6 @@
 type Query{
     getAllUsers(input: String, pageNumber: Int, pageSize: Int): UserPageResponse!
+    getUsersInTeam: [User]
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
