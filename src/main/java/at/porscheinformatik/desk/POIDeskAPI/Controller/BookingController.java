@@ -10,6 +10,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Services.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
@@ -63,6 +64,11 @@ public class BookingController {
     @QueryMapping
     public List<Booking> getBookingsByDate(@Argument LocalDate date) throws ExecutionException, InterruptedException {
         return bookingService.getBookingsOnDate(date).get();
+    }
+
+    @QueryMapping
+    public List<Booking> getBookingsByDateBetween(@Argument LocalDate startDate, @Argument LocalDate endDate) throws ExecutionException, InterruptedException {
+        return bookingService.getBookingsBetweenDates(startDate, endDate).get();
     }
 
 
