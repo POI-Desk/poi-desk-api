@@ -27,10 +27,11 @@ public class LocationController {
     public List<Location> getAllLocations() { return (List<Location>)locationRepo.findAll(); }
 
     @MutationMapping
-    public Location addLocation(@Argument String name) {
+    public Location addLocation(@Argument String name, @Argument UUID id) {
         if (locationRepo.existsLocationByLocationname(name)) return null;
         Location location = new Location();
         location.setLocationname(name);
+        location.setPk_locationid(id);
         locationRepo.save(location);
         return location;
     }
