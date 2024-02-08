@@ -50,4 +50,10 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserAnalytic> userAnalytics;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_accountId")
+    private Account account;
+
+
 }

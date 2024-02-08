@@ -3,11 +3,15 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.RoleRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.AccountRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,9 +22,8 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 @Controller
 public class UserController {
@@ -41,6 +44,11 @@ public class UserController {
      */
     @Autowired
     private RoleRepo roleRepo;
+    /**
+     * The account repository
+     */
+    @Autowired
+    private AccountRepo accountRepo;
 
     /**
      * The currently logged-in user
@@ -143,6 +151,32 @@ public class UserController {
         this.loggedInUser = loggingInUser.get();
         return loggedInUser;
     }
+
+    @MutationMapping
+    public Account loginWizzGoogol(@Argument String authToken) throws IOException {
+        User user = new User();
+        List<String> scopes = new ArrayList<String>();
+        scopes.add("https://www.googleapis.com/auth/userinfo.profile");
+        scopes.add("https://www.googleapis.com/auth/userinfo.email");
+        System.out.println(authToken);
+        GoogleAuthorizationCodeFlow a = new GoogleAuthorizationCodeFlow(new NetHttpTransport(), new GsonFactory(), "30449198569-8ti9l20a7quemfkp1phf27fhf546d469.apps.googleusercontent.com","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", scopes);
+        var test = a.newTokenRequest(authToken).setRedirectUri("http://localhost:5173/api/auth/callback/google/").execute();
+        //get the id token
+        System.out.println(test);
+        System.out.println(test.getIdToken());
+        //split and decode the id token to get the user credentials
+        String[] split_string = test.getIdToken().split("\\.");
+        String base64EncodedBody = split_string[1];
+        String body = new String(Base64.getDecoder().decode(base64EncodedBody));
+        System.out.println("\nDecoded body: " + body);
+        //get name from body
+        String[] split_body = body.split(",");
+        String full_name = split_body[7].split(":")[1].replace("\"", "");
+        System.out.println("\nName: " + full_name);
+        
+        return null;
+    }
+
 
     public User createUser(String username) {
         User user = new User();

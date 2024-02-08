@@ -51,6 +51,7 @@ type Mutation{
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
+    loginWizzGoogol(authToken: String!) : Account
 }
 
 type Attribute{
@@ -231,6 +232,11 @@ type User{
     bookings: [Booking!]
     location: Location
     userAnalytics: [UserAnalytics!]
+}
+
+type Account{
+    pk_accountid: String!
+    provider: String!
 }
 
 type Map{
