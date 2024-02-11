@@ -8,6 +8,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
+import at.porscheinformatik.desk.POIDeskAPI.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class UserController {
@@ -46,6 +48,9 @@ public class UserController {
      * The currently logged-in user
      */
     private User loggedInUser;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Getter for the currently logged-in user
@@ -96,6 +101,16 @@ public class UserController {
         if (u.isEmpty())
             return false;
         else return u.get().getLocation() != null;
+    }
+
+    @QueryMapping
+    public List<User> getUsersWithADesk() throws ExecutionException, InterruptedException {
+        return userService.getUsersWithADesk().get();
+    }
+
+    @QueryMapping
+    public List<User> getUsersWithNoDesk() throws ExecutionException, InterruptedException {
+        return userService.getUsersWithNoDesk().get();
     }
 
     @MutationMapping

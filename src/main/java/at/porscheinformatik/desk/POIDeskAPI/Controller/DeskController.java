@@ -89,6 +89,11 @@ public class DeskController {
         return deskService.deleteDesks(deskIds).get();
     }
 
+    @MutationMapping
+    public Desk assignUserToDesk(@Argument UUID deskId, @Argument UUID userId) throws ExecutionException, InterruptedException {
+        return deskService.assignUserToDesk(deskId, userId).get();
+    }
+
     @SchemaMapping
     public List<Booking> bookings(Desk desk) {return desk.getBookings();}
 

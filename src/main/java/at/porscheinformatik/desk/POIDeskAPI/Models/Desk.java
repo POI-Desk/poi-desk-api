@@ -69,6 +69,10 @@ public class Desk {
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
+    @OneToOne
+    @JoinColumn(name = "fk_userid")
+    private User user;
+
     public void updateProps(String deskNum, int x, int y){
         this.desknum = deskNum;
         this.x = x;

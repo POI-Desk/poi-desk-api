@@ -84,6 +84,7 @@ CREATE TABLE Desks
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_floorId UUID,
     fk_mapId   UUID,
+    fk_userId  UUID          REFERENCES Users  (pk_userId)  UNIQUE,
     FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId),
     FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
 );

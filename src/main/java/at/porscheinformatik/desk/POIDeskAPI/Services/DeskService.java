@@ -2,9 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Attribute;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
+import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateDeskInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +23,8 @@ public class DeskService {
     BookingService bookingService;
     @Autowired
     AttributeService attributeService;
+    @Autowired
+    UserService userService;
 
 
     /**
@@ -127,5 +127,23 @@ public class DeskService {
 
         deskRepo.saveAll(finalDesks);
         return CompletableFuture.completedFuture(finalDesks);
+    }
+
+    @Async
+    public CompletableFuture<Desk> assignUserToDesk(UUID deskId, UUID userId) throws ExecutionException, InterruptedException {
+        Optional<Desk> o_desk = deskRepo.findById(deskId);
+        if (o_desk.isEmpty())
+            return null;
+
+        Optional<User> o_user = userService.getUserById(userId).get();
+        if (o_user.isEmpty())
+            return null;
+
+        Desk desk = o_desk.get();
+        User user = o_user.get();
+
+        desk.setUser(user);
+        deskRepo.save(desk);
+        return CompletableFuture.completedFuture(desk);
     }
 }

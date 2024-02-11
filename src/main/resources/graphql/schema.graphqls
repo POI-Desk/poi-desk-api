@@ -24,6 +24,8 @@ type Query{
     getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
     getYearlyBooking(year: String!, location: ID!): YearlyBooking
     getAlLYears: [String]
+    getUsersWithADesk: [User!]
+    getUsersWithNoDesk: [User!]
 }
 
 type Mutation{
@@ -49,6 +51,7 @@ type Mutation{
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
     deleteLabels(labelIds: [ID!]!): [Label!]
+    assignUserToDesk(deskId: ID!, userId: ID!): Desk
 }
 
 type Attribute{
@@ -218,6 +221,7 @@ type Desk{
     attributes: [Attribute!]
     floor: Floor
     map: Map
+    user: User
 }
 
 type User{
@@ -229,6 +233,7 @@ type User{
     bookings: [Booking!]
     location: Location
     userAnalytics: [UserAnalytics!]
+    desk: Desk
 }
 
 type Map{

@@ -5,6 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.BookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
@@ -94,6 +95,14 @@ public class BookingController {
     public Booking bookDesk(@Argument BookingInput booking) {
         Booking newBooking = new Booking(booking);
 
+        Desk desk = deskRepo.findById(booking.deskid()).get();
+
+        // Check if the desk is permanently used
+        if (desk.getUser() != null)
+            return null;
+
+        User user = userRepo.findById(booking.userid()).get();
+
         if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2))){
             return null;
         }
@@ -104,8 +113,8 @@ public class BookingController {
         String bookingNumber = basicDate + interval + deskNum;
 
         newBooking.setBookingnumber(bookingNumber);
-        newBooking.setUser(userRepo.findById(booking.userid()).get());
-        newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
+        newBooking.setUser(user);
+        newBooking.setDesk(desk);
         bookingRepo.save(newBooking);
 
         return newBooking;
