@@ -89,4 +89,10 @@ public class WallService {
         wallRepo.saveAll(finalWalls);
         return CompletableFuture.completedFuture(finalWalls);
     }
+
+    @Async
+    public CompletableFuture<List<Wall>> deleteWalls(Map map) {
+        List<UUID> wallIds = wallRepo.findAllByMap(map).stream().map(Wall::getPk_wallId).toList();
+        return deleteWalls(wallIds);
+    }
 }

@@ -89,4 +89,10 @@ public class RoomService {
         roomRepo.saveAll(finalRooms);
         return CompletableFuture.completedFuture(finalRooms);
     }
+
+    @Async
+    public CompletableFuture<List<Room>> deleteRooms(Map map) {
+        List<UUID> roomIds = roomRepo.findAllByMap(map).stream().map(Room::getPk_roomId).toList();
+        return  deleteRooms(roomIds);
+    }
 }

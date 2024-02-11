@@ -51,14 +51,14 @@ public class DoorService {
     @Async
     public CompletableFuture<List<Door>> deleteDoors(List<UUID> doorIds){
         Iterable<Door> i_doors = doorRepo.findAllById(doorIds);
-        List<Door> delRooms = new ArrayList<>();
+        List<Door> delDoors = new ArrayList<>();
         for (Door room:
                 i_doors) {
-            delRooms.add(room);
+            delDoors.add(room);
         }
 
-        doorRepo.deleteAll(delRooms);
-        return CompletableFuture.completedFuture(delRooms);
+        doorRepo.deleteAll(delDoors);
+        return CompletableFuture.completedFuture(delDoors);
     }
 
     /**
@@ -90,5 +90,11 @@ public class DoorService {
             finalDoors.add(c_door);
         }
         return CompletableFuture.completedFuture(finalDoors);
+    }
+
+    @Async
+    public CompletableFuture<List<Door>> deleteDoors(Map map) {
+        List<UUID> doorIds = doorRepo.findAllByMap(map).stream().map(Door::getPk_doorId).toList();
+        return deleteDoors(doorIds);
     }
 }

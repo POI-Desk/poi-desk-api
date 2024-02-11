@@ -33,6 +33,11 @@ public class MapController {
     }
 
     @MutationMapping
+    public boolean deleteMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return mapService.deleteMap(mapId).get();
+    }
+
+    @MutationMapping
     public Map updateMap(@Argument UUID mapId, @Argument MapInput mapInput) throws ExecutionException, InterruptedException {
         return mapService.updateMap(mapId, mapInput).get();
     }
