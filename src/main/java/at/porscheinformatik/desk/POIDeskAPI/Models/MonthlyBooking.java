@@ -1,6 +1,5 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Types.TimeType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,8 +23,8 @@ public class MonthlyBooking {
     @Column(name = "month", nullable = false)
     private String month;
 
-    @Column(name = "totalbookings", nullable = false)
-    private Integer totalBookings;
+    @Column(name = "total", nullable = false)
+    private Integer total;
 
     @Column(name = "days", nullable = false)
     private Integer days;
@@ -64,19 +63,19 @@ public class MonthlyBooking {
     private LocalDateTime updatedOn;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_location", nullable = false)
-    private Location fk_Location;
+    @JoinColumn(name = "fk_location", nullable = true)
+    private Location fk_location;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_building")
+    @JoinColumn(name = "fk_building", nullable = true)
     private Building fk_building;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_floor")
+    @JoinColumn(name = "fk_floor", nullable = true)
     private Floor fk_floor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_quarterlybookingid", nullable = false)
+    @JoinColumn(name = "fk_quarterlybookingid", nullable = true)
     private QuarterlyBooking fk_quarterlyBookingId;
 
     @OneToMany(mappedBy = "fk_monthlyBookingId", fetch = FetchType.LAZY)
