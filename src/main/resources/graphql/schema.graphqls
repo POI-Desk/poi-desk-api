@@ -13,7 +13,7 @@ type Query{
     getDesksOnFloor(floorid: ID!): [Desk!]
     getBookingsByUserId(userid: ID!): [Booking!]
     isBookedAt(deskId: ID!, date: String!, dayTime: String!): Boolean
-    getBookingsByUserid(userid: ID!): [Booking!]
+    getBookingsByUserid(userid: ID!, isCurrent: Boolean): [Booking!]
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
