@@ -15,8 +15,8 @@ public class AttributeService {
     @Autowired
     AttributeRepo attributeRepo;
 
-    //@Async
-    public List<Attribute> deleteAttributes(List<Desk> desks) {
+    @Async
+    public CompletableFuture<List<Attribute>> removeAttributesFromDesk(List<Desk> desks) {
         Iterable<Attribute> i_attributes = attributeRepo.findAll();
 
         for (Attribute attribute:
@@ -27,6 +27,6 @@ public class AttributeService {
             }
         }
         attributeRepo.saveAll(i_attributes);
-        return (List<Attribute>)i_attributes;
+        return CompletableFuture.completedFuture((List<Attribute>)i_attributes);
     }
 }

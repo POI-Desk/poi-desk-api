@@ -17,8 +17,8 @@ public class UserService {
     UserRepo userRepo;
 
     @Async
-    public CompletableFuture<Optional<User>> getUserById(UUID userId){
-        return CompletableFuture.completedFuture(userRepo.findById(userId));
+    public CompletableFuture<User> getUserById(UUID userId){
+        return CompletableFuture.completedFuture(userRepo.findById(userId).orElse(null));
     }
 
     /**

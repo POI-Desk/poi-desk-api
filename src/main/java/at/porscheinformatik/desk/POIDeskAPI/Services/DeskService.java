@@ -3,15 +3,19 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.DeskInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateDeskInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.InvalidRelationIdException;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class DeskService {
@@ -20,11 +24,15 @@ public class DeskService {
     @Autowired
     MapRepo mapRepo;
     @Autowired
+    MapService mapService;
+    @Autowired
     BookingService bookingService;
     @Autowired
     AttributeService attributeService;
     @Autowired
     UserService userService;
+    @Autowired
+    FloorService floorService;
 
 
     /**
@@ -44,6 +52,34 @@ public class DeskService {
         return CompletableFuture.completedFuture(o_desk.get());
     }
 
+    @Async
+    public CompletableFuture<Desk> updateDesk(UUID mapId, UpdateDeskInput deskInput) throws ExecutionException, InterruptedException {
+        Map map = mapRepo.findById(mapId).orElse(null);
+        if (map == null)
+            return null;
+        return updateDesk(map, deskInput);
+    }
+
+    @Async
+    public CompletableFuture<Desk> updateDesk(Map map, UpdateDeskInput deskInput) throws ExecutionException, InterruptedException {
+        Optional<Desk> o_desk = deskRepo.findById(deskInput.pk_deskid());
+        Desk desk;
+        User user = null;
+        if (deskInput.userId().isPresent()){
+            user = userService.getUserById(deskInput.userId().get()).get();
+        }
+        if (o_desk.isEmpty()){
+            desk = new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map.getFloor(), map, user);
+        }
+        else {
+            desk = o_desk.get();
+            desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y(), user);
+        }
+
+        deskRepo.save(desk);
+        return CompletableFuture.completedFuture(desk);
+    }
+
     /**
      * Updates given desks on map.
      *
@@ -57,11 +93,80 @@ public class DeskService {
     @Async
     public CompletableFuture<List<Desk>> updateDesks(UUID mapId, List<UpdateDeskInput> deskInputs) throws Exception {
 
-        Optional<at.porscheinformatik.desk.POIDeskAPI.Models.Map> o_map = mapRepo.findById(mapId);
+        Optional<Map> o_map = mapRepo.findById(mapId);
         if (o_map.isEmpty())
-            throw new IllegalArgumentException("No map found with given id");
+            return null;
         Map map = o_map.get();
         return updateDesks(map, deskInputs);
+    }
+
+    /**
+     * <b>No side effects</b>
+     * <br />
+     * Calculates List of Desks with given input
+     * @param map The map the desks belong to.
+     * @param deskInputs The new/updated desk inputs.
+     * @return The new/updated desks.
+     *
+     * @throws Exception if any given desk number is already in use / if any given desk ID does not exist
+     */
+    @Async
+    public CompletableFuture<List<Desk>> updateDesks(Map map, List<UpdateDeskInput> deskInputs) throws Exception{
+        List<Desk> desks = deskRepo.findAllByMap(map);
+        List<Desk> finalDesks = new ArrayList<>();
+
+        for (UpdateDeskInput deskInput : deskInputs) {
+            User user = null;
+            if (deskInput.userId().isPresent()){
+                user = userService.getUserById(deskInput.userId().get()).get();
+            }
+            if (deskInput.pk_deskid() == null) {
+                if (desks.stream().anyMatch(d -> Objects.equals(d.getDesknum(), deskInput.desknum()))) {
+                    continue;
+                }
+
+                finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map.getFloor(), map, user));
+                continue;
+            }
+            Optional<Desk> o_desk = desks.stream().filter(desk -> Objects.equals(desk.getPk_deskid().toString(), deskInput.pk_deskid().toString())).findFirst();
+            if (o_desk.isEmpty()) {
+                continue;
+            }
+            Desk c_desk = o_desk.get();
+            c_desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y(), user);
+            finalDesks.add(c_desk);
+        }
+
+        deskRepo.saveAll(finalDesks);
+        return CompletableFuture.completedFuture(finalDesks);
+    }
+
+    @Async
+    public CompletableFuture<List<Desk>> addDesksToFloor(UUID floorId, UUID mapId, List<DeskInput> desks) throws InvalidRelationIdException, ExecutionException, InterruptedException {
+        List<Desk> newDesks = new ArrayList<>();
+        Floor floor = floorService.getFloorById(floorId).get();
+        if (floor == null)
+            return null;
+
+        Optional<Map> o_map = mapRepo.findById(mapId);
+        if (o_map.isEmpty())
+            return null;
+
+        desks.forEach(s -> {
+            User user = null;
+            if (s.userId().isPresent()){
+                try {
+                    user = userService.getUserById(s.userId().get()).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), floor, o_map.get(), user));
+        });
+        deskRepo.saveAll(newDesks);
+
+        return CompletableFuture.completedFuture(newDesks);
     }
 
     /**
@@ -81,9 +186,11 @@ public class DeskService {
 
         List<UUID> bookingIds = delDesks.stream().map(Desk::getBookings).flatMap(bookings -> bookings.stream().map(Booking::getPk_bookingid)).toList();
 
-        bookingService.deleteBookings(bookingIds);
-        attributeService.deleteAttributes(delDesks);
 
+        CompletableFuture<Boolean> bookingsFuture = bookingService.deleteBookingsByIds(bookingIds);
+        CompletableFuture<List<Attribute>> attributesFuture = attributeService.removeAttributesFromDesk(delDesks);
+
+        CompletableFuture.allOf(bookingsFuture, attributesFuture).get();
         deskRepo.deleteAll(deskRepo.findAllById(deskIds));
         return CompletableFuture.completedFuture(delDesks);
     }
@@ -94,53 +201,26 @@ public class DeskService {
         return deleteDesks(desksIds);
     }
 
-    /**
-     * <b>No side effects</b>
-     * <br />
-     * Calculates List of Desks with given input
-     * @param map The map the desks belong to.
-     * @param deskInputs The new/updated desk inputs.
-     * @return The new/updated desks.
-     *
-     * @throws Exception if any given desk number is already in use / if any given desk ID does not exist
-     */
-    @Async
-    public CompletableFuture<List<Desk>> updateDesks(Map map, List<UpdateDeskInput> deskInputs) throws Exception{
-        List<Desk> desks = deskRepo.findAllByMap(map);
-        List<Desk> finalDesks = new ArrayList<>();
-        for (UpdateDeskInput deskInput : deskInputs) {
-            if (deskInput.pk_deskid() == null) {
-                if (desks.stream().anyMatch(d -> Objects.equals(d.getDesknum(), deskInput.desknum()))) {
-                    throw new Exception("DeskNum already exists " + deskInput.desknum());
-                }
-                finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map.getFloor(), map));
-                continue;
-            }
-            Optional<Desk> o_desk = desks.stream().filter(desk -> Objects.equals(desk.getPk_deskid().toString(), deskInput.pk_deskid().toString())).findFirst();
-            if (o_desk.isEmpty()) {
-                throw new Exception("any given desk ID does not exist");
-            }
-            Desk c_desk = o_desk.get();
-            c_desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y());
-            finalDesks.add(c_desk);
-        }
-
-        deskRepo.saveAll(finalDesks);
-        return CompletableFuture.completedFuture(finalDesks);
-    }
-
     @Async
     public CompletableFuture<Desk> assignUserToDesk(UUID deskId, UUID userId) throws ExecutionException, InterruptedException {
         Optional<Desk> o_desk = deskRepo.findById(deskId);
         if (o_desk.isEmpty())
             return null;
 
-        Optional<User> o_user = userService.getUserById(userId).get();
-        if (o_user.isEmpty())
+        User user = userService.getUserById(userId).get();
+        if (user == null)
             return null;
 
         Desk desk = o_desk.get();
-        User user = o_user.get();
+
+        // don't know if this works.
+        // may be risky
+        // <---------------->
+        CompletableFuture<Boolean> userFuture = bookingService.deleteBookings(user.getBookings());
+        CompletableFuture<Boolean> deskFuture = bookingService.deleteBookings(desk.getBookings());
+        // <---------------->
+
+        CompletableFuture.allOf(userFuture, deskFuture).get();
 
         desk.setUser(user);
         deskRepo.save(desk);

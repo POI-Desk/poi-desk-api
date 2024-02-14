@@ -81,9 +81,7 @@ public class UserController {
     public User getUserById(@Argument UUID id)
     {
         Optional<User> u = userRepo.findById(id);
-        if (u.isEmpty())
-            return null;
-        return u.get();
+        return u.orElse(null);
     }
 
     @QueryMapping

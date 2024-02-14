@@ -22,12 +22,13 @@ public class Desk {
 
     public Desk(){}
 
-    public Desk(String desknum, int x, int y, Floor floor, Map map){
+    public Desk(String desknum, int x, int y, Floor floor, Map map, User user){
         this.desknum = desknum;
         this.x = x;
         this.y = y;
         this.floor = floor;
         this.map = map;
+        this.user = user;
     }
 
     @Id
@@ -73,9 +74,10 @@ public class Desk {
     @JoinColumn(name = "fk_userid")
     private User user;
 
-    public void updateProps(String deskNum, int x, int y){
+    public void updateProps(String deskNum, int x, int y, User user){
         this.desknum = deskNum;
         this.x = x;
         this.y = y;
+        this.user = user;
     }
 }

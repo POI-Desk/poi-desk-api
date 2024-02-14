@@ -1,6 +1,6 @@
 type Query{
     getAllUsers(input: String, pageNumber: Int, pageSize: Int): UserPageResponse!
-    getUserById(id: ID): User
+    getUserById(id: ID!): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
     getBookingsByDateOnFloor(date: String!, floorId: ID!): [Booking!]!
@@ -31,7 +31,7 @@ type Query{
 type Mutation{
     changeUsername(id: String!, name:String!): User
     bookDesk(booking: Bookinginput!): Booking
-    deleteBooking(bookingId: ID!): ID
+    deleteBooking(bookingId: ID!): Boolean
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
@@ -42,6 +42,7 @@ type Mutation{
     updateDoorsOnMap(mapId: ID!, doorInputs: [UpdateDoorInput!]!): [Door!]
     updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
     updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
+    # updateDeskOnMap(mapId: ID!, deskInput: DeskInput!): Desk
     updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
     updateLabelsOnMap(mapId: ID!, labelInputs: [UpdateLabelInput!]!): [Label!]
     deleteRooms(roomIds: [ID!]!): [Room!]
@@ -336,6 +337,7 @@ input DeskInput{
     desknum: String!
     x: Int!
     y: Int!
+    userId: ID
 }
 
 input Bookinginput{
@@ -424,6 +426,7 @@ input UpdateDeskInput{
     desknum: String!    #TODO: change to camelCase
     x: Int!
     y: Int!
+    userId: ID
     #delete: Boolean!
 }
 
