@@ -18,6 +18,8 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.chrono.ChronoLocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
@@ -82,8 +84,7 @@ public class BookingController {
     public List<Booking> getBookingsByUserid(@Argument UUID userid, @Argument boolean isCurrent) {
         List<Booking> bookings = isCurrent ?
                 bookingRepo.findBookingsByUserAndDateAfter(userRepo.findById(userid).get(), LocalDate.now().minusDays(1)) :
-                bookingRepo.findBookingsByUserAndDateBefore(userRepo.findById(userid).get(), LocalDate.now())
-                ;
+                bookingRepo.findBookingsByUserAndDateBefore(userRepo.findById(userid).get(), LocalDate.now());
         Collections.sort(bookings);
         return bookings;
     }
@@ -113,6 +114,15 @@ public class BookingController {
      */
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {
+        User user = userRepo.findById(booking.userid()).get();
+        List<Booking> morningBookings = bookingRepo.findBookingsByUserAndDateEqualsAndIsmorning(user, booking.date(), booking.ismorning());
+        List<Booking> afternoonBookings = bookingRepo.findBookingsByUserAndDateEqualsAndIsafternoon(user, booking.date(), booking.isafternoon());
+        boolean canBook = (morningBookings.isEmpty() && afternoonBookings.isEmpty())
+                || (morningBookings.isEmpty() && booking.ismorning() && !booking.isafternoon())
+                || (afternoonBookings.isEmpty() && booking.isafternoon() && !booking.ismorning());
+
+        if (!canBook) return null;
+
         Booking newBooking = new Booking(booking);
         String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
         String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
@@ -120,7 +130,7 @@ public class BookingController {
         String bookingNumber = basicDate + interval + deskNum + booking.extendedid();
 
         newBooking.setBookingnumber(bookingNumber);
-        newBooking.setUser(userRepo.findById(booking.userid()).get());
+        newBooking.setUser(user);
         newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
         bookingRepo.save(newBooking);
 
