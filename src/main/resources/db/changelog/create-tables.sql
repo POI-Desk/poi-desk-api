@@ -68,6 +68,7 @@ CREATE TABLE Maps
     height      INT NOT NULL,
     createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    published   BOOLEAN NOT NULL DEFAULT FALSE,
     fk_floorId  UUID,
     FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId)
 );

@@ -16,7 +16,7 @@ type Query{
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
     getYearlyBookings: [YearlyBooking!]
-    getMapByFloor(floorId: ID!): Map
+    getPublishedMapOnFloor(floorId: ID!): Map
     getMapById(mapId: ID!): Map
     getDeskById(deskId: ID!): Desk
     getDailyBookings: [DailyBooking!]
@@ -42,7 +42,6 @@ type Mutation{
     updateDoorsOnMap(mapId: ID!, doorInputs: [UpdateDoorInput!]!): [Door!]
     updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
     updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
-    # updateDeskOnMap(mapId: ID!, deskInput: DeskInput!): Desk
     updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
     updateLabelsOnMap(mapId: ID!, labelInputs: [UpdateLabelInput!]!): [Label!]
     deleteRooms(roomIds: [ID!]!): [Room!]
@@ -243,6 +242,7 @@ type Map{
     height: Int!
     createdOn: String!
     updatedOn: String!
+    published: Boolean!
     rooms: [Room!]
     desks: [Desk!]
     interiors: [Interior!]
@@ -380,6 +380,7 @@ enum InteriorType{
 input MapInput{
     width: Int!
     height: Int!
+    published: Boolean!
 }
 
 input DoorInput{

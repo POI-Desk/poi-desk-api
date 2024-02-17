@@ -66,11 +66,6 @@ public class DeskController {
     }
 
     @MutationMapping
-    public Desk updateDeskOnMap(@Argument UUID mapId, @Argument UpdateDeskInput deskInput) throws ExecutionException, InterruptedException {
-        return deskService.updateDesk(mapId, deskInput).get();
-    }
-
-    @MutationMapping
     public List<Desk> updateDesksOnMap(@Argument UUID mapId, @Argument List<UpdateDeskInput> deskInputs) throws Exception {
         return deskService.updateDesks(mapId, deskInputs).get();
     }

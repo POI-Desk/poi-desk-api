@@ -17,7 +17,7 @@ public class MapService {
     @Autowired
     private MapRepo mapRepo;
     @Autowired
-    private FloorRepo floorRepo;
+    private FloorService floorService;
     @Autowired
     private DoorService doorService;
     @Autowired
@@ -30,17 +30,17 @@ public class MapService {
     private LabelService labelService;
     @Autowired
     private DeskService deskService;
-    @Autowired
-    private BookingService bookingService;
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
-        Optional<Floor> o_floor = floorRepo.findById(floorId);
-        if (o_floor.isEmpty())
+        Floor floor = floorService.getFloorById(floorId).get();
+        if (floor == null)
             throw new IllegalArgumentException("floor id does not exist");
-        if (mapRepo.existsByFloor(o_floor.get()))
-            throw new Exception("Floor already has a map");
 
-        Map map = new Map(mapInput.width(), mapInput.height(), o_floor.get());
+        if (mapInput.published() && mapRepo.existsByFloorAndPublishedTrue(floor)){
+            throw new Exception("Floor already has a main map");
+        }
+
+        Map map = new Map(mapInput.width(), mapInput.height(), mapInput.published(), floor);
         mapRepo.save(map);
         return map;
     }
@@ -53,16 +53,29 @@ public class MapService {
     @Async
     public CompletableFuture<Map> getMapById(UUID mapId){
         Optional<Map> o_map = mapRepo.findById(mapId);
-        return o_map.map(CompletableFuture::completedFuture).orElse(null);
+        return CompletableFuture.completedFuture(o_map.orElse(null));
     }
 
     @Async
-    public CompletableFuture<Map> updateMap(UUID mapId, MapInput mapInput){
-        Optional<Map> o_map = mapRepo.findById(mapId);
-        if (o_map.isEmpty())
-            throw new IllegalArgumentException("No map with given ID: " + mapId);
-        Map map = o_map.get();
-        map.updateProps(mapInput.width(), mapInput.height(), map.getFloor());
+    public CompletableFuture<Map> getPublishedMapOnFloor(UUID floorId) throws ExecutionException, InterruptedException {
+        Floor floor = floorService.getFloorById(floorId).get();
+        if (floor == null) {
+            return null;
+        }
+        return CompletableFuture.completedFuture(mapRepo.findMapByFloorAndPublishedTrue(floor));
+
+    }
+
+    @Async
+    public CompletableFuture<Map> updateMap(UUID mapId, MapInput mapInput) throws ExecutionException, InterruptedException {
+        Map map = getMapById(mapId).get();
+        if (map == null)
+            return null;
+
+        if (mapRepo.existsByFloorAndPublishedTrue(map.getFloor()) && mapInput.published())
+            return null;
+
+        map.updateProps(mapInput.width(), mapInput.height(), mapInput.published(), map.getFloor());
         mapRepo.save(map);
         return CompletableFuture.completedFuture(map);
     }
@@ -75,6 +88,9 @@ public class MapService {
             return CompletableFuture.completedFuture(false);
 
         Map map = o_map.get();
+
+        if (map.isPublished())
+            return CompletableFuture.completedFuture(false);
 
         CompletableFuture<List<Door>> doorFuture = doorService.deleteDoors(map);
         CompletableFuture<List<Room>> roomFuture = roomService.deleteRooms(map);

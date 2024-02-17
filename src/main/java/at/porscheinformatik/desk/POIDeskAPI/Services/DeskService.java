@@ -1,13 +1,12 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MapRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.DeskInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.UpdateDeskInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +21,7 @@ public class DeskService {
     @Autowired
     DeskRepo deskRepo;
     @Autowired
-    MapRepo mapRepo;
-    @Autowired
+    @Lazy
     MapService mapService;
     @Autowired
     BookingService bookingService;
@@ -52,34 +50,6 @@ public class DeskService {
         return CompletableFuture.completedFuture(o_desk.get());
     }
 
-    @Async
-    public CompletableFuture<Desk> updateDesk(UUID mapId, UpdateDeskInput deskInput) throws ExecutionException, InterruptedException {
-        Map map = mapRepo.findById(mapId).orElse(null);
-        if (map == null)
-            return null;
-        return updateDesk(map, deskInput);
-    }
-
-    @Async
-    public CompletableFuture<Desk> updateDesk(Map map, UpdateDeskInput deskInput) throws ExecutionException, InterruptedException {
-        Optional<Desk> o_desk = deskRepo.findById(deskInput.pk_deskid());
-        Desk desk;
-        User user = null;
-        if (deskInput.userId().isPresent()){
-            user = userService.getUserById(deskInput.userId().get()).get();
-        }
-        if (o_desk.isEmpty()){
-            desk = new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map.getFloor(), map, user);
-        }
-        else {
-            desk = o_desk.get();
-            desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y(), user);
-        }
-
-        deskRepo.save(desk);
-        return CompletableFuture.completedFuture(desk);
-    }
-
     /**
      * Updates given desks on map.
      *
@@ -93,10 +63,10 @@ public class DeskService {
     @Async
     public CompletableFuture<List<Desk>> updateDesks(UUID mapId, List<UpdateDeskInput> deskInputs) throws Exception {
 
-        Optional<Map> o_map = mapRepo.findById(mapId);
-        if (o_map.isEmpty())
+        Map map = mapService.getMapById(mapId).get();
+        if (map == null)
             return null;
-        Map map = o_map.get();
+
         return updateDesks(map, deskInputs);
     }
 
@@ -148,8 +118,8 @@ public class DeskService {
         if (floor == null)
             return null;
 
-        Optional<Map> o_map = mapRepo.findById(mapId);
-        if (o_map.isEmpty())
+        Map map = mapService.getMapById(mapId).get();
+        if (map == null)
             return null;
 
         desks.forEach(s -> {
@@ -162,7 +132,7 @@ public class DeskService {
                 }
             }
 
-            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), floor, o_map.get(), user));
+            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), floor, map, user));
         });
         deskRepo.saveAll(newDesks);
 
