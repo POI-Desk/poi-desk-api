@@ -4,9 +4,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.YearlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.*;
@@ -21,7 +19,7 @@ public class YearlyBookingController {
     {
         List<YearlyBooking> yearlyBookings = (List<YearlyBooking>) yearlyBookingRepo.findAll();
         Optional<YearlyBooking> yearlyBooking = yearlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
+                .filter(booking -> Objects.equals(booking.getFk_Location().getPklocationid(), location))
                 .filter(booking -> Objects.equals(booking.getYear(), year))
                 .findFirst();
         return yearlyBooking.orElse(null);

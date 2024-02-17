@@ -3,6 +3,8 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BuildingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Building;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -41,12 +43,38 @@ public class BuildingController {
         return new ArrayList<>();
     }
 
+    @QueryMapping
+    public List<Building> getAllBuildings() {
+        return (List<Building>) buildingRepo.findAll();
+    }
+
     @MutationMapping
     public Building addBuilding(@Argument String name, @Argument UUID locationid) {
         Building building = new Building();
         building.setBuildingname(name);
         building.setLocation(locationRepo.findById(locationid).get());
+        System.out.println(building);
         buildingRepo.save(building);
         return building;
     }
+
+    @MutationMapping
+    public Building deleteBuilding(@Argument UUID id) {
+        if (!buildingRepo.existsById(id)) return null;
+        Building building = buildingRepo.findById(id).get();
+        buildingRepo.delete(building);
+        return building;
+    }
+
+//    @MutationMapping
+//    public Building addBuilding(@Argument String name, @Argument UUID buildingid, @Argument UUID locationid) {
+//        Building building = new Building();
+//        building.setBuildingname(name);
+//        building.setPk_buildingid(buildingid);
+//        System.out.println("BUILDING!!!!!!");
+//        System.out.println(locationid);
+//        building.setLocation(locationRepo.findById(locationid).get());
+//        buildingRepo.save(building);
+//        return building;
+//    }
 }

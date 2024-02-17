@@ -26,12 +26,24 @@ public class LocationController {
     @QueryMapping
     public List<Location> getAllLocations() { return (List<Location>)locationRepo.findAll(); }
 
+//    @MutationMapping
+//    public Location addLocation(@Argument String name, @Argument UUID id) {
+//        if (locationRepo.existsLocationByLocationname(name)) return null;
+//        Location location = new Location();
+//        location.setLocationname(name);
+//        System.out.println("LOCATIONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
+//        System.out.println(id);
+//        location.setPklocationid(id);
+//        System.out.println(location.getPklocationid());
+//        locationRepo.save(location);
+//        return location;
+//    }
+
     @MutationMapping
-    public Location addLocation(@Argument String name, @Argument UUID id) {
+    public Location addLocation(@Argument String name) {
         if (locationRepo.existsLocationByLocationname(name)) return null;
         Location location = new Location();
         location.setLocationname(name);
-        location.setPk_locationid(id);
         locationRepo.save(location);
         return location;
     }
@@ -43,4 +55,6 @@ public class LocationController {
         locationRepo.delete(location);
         return location;
     }
+
+
 }

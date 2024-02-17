@@ -22,7 +22,7 @@ public class QuarterlyBookingController {
     {
         List<QuarterlyBooking> quarterlyBookings = (List<QuarterlyBooking>)quarterlyBookingRepo.findAll();
         Optional<QuarterlyBooking> quarterlyBooking = quarterlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
+                .filter(booking -> Objects.equals(booking.getFk_Location().getPklocationid(), location))
                 .filter(booking -> Objects.equals(booking.getQuarter(), quarter))
                 .filter(booking -> Objects.equals(booking.getYear(), year))
                 .findFirst();

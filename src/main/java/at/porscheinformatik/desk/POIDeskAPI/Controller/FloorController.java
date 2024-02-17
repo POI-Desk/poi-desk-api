@@ -2,11 +2,13 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BuildingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Building;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import at.porscheinformatik.desk.POIDeskAPI.Services.FloorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -56,4 +58,24 @@ public class FloorController {
     public Map getMapByFloor(@Argument UUID floorId){
         return floorService.getMapByFloor(floorId);
     }
+
+    @MutationMapping
+    public Floor addFloor(@Argument String name, @Argument UUID buildingid) {
+        Floor floor = new Floor();
+        floor.setFloorname(name);
+        System.out.println("ASFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFfff");
+        System.out.println(buildingid);
+        floor.setBuilding(buildingRepo.findById(buildingid).get());
+        floorRepo.save(floor);
+        return floor;
+    }
+
+    @MutationMapping
+    public Floor deleteFloor(@Argument UUID id) {
+        if (!floorRepo.existsById(id)) return null;
+        Floor floor = floorRepo.findById(id).get();
+        floorRepo.delete(floor);
+        return floor;
+    }
 }
+
