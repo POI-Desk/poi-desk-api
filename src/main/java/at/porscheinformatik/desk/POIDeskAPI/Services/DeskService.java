@@ -161,7 +161,8 @@ public class DeskService {
         CompletableFuture<List<Attribute>> attributesFuture = attributeService.removeAttributesFromDesk(delDesks);
 
         CompletableFuture.allOf(bookingsFuture, attributesFuture).get();
-        deskRepo.deleteAll(deskRepo.findAllById(deskIds));
+
+        deskRepo.deleteAll(delDesks);
         return CompletableFuture.completedFuture(delDesks);
     }
 

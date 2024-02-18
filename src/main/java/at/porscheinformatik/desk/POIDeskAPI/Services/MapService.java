@@ -67,6 +67,34 @@ public class MapService {
     }
 
     @Async
+    public CompletableFuture<List<Map>> getMapSnapshotsOfFloor(UUID floorId) throws ExecutionException, InterruptedException {
+        Floor floor = floorService.getFloorById(floorId).get();
+        if (floor == null)
+            return null;
+
+        return CompletableFuture.completedFuture(mapRepo.findMapsByFloorAndPublishedFalse(floor));
+    }
+
+    /**
+     * gets the map by id only if it is not published
+     * @param mapId id of the map
+     * @return the map or null if its does not exist / is published
+     */
+    @Async
+    public CompletableFuture<Map> getMapSnapshotById(UUID mapId){
+        Optional<Map> o_map = mapRepo.findById(mapId);
+        if (o_map.isEmpty())
+            return null;
+
+        Map map = o_map.get();
+
+        if (map.isPublished())
+            return null;
+
+        return CompletableFuture.completedFuture(map);
+    }
+
+    @Async
     public CompletableFuture<Map> updateMap(UUID mapId, MapInput mapInput) throws ExecutionException, InterruptedException {
         Map map = getMapById(mapId).get();
         if (map == null)

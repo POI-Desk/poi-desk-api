@@ -47,6 +47,16 @@ public class MapController {
         return mapService.getPublishedMapOnFloor(floorId).get();
     }
 
+    @QueryMapping
+    public List<Map> getMapSnapshotsOfFloor(@Argument UUID floorId) throws ExecutionException, InterruptedException {
+        return mapService.getMapSnapshotsOfFloor(floorId).get();
+    }
+
+    @QueryMapping
+    public Map getMapSnapshotById(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return mapService.getMapSnapshotById(mapId).get();
+    }
+
     @SchemaMapping
     public List<Desk> desks(Map map) { return map.getDesks(); }
 

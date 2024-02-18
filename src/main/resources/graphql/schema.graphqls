@@ -26,6 +26,8 @@ type Query{
     getAlLYears: [String]
     getUsersWithADesk: [User!]
     getUsersWithNoDesk: [User!]
+    getMapSnapshotsOfFloor(floorId: ID!): [Map!]
+    getMapSnapshotById(mapId: ID!): Map
 }
 
 type Mutation{
