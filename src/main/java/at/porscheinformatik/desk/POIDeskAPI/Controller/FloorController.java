@@ -77,5 +77,13 @@ public class FloorController {
         floorRepo.delete(floor);
         return floor;
     }
+
+    @MutationMapping
+    public Floor changeNameOfFloor(@Argument UUID id, @Argument String newName) {
+        Floor floor = floorRepo.findById(id).get();
+        floor.setFloorname(newName);
+        floorRepo.save(floor);
+        return floor;
+    }
 }
 

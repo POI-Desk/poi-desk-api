@@ -56,5 +56,12 @@ public class LocationController {
         return location;
     }
 
+    @MutationMapping
+    public Location changeNameOfLocation(@Argument UUID id, @Argument String newName) {
+        Location location = locationRepo.findById(id).get();
+        location.setLocationname(newName);
+        locationRepo.save(location);
+        return location;
+    }
 
 }

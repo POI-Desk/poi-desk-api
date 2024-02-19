@@ -66,15 +66,11 @@ public class BuildingController {
         return building;
     }
 
-//    @MutationMapping
-//    public Building addBuilding(@Argument String name, @Argument UUID buildingid, @Argument UUID locationid) {
-//        Building building = new Building();
-//        building.setBuildingname(name);
-//        building.setPk_buildingid(buildingid);
-//        System.out.println("BUILDING!!!!!!");
-//        System.out.println(locationid);
-//        building.setLocation(locationRepo.findById(locationid).get());
-//        buildingRepo.save(building);
-//        return building;
-//    }
+    @MutationMapping
+    public Building changeNameOfBuilding(@Argument UUID id, @Argument String newName) {
+        Building building = buildingRepo.findById(id).get();
+        building.setBuildingname(newName);
+        buildingRepo.save(building);
+        return building;
+    }
 }

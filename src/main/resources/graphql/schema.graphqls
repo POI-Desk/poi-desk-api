@@ -36,11 +36,14 @@ type Mutation{
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     addLocation(name: String!): Location
     deleteLocation(id: ID): Location
+    changeNameOfLocation(id: ID!, newName: String!): Location
     editBooking(bookingInput: EditBookingInput!) : Booking
     addBuilding(name: String!, locationid: ID!): Building
     deleteBuilding(id: ID!): Building
+    changeNameOfBuilding(id: ID!, newName: String!): Building
     addFloor(name: String!, buildingid: ID!): Floor
     deleteFloor(id: ID!): Floor
+    changeNameOfFloor(id: ID!, newName: String!): Floor
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
     createMap(floorId: ID!, mapInput: MapInput!): Map
