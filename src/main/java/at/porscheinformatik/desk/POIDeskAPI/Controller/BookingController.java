@@ -61,7 +61,7 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByDateOnFloor(@Argument LocalDate date, @Argument UUID floorId) throws ExecutionException, InterruptedException {
+    public List<Booking> getBookingsByDateOnMap(@Argument LocalDate date, @Argument UUID floorId) throws ExecutionException, InterruptedException {
         return bookingService.getBookingsByDateOnFloor(date, floorId).get();
     }
 

@@ -22,11 +22,10 @@ public class Desk {
 
     public Desk(){}
 
-    public Desk(String desknum, int x, int y, Floor floor, Map map, User user){
+    public Desk(String desknum, int x, int y, Map map, User user){
         this.desknum = desknum;
         this.x = x;
         this.y = y;
-        this.floor = floor;
         this.map = map;
         this.user = user;
     }
@@ -63,14 +62,10 @@ public class Desk {
     private List<Attribute> attributes;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_floorid")
-    private Floor floor;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_userid")
     private User user;
 

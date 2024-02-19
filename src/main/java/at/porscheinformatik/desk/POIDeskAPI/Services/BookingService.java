@@ -3,13 +3,17 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Book;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -55,12 +59,10 @@ public class BookingService {
     @Async
     public CompletableFuture<List<Booking>> getBookingsByDateOnFloor(LocalDate date, UUID floorId) throws ExecutionException, InterruptedException {
         Floor floor = floorService.getFloorById(floorId).get();
-        Iterable<Booking> i_bookings = bookingRepo.findBookingsByDateAndDeskFloor(date, floor);
-        List<Booking> bookings = new ArrayList<>();
-        for (Booking booking:
-             i_bookings) {
-            bookings.add(booking);
-        }
+        if (floor == null)
+            return null;
+
+        List<Booking> bookings = bookingRepo.findBookingsByDateAndDeskMapFloor(date, floor);
         return CompletableFuture.completedFuture(bookings);
     }
 

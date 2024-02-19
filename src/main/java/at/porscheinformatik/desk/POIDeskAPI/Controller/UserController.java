@@ -102,13 +102,13 @@ public class UserController {
     }
 
     @QueryMapping
-    public List<User> getUsersWithADesk() throws ExecutionException, InterruptedException {
-        return userService.getUsersWithADesk().get();
+    public List<User> getUsersWithADeskOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return userService.getUsersWithADeskOnMap(mapId).get();
     }
 
     @QueryMapping
-    public List<User> getUsersWithNoDesk() throws ExecutionException, InterruptedException {
-        return userService.getUsersWithNoDesk().get();
+    public List<User> getUsersWithNoDeskOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return userService.getUsersWithNoDeskOnMap(mapId).get();
     }
 
     @MutationMapping
@@ -169,4 +169,7 @@ public class UserController {
 
     @SchemaMapping
     public Location location(User user) { return user.getLocation(); }
+
+    @SchemaMapping
+    public List<Desk> desks(User user) { return user.getDesks(); }
 }

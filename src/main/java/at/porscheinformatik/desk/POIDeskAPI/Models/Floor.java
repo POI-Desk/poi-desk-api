@@ -36,9 +36,6 @@ public class Floor {
     private Building building;
 
     @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
-    private List<Desk> desks;
-
-    @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
     private List<Map> maps;
     
     @OneToMany(mappedBy = "fk_floor", fetch = FetchType.LAZY)

@@ -46,23 +46,18 @@ public class DeskController {
     }
 
     /**
-     * Finds all desks on the floor with the specified id
-     * @param floorid UUID, search for desks here
-     * @return List of Desks on Floor
+     * Finds all desks on the map with the specified id
+     * @param mapId UUID, search for desks here
+     * @return List of desks on map
      */
     @QueryMapping
-    public List<Desk> getDesksOnFloor(@Argument UUID floorid) {
-        return deskRepo.findByFloor(floorRepo.findById(floorid).get());
+    public List<Desk> getDesksOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return deskService.getDesksOnMap(mapId).get();
     }
 
     @QueryMapping
     public Desk getDeskById(@Argument UUID deskId) throws ExecutionException, InterruptedException {
         return deskService.getDeskById(deskId).get();
-    }
-
-    @MutationMapping
-    public List<Desk> addDesksToFloor(@Argument UUID floorId, @Argument UUID mapId, @Argument List<DeskInput> desks) throws InvalidRelationIdException, ExecutionException, InterruptedException {
-        return deskService.addDesksToFloor(floorId, mapId, desks).get();
     }
 
     @MutationMapping
@@ -81,9 +76,12 @@ public class DeskController {
     }
 
     @SchemaMapping
-    public List<Booking> bookings(Desk desk) {return desk.getBookings();}
+    public List<Booking> bookings(Desk desk) { return desk.getBookings(); }
 
     @SchemaMapping
     public Map map(Desk desk) { return desk.getMap(); }
+
+    @SchemaMapping
+    public User user(Desk desk) {return desk.getUser(); }
 
 }

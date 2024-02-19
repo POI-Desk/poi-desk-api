@@ -1,9 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.ControllerRepos;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
-import at.porscheinformatik.desk.POIDeskAPI.Models.User;
+import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import org.springframework.cglib.core.Local;
 import org.springframework.data.repository.CrudRepository;
 
@@ -19,5 +16,5 @@ public interface BookingRepo extends CrudRepository<Booking, UUID> {
 
     List<Booking> findBookingsByDate(LocalDate date);
 
-    List<Booking> findBookingsByDateAndDeskFloor(LocalDate date, Floor floor);
+    List<Booking> findBookingsByDateAndDeskMapFloor(LocalDate date, Floor floor);
 }

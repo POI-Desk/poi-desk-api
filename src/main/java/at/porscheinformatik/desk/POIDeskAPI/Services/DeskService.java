@@ -95,7 +95,7 @@ public class DeskService {
                     continue;
                 }
 
-                finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map.getFloor(), map, user));
+                finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map, user));
                 continue;
             }
             Optional<Desk> o_desk = desks.stream().filter(desk -> Objects.equals(desk.getPk_deskid().toString(), deskInput.pk_deskid().toString())).findFirst();
@@ -109,34 +109,6 @@ public class DeskService {
 
         deskRepo.saveAll(finalDesks);
         return CompletableFuture.completedFuture(finalDesks);
-    }
-
-    @Async
-    public CompletableFuture<List<Desk>> addDesksToFloor(UUID floorId, UUID mapId, List<DeskInput> desks) throws InvalidRelationIdException, ExecutionException, InterruptedException {
-        List<Desk> newDesks = new ArrayList<>();
-        Floor floor = floorService.getFloorById(floorId).get();
-        if (floor == null)
-            return null;
-
-        Map map = mapService.getMapById(mapId).get();
-        if (map == null)
-            return null;
-
-        desks.forEach(s -> {
-            User user = null;
-            if (s.userId().isPresent()){
-                try {
-                    user = userService.getUserById(s.userId().get()).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), floor, map, user));
-        });
-        deskRepo.saveAll(newDesks);
-
-        return CompletableFuture.completedFuture(newDesks);
     }
 
     /**
@@ -184,6 +156,9 @@ public class DeskService {
 
         Desk desk = o_desk.get();
 
+        if (deskRepo.existsDeskByUserAndMap(user, desk.getMap()))
+            return null;
+
         // don't know if this works.
         // may be risky
         // <---------------->
@@ -196,5 +171,15 @@ public class DeskService {
         desk.setUser(user);
         deskRepo.save(desk);
         return CompletableFuture.completedFuture(desk);
+    }
+
+    @Async
+    public CompletableFuture<List<Desk>> getDesksOnMap(UUID mapId) throws ExecutionException, InterruptedException {
+        Map map = mapService.getMapById(mapId).get();
+        if (map == null)
+            return null;
+
+        List<Desk> desks = deskRepo.findAllByMap(map);
+        return CompletableFuture.completedFuture(desks);
     }
 }

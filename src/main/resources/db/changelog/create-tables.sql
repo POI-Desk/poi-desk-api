@@ -83,11 +83,10 @@ CREATE TABLE Desks
     rotation   INT       NOT NULL,
     createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fk_floorId UUID,
     fk_mapId   UUID,
-    fk_userId  UUID          REFERENCES Users  (pk_userId)  UNIQUE,
-    FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId),
-    FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
+    fk_userId  UUID,
+    FOREIGN KEY (fk_mapId)      REFERENCES Maps   (pk_mapId),
+    FOREIGN KEY (fk_userId)     REFERENCES Users  (pk_userId)   ON DELETE SET NULL
 );
 
 -- changeset liquibase:9
