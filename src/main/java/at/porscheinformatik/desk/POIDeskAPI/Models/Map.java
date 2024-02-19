@@ -48,22 +48,22 @@ public class Map {
     @Column(name="published", nullable = false)
     private boolean published;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Room> rooms;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Desk> desks;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Label> labels;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Interior> interiors;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Door> doors;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Wall> walls;
 
     @ManyToOne(fetch = FetchType.LAZY)

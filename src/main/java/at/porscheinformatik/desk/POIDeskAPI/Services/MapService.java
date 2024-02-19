@@ -18,18 +18,6 @@ public class MapService {
     private MapRepo mapRepo;
     @Autowired
     private FloorService floorService;
-    @Autowired
-    private DoorService doorService;
-    @Autowired
-    private RoomService roomService;
-    @Autowired
-    private InteriorService interiorService;
-    @Autowired
-    private WallService wallService;
-    @Autowired
-    private LabelService labelService;
-    @Autowired
-    private DeskService deskService;
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
         Floor floor = floorService.getFloorById(floorId).get();
@@ -120,14 +108,7 @@ public class MapService {
         if (map.isPublished())
             return CompletableFuture.completedFuture(false);
 
-        CompletableFuture<List<Door>> doorFuture = doorService.deleteDoors(map);
-        CompletableFuture<List<Room>> roomFuture = roomService.deleteRooms(map);
-        CompletableFuture<List<Interior>> interiorFuture = interiorService.deleteInteriors(map);
-        CompletableFuture<List<Wall>> wallFuture = wallService.deleteWalls(map);
-        CompletableFuture<List<Label>> labelFuture = labelService.deleteLabels(map);
-        CompletableFuture<List<Desk>> deskFuture = deskService.deleteDesks(map);
 
-        CompletableFuture.allOf(doorFuture, roomFuture, interiorFuture, wallFuture, labelFuture, deskFuture).get();
 
         mapRepo.delete(map);
 
