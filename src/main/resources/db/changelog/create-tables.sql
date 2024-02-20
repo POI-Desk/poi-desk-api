@@ -314,10 +314,14 @@ ALTER TABLE DailyBookings
 
 CREATE TABLE accounts(
     pk_accountid    varchar PRIMARY KEY NOT NULL,
-    provider        VARCHAR NOT NULL
+    provider        VARCHAR NOT NULL,
+    access_token    VARCHAR NOT NULL,
+    refresh_token   VARCHAR NOT NULL,
+    createdOn       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )
 
 -- changeset liquibase:25
 
-ALTER TABLE Users ADD CONSTRAINT fk_accountid FOREIGN KEY (fk_accountId) references accounts (pk_accountid)
+ALTER TABLE Users ADD CONSTRAINT fk_accountid FOREIGN KEY (fk_accountId) references accounts (pk_accountid) ON DELETE CASCADE;
 

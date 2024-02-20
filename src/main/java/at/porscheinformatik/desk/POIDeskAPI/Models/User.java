@@ -17,6 +17,15 @@ import java.util.UUID;
 @Table(name="users")
 public class User {
 
+    public User(){}
+
+    public User(String username, Location location, List<Role> roles ,Account account){
+        this.username = username;
+        this.location = location;
+        this.roles = roles;
+        this.account = account;
+    }
+
     @Id
     @Column(name="pk_userid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -52,7 +61,7 @@ public class User {
     private List<UserAnalytic> userAnalytics;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fk_accountId")
+    @JoinColumn(name = "fk_accountid")
     private Account account;
 
 

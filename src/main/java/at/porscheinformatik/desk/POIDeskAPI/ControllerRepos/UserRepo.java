@@ -17,4 +17,6 @@ public interface UserRepo extends CrudRepository<User, UUID>, PagingAndSortingRe
     // Page<User> findByUsernameStartsWith(String input, Pageable pageable);
 
     Page<User> findByUsernameStartsWithIgnoreCase(String prefix, Pageable pageable);
+
+    Page<User> getUsersByDesk(String desk);
 }
