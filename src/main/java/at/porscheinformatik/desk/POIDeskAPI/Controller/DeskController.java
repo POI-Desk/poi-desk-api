@@ -82,6 +82,6 @@ public class DeskController {
     public Map map(Desk desk) { return desk.getMap(); }
 
     @SchemaMapping
-    public User user(Desk desk) {return desk.getUser(); }
+    public User user(Desk desk) { return desk.getUser(); }
 
 }

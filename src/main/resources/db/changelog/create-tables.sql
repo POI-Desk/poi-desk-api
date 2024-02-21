@@ -66,9 +66,10 @@ CREATE TABLE Maps
     pk_mapId    UUID PRIMARY KEY    DEFAULT gen_random_uuid(),
     width       INT NOT NULL,
     height      INT NOT NULL,
+    published   BOOLEAN NOT NULL DEFAULT FALSE,
+    name        TEXT NOT NULL,
     createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-    published   BOOLEAN NOT NULL DEFAULT FALSE,
     fk_floorId  UUID,
     FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId)
 );

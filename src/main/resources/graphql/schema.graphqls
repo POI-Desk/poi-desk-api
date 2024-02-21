@@ -241,9 +241,10 @@ type Map{
     pk_mapId: ID!
     width: Int!
     height: Int!
+    published: Boolean!
+    name: String!
     createdOn: String!
     updatedOn: String!
-    published: Boolean!
     rooms: [Room!]
     desks: [Desk!]
     interiors: [Interior!]
@@ -382,6 +383,7 @@ input MapInput{
     width: Int!
     height: Int!
     published: Boolean!
+    name: String!
 }
 
 input DoorInput{

@@ -18,11 +18,12 @@ public class Map {
 
     public Map (){}
 
-    public Map (int width, int height, boolean published, Floor floor)
+    public Map (int width, int height, boolean published, String name, Floor floor)
     {
         this.width = width;
         this.height = height;
         this.published = published;
+        this.name = name;
         this.floor = floor;
     }
 
@@ -37,6 +38,12 @@ public class Map {
     @Column(name="height", nullable = false)
     private int height;
 
+    @Column(name="published", nullable = false)
+    private boolean published;
+
+    @Column(name="name", nullable = false)
+    private String name;
+
     @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
@@ -44,9 +51,6 @@ public class Map {
     @Column(name="updatedon", nullable = false)
     @UpdateTimestamp
     private LocalDateTime updatedOn;
-
-    @Column(name="published", nullable = false)
-    private boolean published;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Room> rooms;
@@ -70,10 +74,11 @@ public class Map {
     @JoinColumn(name = "fk_floorid")
     private Floor floor;
 
-    public void updateProps(int width, int height, boolean published, Floor floor){
+    public void updateProps(int width, int height, boolean published, String name, Floor floor){
         this.width = width;
         this.height = height;
         this.published = published;
+        this.name = name;
         this.floor = floor;
     }
 

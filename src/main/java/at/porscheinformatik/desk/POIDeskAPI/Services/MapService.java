@@ -28,7 +28,7 @@ public class MapService {
             throw new Exception("Floor already has a main map");
         }
 
-        Map map = new Map(mapInput.width(), mapInput.height(), mapInput.published(), floor);
+        Map map = new Map(mapInput.width(), mapInput.height(), mapInput.published(), mapInput.name(), floor);
         mapRepo.save(map);
         return map;
     }
@@ -70,6 +70,7 @@ public class MapService {
      */
     @Async
     public CompletableFuture<Map> getMapSnapshotById(UUID mapId){
+        System.out.println("HELLO");
         Optional<Map> o_map = mapRepo.findById(mapId);
         if (o_map.isEmpty())
             return null;
@@ -91,7 +92,7 @@ public class MapService {
         if (mapRepo.existsByFloorAndPublishedTrue(map.getFloor()) && mapInput.published())
             return null;
 
-        map.updateProps(mapInput.width(), mapInput.height(), mapInput.published(), map.getFloor());
+        map.updateProps(mapInput.width(), mapInput.height(), mapInput.published(), mapInput.name(), map.getFloor());
         mapRepo.save(map);
         return CompletableFuture.completedFuture(map);
     }
