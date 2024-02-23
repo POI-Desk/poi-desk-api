@@ -145,6 +145,13 @@ public class DeskService {
     }
 
     @Async
+    public CompletableFuture<List<Desk>> copyDesksToMap(List<Desk> desks, Map map){
+        List<Desk> newDesks = desks.stream().map(d -> new Desk(d.getDesknum(), d.getX(), d.getY(), map, d.getUser())).toList();
+        deskRepo.saveAll(newDesks);
+        return CompletableFuture.completedFuture(newDesks);
+    }
+
+    @Async
     public CompletableFuture<Desk> assignUserToDesk(UUID deskId, UUID userId) throws ExecutionException, InterruptedException {
         Optional<Desk> o_desk = deskRepo.findById(deskId);
         if (o_desk.isEmpty())

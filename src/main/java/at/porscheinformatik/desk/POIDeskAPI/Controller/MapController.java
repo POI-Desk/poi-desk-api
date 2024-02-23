@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.management.relation.InvalidRelationIdException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -40,6 +41,16 @@ public class MapController {
     @MutationMapping
     public Map updateMap(@Argument UUID mapId, @Argument MapInput mapInput) throws ExecutionException, InterruptedException {
         return mapService.updateMap(mapId, mapInput).get();
+    }
+
+    @MutationMapping
+    public boolean publishMap(@Argument Optional<UUID> mapId, @Argument boolean force) throws ExecutionException, InterruptedException {
+        return mapService.publishMap(mapId, force).get();
+    }
+
+    @MutationMapping
+    public Map createMapSnapshotOfFloor(@Argument Optional<UUID> floorId, @Argument String name, @Argument MapInput fallback) throws Exception {
+        return mapService.createMapSnapshotOfFloor(floorId, name, fallback).get();
     }
 
     @QueryMapping

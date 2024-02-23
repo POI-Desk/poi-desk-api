@@ -18,11 +18,11 @@ public class Map {
 
     public Map (){}
 
-    public Map (int width, int height, boolean published, String name, Floor floor)
+    public Map (int width, int height, String name, Floor floor)
     {
         this.width = width;
         this.height = height;
-        this.published = published;
+        this.published = false;
         this.name = name;
         this.floor = floor;
     }

@@ -85,4 +85,10 @@ public class LabelService {
         return CompletableFuture.completedFuture(finalLabels);
     }
 
+    @Async
+    public CompletableFuture<List<Label>> copyLabelsToMap(List<Label> labels, Map map) {
+        List<Label> newLabels = labels.stream().map(l -> new Label(l.getText(), l.getX(), l.getY(), l.getRotation(), map)).toList();
+        labelRepo.saveAll(newLabels);
+        return CompletableFuture.completedFuture(newLabels);
+    }
 }
