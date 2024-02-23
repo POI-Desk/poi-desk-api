@@ -29,8 +29,8 @@ public class DailyBooking {
     @Column(name = "afternoon", nullable = false)
     private Integer afternoon;
 
-    @Column(name = "totalbookings", nullable = false)
-    private Integer totalBookings;
+    @Column(name = "total", nullable = false)
+    private Integer total;
 
     @Column(name = "createdon", nullable = false)
     @CreationTimestamp
@@ -42,7 +42,7 @@ public class DailyBooking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_location", nullable = false)
-    private Location fk_Location;
+    private Location fk_location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_building")

@@ -2,40 +2,40 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.YearlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.YearlyBookingPrediction;
+import at.porscheinformatik.desk.POIDeskAPI.Services.YearlyBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class YearlyBookingController {
     @Autowired
-    private YearlyBookingRepo yearlyBookingRepo;
-
+    private YearlyBookingService yearlyBookingService;
     @QueryMapping
-    public YearlyBooking getYearlyBooking(@Argument String year, @Argument UUID location)
-    {
-        List<YearlyBooking> yearlyBookings = (List<YearlyBooking>) yearlyBookingRepo.findAll();
-        Optional<YearlyBooking> yearlyBooking = yearlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
-                .filter(booking -> Objects.equals(booking.getYear(), year))
-                .findFirst();
-        return yearlyBooking.orElse(null);
+    public List<String> getAllYears() throws ExecutionException, InterruptedException {
+        return yearlyBookingService.getAllYears().get();
     }
-
     @QueryMapping
-    public List<String> getAlLYears(){
-        List<YearlyBooking> yearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
-        List<String> uniqueYears = new ArrayList<>();
-        for (YearlyBooking yearlyBooking : yearlyBookings) {
-            if (!uniqueYears.contains(yearlyBooking.getYear())) {
-                uniqueYears.add(yearlyBooking.getYear());
-            }
-        }
-        if(uniqueYears.isEmpty())
-            return null;
-       return uniqueYears;
+    public YearlyBooking getYearlyBookingByLocation(@Argument String year, @Argument UUID location) throws ExecutionException, InterruptedException {
+        return yearlyBookingService.getYearlyBooking(year, location, IdentifierType.Location).get();
+    }
+    @QueryMapping
+    public YearlyBooking getYearlyBookingByBuilding(@Argument String year, @Argument UUID building ) throws ExecutionException, InterruptedException {
+        return yearlyBookingService.getYearlyBooking(year, building, IdentifierType.Building).get();
+    }
+    @QueryMapping
+    public YearlyBooking getYearlyBookingByFloor(@Argument String year, @Argument UUID floor) throws ExecutionException, InterruptedException {
+        return yearlyBookingService.getYearlyBooking(year, floor, IdentifierType.Floor).get();
+    }
+    @QueryMapping
+    public YearlyBookingPrediction[] getYearlyBookingPrediction(@Argument UUID identifier, @Argument IdentifierType identifierType) throws ExecutionException, InterruptedException {
+        return yearlyBookingService.getYearlyBookingPrediction(identifier, identifierType).get();
     }
 }

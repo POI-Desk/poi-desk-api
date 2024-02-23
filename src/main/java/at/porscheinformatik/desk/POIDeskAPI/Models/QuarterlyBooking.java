@@ -1,6 +1,5 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Types.TimeType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,15 +20,14 @@ public class QuarterlyBooking {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID pk_quarterlyBookingId;
 
-
     @Column(name = "year", nullable = false)
     private String year;
 
     @Column(name = "quarter", nullable = false)
-    private String quarter;
+    private Integer quarter;
 
-    @Column(name = "totalbookings", nullable = false)
-    private Integer totalBookings;
+    @Column(name = "total", nullable = false)
+    private Integer total;
 
     @Column(name = "days", nullable = false)
     private Integer days;
@@ -69,7 +67,7 @@ public class QuarterlyBooking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_location", nullable = false)
-    private Location fk_Location;
+    private Location fk_location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_building")

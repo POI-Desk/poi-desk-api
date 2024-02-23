@@ -2,63 +2,41 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
+import at.porscheinformatik.desk.POIDeskAPI.Services.FloorService;
+import at.porscheinformatik.desk.POIDeskAPI.Services.MonthlyBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 @Controller
 public class MonthlyBookingController {
     @Autowired
-    private MonthlyBookingRepo monthlyBookingRepo;
+    private MonthlyBookingService monthlyBookingService;
 
     @QueryMapping
-    public MonthlyBooking getMonthlyBooking(@Argument String year, @Argument String month, @Argument UUID location)
-    {
-        List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
-        Optional<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
-                .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + month))
-                .findFirst();
-        return monthlyBooking.orElse(null);
+    public MonthlyBooking getMonthlyBookingByLocation(@Argument String year, @Argument String month, @Argument UUID location) throws ExecutionException, InterruptedException {
+        return monthlyBookingService.getMonthlyBooking(year, month, location, IdentifierType.Location).get();
     }
-    /*
-    @QueryMapping
-    public MonthlyBooking getMonthlyBookingByBuilding(@Argument String year, @Argument String month, @Argument UUID location, @Argument String buildingname)
-    {
-        List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
-        List<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
-                .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + month))
-                .filter(booking -> Objects.equals(booking.getFk_building().getBuildingname() , buildingname)).toList();
-        Optional<MonthlyBooking> m = monthlyBookings.stream().findFirst();
-        if(m.isEmpty()){
-            return null;
-        }
-        MonthlyBooking returnbooking = m.get();
-        returnbooking.setTotalBookings(monthlyBookings.stream()
-            .mapToInt(MonthlyBooking::getTotalBookings)
-            .sum());
-        returnbooking.setAfternoonAverageBooking(monthlyBookings.stream().mapToDouble(MonthlyBooking::getAfternoonAverageBooking).average().getAsDouble());
-        returnbooking.setMorningAverageBooking(monthlyBookings.stream().mapToDouble(MonthlyBooking::getMorningAverageBooking).average().getAsDouble());
 
-        return monthlyBooking.orElse(null);
+    @QueryMapping
+    public MonthlyBooking getMonthlyBookingByBuilding(@Argument String year, @Argument String month, @Argument UUID building) throws ExecutionException, InterruptedException {
+        return monthlyBookingService.getMonthlyBooking(year, month, building, IdentifierType.Building).get();
     }
     @QueryMapping
-    public MonthlyBooking getMonthlyBookingByFloor(@Argument String year, @Argument String month, @Argument UUID location, @Argument String buildingname, @Argument String floorname)
-    {
-        List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
-        Optional<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
-                .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + month))
-                .filter(booking -> Objects.equals(booking.getFk_building().getBuildingname() , buildingname))
-                .filter(booking -> Objects.equals(booking.getFk_floor().getFloorname() , floorname))
-                .findFirst();
-        return monthlyBooking.orElse(null);
-    }*/
+    public MonthlyBooking getMonthlyBookingByFloor(@Argument String year, @Argument String month, @Argument UUID floor) throws ExecutionException, InterruptedException {
+        return monthlyBookingService.getMonthlyBooking(year, month, floor, IdentifierType.Floor).get();
+    }
+
+    @QueryMapping
+    public MonthlyBookingPrediction[] getMonthlyBookingPrediction(@Argument UUID identifier, @Argument IdentifierType identifierType) throws ExecutionException, InterruptedException {
+        return monthlyBookingService.getMonthlyBookingPrediction(identifier, identifierType).get();
+    }
 }
