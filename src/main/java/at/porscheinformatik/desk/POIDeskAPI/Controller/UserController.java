@@ -105,6 +105,8 @@ public class UserController {
     public List<User> getUsersInTeam() {
         // TODO implement team functionality
         return (List<User>) userRepo.findAll();
+    }
+
     public List<User> getUsersWithADeskOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
         return userService.getUsersWithADeskOnMap(mapId).get();
     }

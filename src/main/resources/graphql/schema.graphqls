@@ -270,7 +270,6 @@ type Desk{
     updatedon: String!
     bookings: [Booking!]
     attributes: [Attribute!]
-    floor: Floor
     map: Map
     user: User
 }
