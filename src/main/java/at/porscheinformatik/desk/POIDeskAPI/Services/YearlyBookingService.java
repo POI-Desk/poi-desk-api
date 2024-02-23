@@ -1,20 +1,13 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.YearlyBookingRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.QuarterlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.YearlyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.QuarterlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.YearlyBookingPrediction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
