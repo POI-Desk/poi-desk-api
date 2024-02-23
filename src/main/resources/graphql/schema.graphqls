@@ -10,7 +10,7 @@ type Query{
     getAllLocations: [Location!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
-    getDesksOnFloor(floorid: ID!): [Desk!]
+    getDesksOnMap(mapId: ID!): [Desk!]
     getBookingsByUserId(userid: ID!): [Booking!]
     isBookedAt(deskId: ID!, date: String!, dayTime: String!): Boolean
     getBookingsByUserid(userid: ID!, isCurrent: Boolean): [Booking!]
@@ -18,7 +18,7 @@ type Query{
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
     getYearlyBookings: [YearlyBooking!]
-    getMapByFloor(floorId: ID!): Map
+    getPublishedMapOnFloor(floorId: ID!): Map
     getMapById(mapId: ID!): Map
     getDeskById(deskId: ID!): Desk
     getDailyBookings: [DailyBooking!]
@@ -36,15 +36,21 @@ type Query{
     getYearlyBookingByFloor(year: String!, floor: ID!): YearlyBooking
     getAllYears: [String!]
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
+    getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
+    getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
+    getYearlyBooking(year: String!, location: ID!): YearlyBooking
+    getUsersWithADeskOnMap(mapId: ID!): [User!]!
+    getUsersWithNoDeskOnMap(mapId: ID!): [User!]!
+    getMapSnapshotsOfFloor(floorId: ID!): [Map!]
+    getMapSnapshotById(mapId: ID!): Map
 }
 
 type Mutation{
     changeUsername(id: String!, name:String!): User
     bookDesk(booking: Bookinginput!): Booking
-    deleteBooking(bookingId: ID!): ID
+    deleteBooking(bookingId: ID!): Boolean
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
-    addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
@@ -53,6 +59,7 @@ type Mutation{
     updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
     updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
     updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
+    updateLabelsOnMap(mapId: ID!, labelInputs: [UpdateLabelInput!]!): [Label!]
     deleteRooms(roomIds: [ID!]!): [Room!]
     deleteWalls(wallIds: [ID!]!): [Wall!]
     deleteDoors(doorIds: [ID!]!): [Door!]
@@ -60,6 +67,10 @@ type Mutation{
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
+    deleteLabels(labelIds: [ID!]!): [Label!]
+    assignUserToDesk(deskId: ID!, userId: ID!): Desk
+    publishMap(mapId: ID!, force: Boolean!): Boolean!
+    createMapSnapshotOfFloor(floorId: ID!, name: String!, fallback: MapInput): Map
 }
 
 type Attribute{
@@ -261,6 +272,7 @@ type Desk{
     attributes: [Attribute!]
     floor: Floor
     map: Map
+    user: User
 }
 
 type User{
@@ -272,12 +284,15 @@ type User{
     bookings: [Booking!]
     location: Location
     userAnalytics: [UserAnalytics!]
+    desks: [Desk!]
 }
 
 type Map{
     pk_mapId: ID!
     width: Int!
     height: Int!
+    published: Boolean!
+    name: String!
     createdOn: String!
     updatedOn: String!
     rooms: [Room!]
@@ -374,6 +389,7 @@ input DeskInput{
     desknum: String!
     x: Int!
     y: Int!
+    userId: ID
 }
 
 input Bookinginput{
@@ -423,6 +439,7 @@ enum IdentifierType{
 input MapInput{
     width: Int!
     height: Int!
+    name: String!
 }
 
 input DoorInput{
@@ -437,6 +454,13 @@ input WallInput{
     y: Int!
     rotation: Int!
     width: Int!
+}
+
+input LabelInput{
+    text: String!
+    x: Int!
+    y: Int!
+    rotation: Int!
 }
 
 input UpdateDoorInput{
@@ -462,6 +486,7 @@ input UpdateDeskInput{
     desknum: String!    #TODO: change to camelCase
     x: Int!
     y: Int!
+    userId: ID
     #delete: Boolean!
 }
 
@@ -490,4 +515,12 @@ input UpdateRoomInput{
     width: Int!
     height: Int!
     #delete: Boolean!
+}
+
+input UpdateLabelInput{
+    pk_labelId: ID
+    text: String!
+    x: Int!
+    y: Int!
+    rotation: Int!
 }

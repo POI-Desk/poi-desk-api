@@ -8,6 +8,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
+import at.porscheinformatik.desk.POIDeskAPI.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Controller;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class UserController {
@@ -46,6 +48,9 @@ public class UserController {
      * The currently logged-in user
      */
     private User loggedInUser;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * Getter for the currently logged-in user
@@ -76,9 +81,7 @@ public class UserController {
     public User getUserById(@Argument UUID id)
     {
         Optional<User> u = userRepo.findById(id);
-        if (u.isEmpty())
-            return null;
-        return u.get();
+        return u.orElse(null);
     }
 
     @QueryMapping
@@ -102,6 +105,13 @@ public class UserController {
     public List<User> getUsersInTeam() {
         // TODO implement team functionality
         return (List<User>) userRepo.findAll();
+    public List<User> getUsersWithADeskOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return userService.getUsersWithADeskOnMap(mapId).get();
+    }
+
+    @QueryMapping
+    public List<User> getUsersWithNoDeskOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return userService.getUsersWithNoDeskOnMap(mapId).get();
     }
 
     @MutationMapping
@@ -162,4 +172,7 @@ public class UserController {
 
     @SchemaMapping
     public Location location(User user) { return user.getLocation(); }
+
+    @SchemaMapping
+    public List<Desk> desks(User user) { return user.getDesks(); }
 }

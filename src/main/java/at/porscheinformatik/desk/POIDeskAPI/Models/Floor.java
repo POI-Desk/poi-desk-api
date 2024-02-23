@@ -36,10 +36,7 @@ public class Floor {
     private Building building;
 
     @OneToMany(mappedBy = "floor", fetch = FetchType.LAZY)
-    private List<Desk> desks;
-
-    @OneToOne(mappedBy = "floor", fetch = FetchType.LAZY)
-    private Map map;
+    private List<Map> maps;
     
     @OneToMany(mappedBy = "fk_floor", fetch = FetchType.LAZY)
     private List<DailyBooking> dailyBookings;

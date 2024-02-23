@@ -95,4 +95,11 @@ public class RoomService {
         List<UUID> roomIds = roomRepo.findAllByMap(map).stream().map(Room::getPk_roomId).toList();
         return  deleteRooms(roomIds);
     }
+
+    @Async
+    public CompletableFuture<List<Room>> copyRoomsToMap(List<Room> rooms, Map map) {
+        List<Room> newRooms = rooms.stream().map(r -> new Room(r.getX(), r.getY(), r.getWidth(), r.getHeight(), map)).toList();
+        roomRepo.saveAll(newRooms);
+        return CompletableFuture.completedFuture(newRooms);
+    }
 }

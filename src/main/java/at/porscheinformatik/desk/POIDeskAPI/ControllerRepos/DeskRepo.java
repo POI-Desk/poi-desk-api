@@ -12,10 +12,5 @@ public interface DeskRepo extends CrudRepository<Desk, UUID> {
 
     List<Desk> findAllByMap(Map map);
 
-    /**
-     * Find all desks on floor
-     * @param floor Floor, search for desks here
-     * @return List of Desks on floor
-     */
-    List<Desk> findByFloor(Floor floor);
+    boolean existsDeskByUserAndMap(User user, Map map);
 }

@@ -19,7 +19,7 @@ public class Interior {
 
     public Interior(){}
 
-    public Interior(InteriorType type, int x, int y, int rotation, int width, int height)
+    public Interior(InteriorType type, int x, int y, int rotation, int width, int height, Map map)
     {
         this.type = type;
         this.x = x;
@@ -27,6 +27,7 @@ public class Interior {
         this.rotation = rotation;
         this.width = width;
         this.height = height;
+        this.map = map;
     }
 
     @Id

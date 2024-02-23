@@ -1,6 +1,5 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Types.InteriorType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,13 +14,24 @@ import java.util.UUID;
 @Entity
 @Table(name="labels")
 public class Label {
+
+    public Label(){}
+
+    public Label(String text, int x, int y, int rotation, Map map) {
+        this.text = text;
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+        this.map = map;
+    }
+
     @Id
     @Column(name="pk_labelid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pk_labelId;
 
-//    @Column(name = "text", nullable = false)
-//    private String text;
+    @Column(name = "text", nullable = false)
+    private String text;
 
     @Column(name="x", nullable = false)
     private int x;
@@ -46,4 +56,11 @@ public class Label {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_mapid")
     private Map map;
+
+    public void updateProps(String text, int x, int y, int rotation) {
+        this.text = text;
+        this.x = x;
+        this.y = y;
+        this.rotation = rotation;
+    }
 }

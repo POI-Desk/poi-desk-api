@@ -10,6 +10,10 @@ import java.util.UUID;
 public interface MapRepo extends CrudRepository<Map, UUID> {
     Map findMapByFloor(Floor floor);
 
-    boolean existsByFloor(Floor floor);
+    Map findMapByFloorAndPublishedTrue(Floor floor);
+
+    List<Map> findMapsByFloorAndPublishedFalse(Floor floor);
+
+    boolean existsByFloorAndPublishedTrue(Floor floor);
 
 }

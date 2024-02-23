@@ -40,17 +40,17 @@ VALUES ('3', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'A')),
        ('5', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'C'));
 
 -- changeset liquibase:7
-INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
-VALUES ('301', 10, 10, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '3')),
-       ('401', 20, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('402', 25, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('403', 30, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('404', 35, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('405', 40, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('406', 45, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('407', 50, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('408', 55, 20, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '4')),
-       ('501', 15, 15, 0, (SELECT pk_floorId FROM Floors WHERE floorName = '5'));
+INSERT INTO Desks (deskNum, x, y, rotation)
+VALUES ('301', 10, 10, 0),
+       ('401', 20, 20, 0),
+       ('402', 25, 20, 0),
+       ('403', 30, 20, 0),
+       ('404', 35, 20, 0),
+       ('405', 40, 20, 0),
+       ('406', 45, 20, 0),
+       ('407', 50, 20, 0),
+       ('408', 55, 20, 0),
+       ('501', 15, 15, 0);
 
 -- changeset liquibase:8
 INSERT INTO Attributes (attributeName)
@@ -106,48 +106,48 @@ VALUES
     ('79', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'I'));
 
 -- changeset liquibase:14
-INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
-SELECT
-        concat(deskNum, '10'),
-        x + 10,
-        y + 10,
-        rotation,
-        (SELECT pk_floorId FROM Floors WHERE floorName = '3')
-FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3')
-LIMIT 10;
+-- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
+-- SELECT
+--         concat(deskNum, '10'),
+--         x + 10,
+--         y + 10,
+--         rotation,
+--         (SELECT pk_floorId FROM Floors WHERE floorName = '3')
+-- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3')
+-- LIMIT 10;
 
 -- changeset liquibase:15
-INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
-SELECT
-        concat(deskNum, '100'),
-        x + 20,
-        y + 20,
-        rotation,
-        (SELECT pk_floorId FROM Floors WHERE floorName = '4')
-FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4')
-LIMIT 10;
+-- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
+-- SELECT
+--         concat(deskNum, '100'),
+--         x + 20,
+--         y + 20,
+--         rotation,
+--         (SELECT pk_floorId FROM Floors WHERE floorName = '4')
+-- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4')
+-- LIMIT 10;
 
 -- changeset liquibase:16
-INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
-SELECT
-        concat(deskNum, '200'),
-        x + 15,
-        y + 15,
-        rotation,
-        (SELECT pk_floorId FROM Floors WHERE floorName = '5')
-FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5')
-LIMIT 10;
+-- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
+-- SELECT
+--         concat(deskNum, '200'),
+--         x + 15,
+--         y + 15,
+--         rotation,
+--         (SELECT pk_floorId FROM Floors WHERE floorName = '5')
+-- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5')
+-- LIMIT 10;
 
 -- changeset liquibase:17
-INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
-SELECT
-        concat(deskNum, '10'),
-        x + 10,
-        y + 10,
-        rotation,
-        (SELECT pk_floorId FROM Floors WHERE floorName = '6')
-FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6')
-LIMIT 10;
+-- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
+-- SELECT
+--         concat(deskNum, '10'),
+--         x + 10,
+--         y + 10,
+--         rotation,
+--         (SELECT pk_floorId FROM Floors WHERE floorName = '6')
+-- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6')
+-- LIMIT 10;
 
 -- changeset liquibase:18
 select createemptyyearlyanalysisentries();

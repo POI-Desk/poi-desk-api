@@ -21,9 +21,9 @@ public class PoiDeskApiApplication {
 	@Bean
 	public Executor taskExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(2);
-		executor.setMaxPoolSize(2);
-		executor.setQueueCapacity(500);
+		executor.setCorePoolSize(8);
+		executor.setMaxPoolSize(8);
+		executor.setQueueCapacity(2000);
 		executor.setThreadNamePrefix("POI_Desk_API-");
 		executor.initialize();
 		return executor;
