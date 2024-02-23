@@ -194,7 +194,7 @@ type Floor{
 }
 
 type Location{
-    pklocationid: ID!
+    pk_locationid: ID!
     locationname: String!
     createdon: String!
     updatedon: String!
