@@ -19,7 +19,7 @@ public class Location {
     @Id
     @Column(name="pk_locationid", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID pklocationid;
+    private UUID pk_locationid;
 
     @Column(name="locationname", nullable = false)
     private String locationname;

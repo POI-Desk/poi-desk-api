@@ -135,10 +135,10 @@ CREATE  TABLE Rooms
     updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     fk_mapId    UUID,
     FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
-)
+);
 
 -- changeset liquibase:13
-CREATE TYPE interiorType AS ENUM ('Couch', 'Aquarium')
+CREATE TYPE interiorType AS ENUM ('Couch', 'Aquarium');
 
 -- changeset liquibase:14
 CREATE TABLE Interiors
@@ -154,7 +154,7 @@ CREATE TABLE Interiors
     updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     fk_mapId        UUID,
     FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
-)
+);
 
 -- changeset liquibase:15
 CREATE TABLE Labels
@@ -168,119 +168,9 @@ CREATE TABLE Labels
     updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     fk_mapId        UUID,
     FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId)
-)
--- changeset liquibase:16
--- create table DailyBookings(
---                               pk_dailyBookingId       uuid PRIMARY KEY DEFAULT gen_random_uuid(),
---                               day                     char(10) DEFAULT to_char(CURRENT_DATE, 'YYYY-MM-DD'),
---                               morning                 INTEGER NOT NULL,
---                               afternoon               INTEGER NOT NULL,
---                               totalBookings           INTEGER NOT NULL,
---                               createdOn               TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                               updatedOn               TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                               fk_Location             UUID NOT NULL ,
---                               fk_building             UUID,
---                               fk_floor                UUID,
---                               fk_monthlyBookingId     UUID, -- INFO: Was not null
---                               FOREIGN KEY (fk_Location)        REFERENCES locations (pk_locationid),
---                               Foreign Key (fk_building)           REFERENCES buildings (pk_buildingid),
---                               Foreign Key (fk_floor)              REFERENCES floors (pk_floorid)
--- );
--- -- changeset liquibase:17
--- create table YearlyBookings(
---                                pk_yearlyBookingId      uuid PRIMARY KEY DEFAULT gen_random_uuid(),
---                                year                    char(4) DEFAULT to_char(current_date, 'YYYY'),
---                                totalBookings           INTEGER DEFAULT 0,
---                                days                    INT NOT NULL DEFAULT 0,
---                                amountOfDesks           INT NOT NULL DEFAULT 0,
---                                morning_highestBooking UUID,
---                                morning_averageBooking double precision NOT NULL DEFAULT 0,
---                                morning_lowestBooking  UUID,
---                                afternoon_highestBooking UUID,
---                                afternoon_averageBooking double precision NOT NULL DEFAULT 0,
---                                afternoon_lowestBooking  UUID,
---                                fk_Location             UUID NOT NULL ,
---                                fk_building             UUID,
---                                fk_floor                UUID,
---                                createdOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                                updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                                FOREIGN KEY (fk_Location)           REFERENCES locations (pk_locationid),
---                                Foreign Key (fk_building)           REFERENCES buildings (pk_buildingid),
---                                Foreign Key (fk_floor)              REFERENCES floors (pk_floorid),
---                                Foreign Key (morning_highestBooking)   REFERENCES DailyBookings (pk_dailyBookingId),
---                                Foreign Key (morning_lowestBooking)    REFERENCES DailyBookings (pk_dailyBookingId),
---                                Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId),
---                                Foreign Key (afternoon_lowestBooking)  REFERENCES DailyBookings (pk_dailyBookingId)
--- );
--- -- changeset liquibase:18
--- create table QuarterlyBookings(
---                                   pk_quarterlyBookingId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---                                   year                    char(4) DEFAULT to_char(current_date, 'YYYY'),
---                                   quarter                 Varchar(2) NOT NULL CHECK ( quarter IN ('Q1','Q2','Q3','Q4')),
---                                   totalBookings           INTEGER DEFAULT 0,
---                                   days                    INT NOT NULL DEFAULT 0,
---                                   amountOfDesks           INT NOT NULL DEFAULT 0,
---                                   morning_highestBooking UUID,
---                                   morning_averageBooking double precision NOT NULL DEFAULT 0,
---                                   morning_lowestBooking  UUID,
---                                   afternoon_highestBooking UUID,
---                                   afternoon_averageBooking double precision NOT NULL DEFAULT 0,
---                                   afternoon_lowestBooking  UUID,
---                                   fk_Location             UUID NOT NULL ,
---                                   fk_building             UUID,
---                                   fk_floor                UUID,
---                                   fk_yearlyBookingId   UUID NOT NULL,
---                                   createdOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                                   updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                                   FOREIGN KEY (fk_Location)           REFERENCES locations (pk_locationid),
---                                   Foreign Key (fk_building)           REFERENCES buildings (pk_buildingid),
---                                   Foreign Key (fk_floor)              REFERENCES floors (pk_floorid),
---                                   FOREIGN KEY (fk_yearlyBookingId)    REFERENCES YearlyBookings (pk_yearlyBookingId),
---                                   Foreign Key (morning_highestBooking)   REFERENCES DailyBookings (pk_dailyBookingId),
---                                   Foreign Key (morning_lowestBooking)    REFERENCES DailyBookings (pk_dailyBookingId),
---                                   Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId),
---                                   Foreign Key (afternoon_lowestBooking)  REFERENCES DailyBookings (pk_dailyBookingId)
--- );
--- -- changeset liquibase:19
--- create table MonthlyBookings(
---                                 pk_monthlyBookingId     UUID PRIMARY KEY DEFAULT gen_random_uuid(),
---                                 month                   char(7) DEFAULT to_char(current_date, 'YYYY-MM'),
---                                 totalBookings           INTEGER NOT NULL DEFAULT 0 ,
---                                 days                    INT NOT NULL DEFAULT 0,
---                                 amountOfDesks           INT NOT NULL DEFAULT 0,
---                                 morning_highestBooking UUID,
---                                 morning_averageBooking double precision NOT NULL DEFAULT 0,
---                                 morning_lowestBooking  UUID,
---                                 afternoon_highestBooking UUID,
---                                 afternoon_averageBooking double precision NOT NULL DEFAULT 0,
---                                 afternoon_lowestBooking  UUID,
---                                 fk_Location             UUID NOT NULL ,
---                                 fk_building             UUID,
---                                 fk_floor                UUID,
---                                 fk_quarterlyBookingId   UUID NOT NULL ,
---                                 createdOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                                 updatedOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
---                                 FOREIGN KEY (fk_Location)           REFERENCES locations (pk_locationid),
---                                 Foreign Key (fk_building)           REFERENCES buildings (pk_buildingid),
---                                 Foreign Key (fk_floor)              REFERENCES floors (pk_floorid),
---                                 FOREIGN KEY (fk_quarterlyBookingId) REFERENCES QuarterlyBookings (pk_quarterlyBookingId),
---                                 Foreign Key (morning_highestBooking)   REFERENCES DailyBookings (pk_dailyBookingId),
---                                 Foreign Key (morning_lowestBooking)    REFERENCES DailyBookings (pk_dailyBookingId),
---                                 Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId),
---                                 Foreign Key (afternoon_lowestBooking)  REFERENCES DailyBookings (pk_dailyBookingId)
--- );
---
--- -- changeset liquibase:20
--- CREATE TABLE UserAnalytic (
---                               pk_useranalyticid UUID PRIMARY KEY  DEFAULT gen_random_uuid(),
---                               fk_userid              UUID      NOT NULL,
---                               year              INTEGER   NOT NULL,
---                               result            JSONB     NOT NULL,
---                               createdOn         TIMESTAMP  NOT NULL DEFAULT CURRENT_TIMESTAMP,
---                               FOREIGN KEY (fk_userid) REFERENCES Users (pk_userId)
--- );
+);
 
---changeset liquibase:21
+--changeset liquibase:16
 CREATE TABLE Walls (
     pk_wallId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     x           INT NOT NULL,
@@ -291,9 +181,9 @@ CREATE TABLE Walls (
     updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     fk_mapId    UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
 
---changeset liquibase:22
+--changeset liquibase:17
 CREATE TABLE Doors (
     pk_doorId   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     x           INT NOT NULL,
@@ -304,7 +194,7 @@ CREATE TABLE Doors (
     updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     fk_mapId    UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
 -- changeset liquibase:23
 -- ALTER TABLE DailyBookings
 --     ADD CONSTRAINT fk_morningMonthlyBookingId FOREIGN KEY (fk_monthlyBookingId) REFERENCES MonthlyBookings (pk_monthlyBookingId);

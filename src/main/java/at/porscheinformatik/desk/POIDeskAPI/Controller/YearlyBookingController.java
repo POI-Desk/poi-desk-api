@@ -19,7 +19,7 @@ public class YearlyBookingController {
     {
         List<YearlyBooking> yearlyBookings = (List<YearlyBooking>) yearlyBookingRepo.findAll();
         Optional<YearlyBooking> yearlyBooking = yearlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPklocationid(), location))
+                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
                 .filter(booking -> Objects.equals(booking.getYear(), year))
                 .findFirst();
         return yearlyBooking.orElse(null);

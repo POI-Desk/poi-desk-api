@@ -22,7 +22,7 @@ public class MonthlyBookingController {
     {
         List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
         Optional<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getFk_Location().getPklocationid(), location))
+                .filter(booking -> Objects.equals(booking.getFk_Location().getPk_locationid(), location))
                 .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + month))
                 .findFirst();
         return monthlyBooking.orElse(null);
