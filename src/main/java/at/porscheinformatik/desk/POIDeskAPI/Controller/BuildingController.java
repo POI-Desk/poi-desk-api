@@ -3,8 +3,11 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BuildingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Building;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
+import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
@@ -38,5 +41,36 @@ public class BuildingController {
     public List<Building> getBuildingsInLocation(@Argument UUID locationid) {
         if (locationRepo.findById(locationid).isPresent()) return buildingRepo.findByLocation(locationRepo.findById(locationid).get());
         return new ArrayList<>();
+    }
+
+    @QueryMapping
+    public List<Building> getAllBuildings() {
+        return (List<Building>) buildingRepo.findAll();
+    }
+
+    @MutationMapping
+    public Building addBuilding(@Argument String name, @Argument UUID locationid) {
+        Building building = new Building();
+        building.setBuildingname(name);
+        building.setLocation(locationRepo.findById(locationid).get());
+        System.out.println(building);
+        buildingRepo.save(building);
+        return building;
+    }
+
+    @MutationMapping
+    public Building deleteBuilding(@Argument UUID id) {
+        if (!buildingRepo.existsById(id)) return null;
+        Building building = buildingRepo.findById(id).get();
+        buildingRepo.delete(building);
+        return building;
+    }
+
+    @MutationMapping
+    public Building changeNameOfBuilding(@Argument UUID id, @Argument String newName) {
+        Building building = buildingRepo.findById(id).get();
+        building.setBuildingname(newName);
+        buildingRepo.save(building);
+        return building;
     }
 }

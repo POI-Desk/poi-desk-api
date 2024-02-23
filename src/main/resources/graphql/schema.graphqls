@@ -8,6 +8,7 @@ type Query{
     getBookingById(id: ID): Booking
     getBookingsByBookingnumberContains(string: String): [Booking!]
     getAllLocations: [Location!]
+    getAllBuildings: [Building!]
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
     getDesksOnFloor(floorid: ID!): [Desk!]
@@ -45,7 +46,16 @@ type Mutation{
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
+    addLocation(name: String!): Location
+    deleteLocation(id: ID): Location
+    changeNameOfLocation(id: ID!, newName: String!): Location
     editBooking(bookingInput: EditBookingInput!) : Booking
+    addBuilding(name: String!, locationid: ID!): Building
+    deleteBuilding(id: ID!): Building
+    changeNameOfBuilding(id: ID!, newName: String!): Building
+    addFloor(name: String!, buildingid: ID!): Floor
+    deleteFloor(id: ID!): Floor
+    changeNameOfFloor(id: ID!, newName: String!): Floor
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
     createMap(floorId: ID!, mapInput: MapInput!): Map

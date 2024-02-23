@@ -6,4 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.UUID;
 
 public interface LocationRepo extends CrudRepository<Location, UUID> {
+    boolean existsLocationByLocationname(String name);
 }
