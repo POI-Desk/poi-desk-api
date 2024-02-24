@@ -18,9 +18,7 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 public class UserController {
@@ -56,20 +54,11 @@ public class UserController {
 
     @QueryMapping
     public UserPageResponseService<User> getAllUsers(@Argument String input, @Argument int pageNumber, @Argument int pageSize) {
-
-        // List<User> userAtBeginning = userRepo.findByUsernameContainsIgnoreCase(input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent();
-
         Page<User> userPage = userRepo.findByUsernameStartsWithIgnoreCase(
                 input,
                 PageRequest.of(pageNumber, pageSize, Sort.by("username"))
         );
-
-        // userAtBeginning.addAll(userPage.getContent());
-        // System.out.println(userAtBeginning);
-
         return new UserPageResponseService<>(userPage.getContent(), userPage.hasNext());
-
-        // return new UserPageResponse<>(userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).getContent(), userRepo.findByUsernameStartsWithIgnoreCaseOrUsernameContainsIgnoreCase(input, input, PageRequest.of(pageNumber, pageSize, Sort.by("username"))).hasNext());
     }
 
     @QueryMapping
@@ -134,23 +123,56 @@ public class UserController {
      * @return User
      */
     @MutationMapping
-    public User createOrLoginAsUser(@Argument String username) {
+    public User createOrLoginAsUser(@Argument String username, @Argument String password) {
         Optional<User> loggingInUser = userRepo.findByUsername(username).stream().findFirst();
-
-        if (loggingInUser.isEmpty()) loggingInUser = Optional.of(createUser(username));
-
-
-        this.loggedInUser = loggingInUser.get();
-        return loggedInUser;
+        if (userRepo.findByUsername(username).stream().findFirst().get().getPassword().equals(password)) {
+            this.loggedInUser = loggingInUser.get();
+            return loggedInUser;
+        }
+        //if (loggingInUser.isEmpty()) loggingInUser = Optional.of(createUser(username));
+        return null;
     }
 
-    public User createUser(String username) {
+    @MutationMapping
+    public User addUser(@Argument String username, @Argument Boolean isExtended, @Argument Boolean isAdmin, @Argument Boolean isSuperAdmin) {
+        List<Character> randomChars = new ArrayList<>(
+                Arrays.asList('#', '!', '+', '?', '^')
+        );
+
+        String password = username + randomChars.get((int) ((Math.random() * (randomChars.size() - 1)) + 1)) + ((int) (Math.random() * (9)));
+
+        List<Role> roles = new ArrayList<>();
+
+        roles.add(roleRepo.findByRolename("Standard").stream().findFirst().get());
+
+        if (isExtended) {
+            Role extended = roleRepo.findByRolename("Extended").stream().findFirst().get();
+            roles.add(extended);
+        }
+        if (isAdmin) {
+            Role admin = roleRepo.findByRolename("Admin").stream().findFirst().get();
+            roles.add(admin);
+        }
+        if (isSuperAdmin) {
+            Role superAdmin = roleRepo.findByRolename("Super Admin").stream().findFirst().get();
+            roles.add(superAdmin);
+        }
+
         User user = new User();
         user.setUsername(username);
-        user.setRoles(roleRepo.findByRolename("Standard"));
+        user.setRoles(roles);
+        user.setPassword(password);
         userRepo.save(user);
         return user;
     }
+
+//    public User createUser(String username) {
+//        User user = new User();
+//        user.setUsername(username);
+//        user.setRoles(roleRepo.findByRolename("Standard"));
+//        userRepo.save(user);
+//        return user;
+//    }
 
     @SchemaMapping
     public List<Role> roles(User user) {

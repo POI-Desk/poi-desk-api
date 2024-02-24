@@ -3,6 +3,7 @@
 -- changeset liquibase:1
 INSERT INTO Roles (roleName)
 VALUES ('Standard'),
+       ('Extended'),
        ('Admin'),
        ('Super Admin');
 

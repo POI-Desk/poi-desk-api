@@ -44,6 +44,7 @@ CREATE TABLE Users
 (
     pk_userId     UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
     username      VARCHAR(255) NOT NULL,
+    password      VARCHAR(255),
     createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_locationId UUID,

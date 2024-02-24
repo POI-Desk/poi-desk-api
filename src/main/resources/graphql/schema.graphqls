@@ -44,7 +44,7 @@ type Mutation{
     bookDesk(booking: Bookinginput!): Booking
     deleteBooking(bookingId: ID!): ID
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
-    createOrLoginAsUser(username: String!): User
+    createOrLoginAsUser(username: String!, password: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     addLocation(name: String!): Location
     deleteLocation(id: ID): Location
@@ -70,6 +70,7 @@ type Mutation{
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
+    addUser(username: String!, isExtended: Boolean!, isAdmin: Boolean!, isSuperAdmin: Boolean!): User
 }
 
 type Attribute{
