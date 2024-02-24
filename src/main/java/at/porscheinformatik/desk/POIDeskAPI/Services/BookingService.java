@@ -4,7 +4,9 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +24,12 @@ public class BookingService {
 
     @Autowired
     private BookingRepo bookingRepo;
-
+    @Lazy
     @Autowired
     private FloorService floorService;
+    @Lazy
+    @Autowired
+    private MapService mapService;
 
     @Async
     public CompletableFuture<Boolean> deleteBookingById(UUID bookingId){
@@ -73,6 +78,19 @@ public class BookingService {
             bookings.add(booking);
         }
         return CompletableFuture.completedFuture(bookings);
+    }
+
+    @Async
+    public CompletableFuture<Boolean> deleteAllBookingsOnMap(Optional<UUID> mapId) throws ExecutionException, InterruptedException {
+        if (mapId.isEmpty()) return CompletableFuture.completedFuture(false);
+
+        Map map = mapService.getMapById(mapId.get()).get();
+        if (map == null) return CompletableFuture.completedFuture(false);
+
+        List<Booking> bookings = bookingRepo.findAllByDeskMap(map);
+        bookingRepo.deleteAll(bookings);
+
+        return CompletableFuture.completedFuture(true);
     }
 
 

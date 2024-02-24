@@ -25,4 +25,6 @@ public interface BookingRepo extends CrudRepository<Booking, UUID> {
     List<Booking> findBookingsByDateBetween(LocalDate startDate, LocalDate endDate);
 
     List<Booking> findBookingsByDateAndDeskMapFloor(LocalDate date, Floor floor);
+
+    List<Booking> findAllByDeskMap(Map map);
 }

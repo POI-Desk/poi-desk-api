@@ -5,6 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 public class UserService {
     @Autowired
     UserRepo userRepo;
+    @Lazy
     @Autowired
     MapService mapService;
 

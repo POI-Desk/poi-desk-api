@@ -4,6 +4,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -38,6 +39,9 @@ public class MapService {
     @Lazy
     @Autowired
     private InteriorService interiorService;
+    @Lazy
+    @Autowired
+    BookingService bookingService;
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
         Floor floor = floorService.getFloorById(floorId).get();
@@ -188,6 +192,7 @@ public class MapService {
         maps.add(map);
         maps.add(publishedMap);
 
+        bookingService.deleteAllBookingsOnMap(Optional.of(publishedMap.getPk_mapId())).get();
         mapRepo.saveAll(maps);
 
         return CompletableFuture.completedFuture(true);
