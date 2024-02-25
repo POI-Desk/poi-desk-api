@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 public class YearlyBookingPrediction {
     private String year;
-    private Integer totalBookings;
+    private Integer total;
     private Double morning_highestBooking;
     private Double morningAverageBooking;
     private Double morning_lowestBooking;

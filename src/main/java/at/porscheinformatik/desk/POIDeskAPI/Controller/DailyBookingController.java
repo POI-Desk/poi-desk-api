@@ -1,30 +1,21 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DailyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.DailyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.YearlyBooking;
+import at.porscheinformatik.desk.POIDeskAPI.Services.DailyBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class DailyBookingController {
     @Autowired
-    private DailyBookingRepo dailyBookingRepo;
-
+    private DailyBookingService dailyBookingService;
     @QueryMapping
-    public List<DailyBooking> getDailyBookings()
-    {
-        List<DailyBooking> dailyBookings = (List<DailyBooking>) dailyBookingRepo.findAll();
-        for (DailyBooking dailyBooking: dailyBookings) {
-            //System.out.println(dailyBooking.getTotalBooking() + dailyBooking.getPk_day());
-        }
-
-        return dailyBookings;
+    public List<DailyBooking> Last30DaysByLocation(@Argument UUID locationId) throws ExecutionException, InterruptedException {
+        return dailyBookingService.getLast30DaysByLocation(locationId).get();
     }
 }

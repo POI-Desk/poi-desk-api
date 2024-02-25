@@ -270,7 +270,7 @@ BEGIN
                                     where d.fk_monthlybookingid = m.pk_monthlybookingid
                                     order by d.morning DESC
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where m.pk_monthlyBookingId = d.fk_monthlybookingid),
         morning_lowestBooking    = (select pk_dailybookingid
@@ -283,7 +283,7 @@ BEGIN
                                     where d.fk_monthlybookingid = m.pk_monthlybookingid
                                     order by d.afternoon DESC
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where m.pk_monthlyBookingId = d.fk_monthlybookingid),
         afternoon_lowestbooking  = (select pk_dailybookingid
@@ -320,7 +320,7 @@ BEGIN
                                     where d.fk_monthlybookingid = m.pk_monthlybookingid
                                     order by d.morning DESC
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where m.pk_monthlyBookingId = d.fk_monthlybookingid),
         morning_lowestBooking    = (select pk_dailybookingid
@@ -333,7 +333,7 @@ BEGIN
                                     where d.fk_monthlybookingid = m.pk_monthlybookingid
                                     order by d.afternoon DESC
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where m.pk_monthlyBookingId = d.fk_monthlybookingid),
         afternoon_lowestbooking  = (select pk_dailybookingid
@@ -370,7 +370,7 @@ BEGIN
                                     where d.fk_monthlybookingid = m.pk_monthlybookingid
                                     order by d.morning DESC
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where m.pk_monthlyBookingId = d.fk_monthlybookingid),
         morning_lowestBooking    = (select pk_dailybookingid
@@ -383,7 +383,7 @@ BEGIN
                                     where d.fk_monthlybookingid = m.pk_monthlybookingid
                                     order by d.afternoon DESC
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where m.pk_monthlyBookingId = d.fk_monthlybookingid),
         afternoon_lowestbooking  = (select pk_dailybookingid
@@ -425,7 +425,7 @@ BEGIN
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
                                     order by d.morning Desc
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
         morning_lowestBooking    = (select pk_dailyBookingId
@@ -438,7 +438,7 @@ BEGIN
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
                                     order by d.afternoon Desc
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
         afternoon_lowestBooking  = (select pk_dailyBookingId
@@ -481,7 +481,7 @@ BEGIN
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
                                     order by d.morning Desc
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
         morning_lowestBooking    = (select pk_dailyBookingId
@@ -494,7 +494,7 @@ BEGIN
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
                                     order by d.afternoon Desc
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
         afternoon_lowestBooking  = (select pk_dailyBookingId
@@ -511,7 +511,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:16
-CREATE OR REPLACE FUNCTION creatQuarterlyAnalysisEntriesForLocation()
+CREATE OR REPLACE FUNCTION createQuarterlyAnalysisEntriesForLocation()
     RETURNS VOID
 AS
 $$
@@ -537,7 +537,7 @@ BEGIN
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
                                     order by d.morning Desc
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
         morning_lowestBooking    = (select pk_dailyBookingId
@@ -550,7 +550,7 @@ BEGIN
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
                                     order by d.afternoon Desc
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
         afternoon_lowestBooking  = (select pk_dailyBookingId
@@ -591,7 +591,7 @@ BEGIN
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId
                                     order by d.morning Desc
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId),
         morning_lowestBooking    = (select pk_dailyBookingId
@@ -604,7 +604,7 @@ BEGIN
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId
                                     order by d.afternoon Desc
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId),
         afternoon_lowestBooking  = (select pk_dailyBookingId
@@ -644,7 +644,7 @@ BEGIN
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId
                                     order by d.morning Desc
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId),
         morning_lowestBooking    = (select pk_dailyBookingId
@@ -657,7 +657,7 @@ BEGIN
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId
                                     order by d.afternoon Desc
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId),
         afternoon_lowestBooking  = (select pk_dailyBookingId
@@ -697,7 +697,7 @@ BEGIN
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId
                                     order by d.morning Desc
                                     LIMIT 1),
-        morning_averageBooking   = (select COALESCE(avg(d.morning), 0)
+        morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
                                     from Days d
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId),
         morning_lowestBooking    = (select pk_dailyBookingId
@@ -710,7 +710,7 @@ BEGIN
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId
                                     order by d.afternoon Desc
                                     LIMIT 1),
-        afternoon_averageBooking = (select COALESCE(avg(d.afternoon), 0)
+        afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
                                     from Days d
                                     where y.pk_yearlybookingid = d.pk_yearlyBookingId),
         afternoon_lowestBooking  = (select pk_dailyBookingId

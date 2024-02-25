@@ -30,10 +30,11 @@ type Query{
     getQuarterlyBookingByFloor(year: String!, quarter: Int!, floor: ID!): QuarterlyBooking
     getYearlyBookingByLocation(year: String!, location: ID!): YearlyBooking
     getYearlyBookingByBuilding(year: String!, building: ID!): YearlyBooking
+    getYearlyBookingByFloor(year: String!, floor: ID!): YearlyBooking
     getMonthlyBookingPrediction(identifier: ID!, identifierType: IdentifierType!): [MonthlyBookingPrediction]
     getQuarterlyBookingPrediction(identifier: ID!, identifierType: IdentifierType!): [QuarterlyBookingPrediction]
     getYearlyBookingPrediction(identifier: ID!, identifierType: IdentifierType!): [YearlyBookingPrediction]
-    getYearlyBookingByFloor(year: String!, floor: ID!): YearlyBooking
+    getLast30DaysByLocation(locationId: ID!): [DailyBooking]
     getAllYears: [String!]
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
     getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
@@ -85,7 +86,7 @@ type DailyBooking{
     day: String!
     morning: Int!
     afternoon: Int!
-    totalBookings: Int!
+    total: Int! ##crashes if null
     createdon: String!
     updatedon: String!
     fk_Location: Location!
@@ -109,7 +110,7 @@ type DailyBooking{
 type MonthlyBooking{
     pk_monthlyBookingId: ID!
     month: String!
-    totalBookings: Int!
+    total: Int!
     days: Int!
     amountOfDesks: Int!
     morning_highestBooking: DailyBooking
@@ -131,7 +132,7 @@ type QuarterlyBooking{
     pk_quarterlyBookingId: ID!
     year: String!
     quarter: Int!
-    totalBookings: Int!
+    total: Int!
     days: Int!
     amountOfDesks: Int!
     morning_highestBooking: DailyBooking
@@ -152,7 +153,7 @@ type QuarterlyBooking{
 type YearlyBooking{
     pk_yearlyBookingId: ID!
     year: String!
-    totalBookings: Int!
+    total: Int!
     days: Int!
     amountOfDesks: Int!
     morning_highestBooking: DailyBooking
@@ -171,7 +172,7 @@ type YearlyBooking{
 
 type MonthlyBookingPrediction{
     month: String!
-    totalBookings: Int!
+    total: Int!
     morning_highestBooking: Float!
     morningAverageBooking: Float!
     morning_lowestBooking: Float!
@@ -182,7 +183,7 @@ type MonthlyBookingPrediction{
 type QuarterlyBookingPrediction{
     year: String!
     quarter: Int!
-    totalBookings: Int!
+    total: Int!
     morning_highestBooking: Float!
     morningAverageBooking: Float!
     morning_lowestBooking: Float!
@@ -192,7 +193,7 @@ type QuarterlyBookingPrediction{
 }
 type YearlyBookingPrediction{
     year: String!
-    totalBookings: Int!
+    total: Int!
     morning_highestBooking: Float!
     morningAverageBooking: Float!
     morning_lowestBooking: Float!

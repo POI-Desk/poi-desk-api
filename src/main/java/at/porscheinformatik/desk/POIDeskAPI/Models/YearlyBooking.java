@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,4 +77,13 @@ public class YearlyBooking {
 
     @OneToMany(mappedBy = "fk_yearlyBookingId", fetch = FetchType.LAZY)
     private List<QuarterlyBooking> quarterlyBookings;
+
+    public List<QuarterlyBooking> getSortedQuarterlyBookings() {
+        if (quarterlyBookings != null) {
+            // Sort the list using a custom comparator
+            quarterlyBookings.sort(Comparator.comparing(QuarterlyBooking::getYear).thenComparing(QuarterlyBooking::getQuarter));
+            quarterlyBookings.forEach(QuarterlyBooking::getSortedMonthlyBookings);
+        }
+        return quarterlyBookings;
+    }
 }

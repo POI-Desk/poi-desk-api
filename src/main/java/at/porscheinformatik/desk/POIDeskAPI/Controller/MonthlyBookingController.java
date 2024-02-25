@@ -1,6 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.DailyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
@@ -9,6 +10,7 @@ import at.porscheinformatik.desk.POIDeskAPI.Services.MonthlyBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
+import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.time.YearMonth;
@@ -39,4 +41,11 @@ public class MonthlyBookingController {
     public MonthlyBookingPrediction[] getMonthlyBookingPrediction(@Argument UUID identifier, @Argument IdentifierType identifierType) throws ExecutionException, InterruptedException {
         return monthlyBookingService.getMonthlyBookingPrediction(identifier, identifierType).get();
     }
+    /*
+    @SchemaMapping
+    public List<DailyBooking> dailyBooking(MonthlyBooking monthlyBooking){
+        List<DailyBooking> dailyBookingList = monthlyBooking.getDailyBookings();
+        Collections.sort(dailyBookingList);
+        return dailyBookingList;
+    }*/
 }
