@@ -9,15 +9,21 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.people.v1.PeopleService;
+import com.google.api.services.people.v1.model.Person;
 import graphql.schema.DataFetchingEnvironment;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,19 +32,16 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
-import org.springframework.http.ResponseEntity;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Controller;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.io.IOException;
 import java.util.*;
 
 @Controller
+@CrossOrigin(origins = "*")
 public class UserController {
     /**
      * The user repository
@@ -128,6 +131,51 @@ public class UserController {
         return (List<User>) userRepo.findAll();
     }
 
+    @QueryMapping
+    public Boolean authorizeUser(@Argument String token){
+        DecodedJWT jwt;
+        try{
+
+            Algorithm algorithm = Algorithm.HMAC256("lol");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("POIDesk")
+                    .build();
+            jwt = verifier.verify(token);
+
+            return true;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @QueryMapping
+    public String getUserDataFromGoogle(@Argument String jwt){
+        DecodedJWT decodedJWT = JWT.decode(jwt);
+        String sub = decodedJWT.getSubject();
+
+        Optional<Account> account = accountRepo.findById(sub);
+        if (account.isEmpty())
+            return null;
+
+        String access_token = account.get().getAccess_token();
+
+        try{
+            PeopleService peopleService = new PeopleService(new NetHttpTransport(), new GsonFactory(), new GoogleCredential().setAccessToken(access_token));
+            Person profile = peopleService.people().get("people/me")
+                    .setPersonFields("names,emailAddresses")
+                    .execute();
+
+            return profile.toString();
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @MutationMapping
     public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     {
@@ -207,32 +255,33 @@ public class UserController {
 
             // session gets created (ideally with the attributeName being the account id and the attribute being the user_data_JWT)
             Session session = sessionRepository.createSession();
-            session.setAttribute(account.getPk_accountid().toString(), user_data_JWT); // Set user-specific information as needed
+
+            // potentially set the session attribute for whatever reason
+            // session.setAttribute("name", "value");
             sessionRepository.save(session);
 
-            // we want to get the response object to add the session cookie to it
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
-            HttpServletResponse response = attributes.getResponse();
-
-            // if the response is null, something is majorly fucked 💀💀💀💀💀
-            if (response != null) {
-                // this creates a cookie
-                Cookie sessionCookie = new Cookie("SESSION_ID", account.getPk_accountid().toString());
-                sessionCookie.setHttpOnly(true);
-                sessionCookie.setMaxAge(7 * 24 * 60 * 60); // for example, expire in 7 days
-                sessionCookie.setPath("/"); // accessible on all paths
-
-                // adds cookie to the response and for some reason it works ¯\_(ツ)_/¯
-                response.addCookie(sessionCookie);
-                return "Auth successful";
+            try{
+                Algorithm algorithm = Algorithm.HMAC256("lol");
+                String token = JWT.create()
+                        .withClaim("email", userEmail)
+                        .withClaim("sub", userIdentifier)
+                        .withClaim("iss", "POIDesk")
+                        .withClaim("aud", "POIDesk")
+                        .withClaim("iat", new Date())
+                        .withClaim("exp", new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000))
+                        .sign(algorithm);
+                return token;
             }
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return "Auth went wrong";
-        }
+            catch (JWTCreationException e) {
+                e.printStackTrace();
+                return null;
+            }
 
-        return "Auth went wrong";
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
      }
 
 

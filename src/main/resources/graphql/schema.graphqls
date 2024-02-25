@@ -27,6 +27,8 @@ type Query{
     getYearlyBooking(year: String!, location: ID!): YearlyBooking
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
     getAlLYears: [String]
+    authorizeUser(token: String!): Boolean
+    getUserDataFromGoogle(jwt: String!): String
 }
 
 type Mutation{
@@ -52,6 +54,7 @@ type Mutation{
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
     loginWizzGoogol(authToken: String!) : String
+
 }
 
 type Attribute{
