@@ -147,6 +147,7 @@ public class UserController {
     @QueryMapping
     public String getUserDataFromGoogle(@Argument String jwt) throws IOException {
         return "";
+    }
     public List<User> getUsersWithADeskOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
         return userService.getUsersWithADeskOnMap(mapId).get();
     }

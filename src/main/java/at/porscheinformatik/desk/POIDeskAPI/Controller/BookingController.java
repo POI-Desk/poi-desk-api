@@ -141,7 +141,7 @@ public class BookingController {
             if (check == null)
                 return null;
             String useridString = AuthHelper.getUsernameFromJWT(check);
-            User user = userRepo.findById(useridString).get();
+            User user = userRepo.findByUsername(useridString).get(0);
 
             if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2))){
                 return null;
