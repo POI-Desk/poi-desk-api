@@ -47,6 +47,7 @@ type Query{
     getUsersWithNoDeskOnMap(mapId: ID!): [User!]!
     getMapSnapshotsOfFloor(floorId: ID!): [Map!]
     getMapSnapshotById(mapId: ID!): Map
+    getUserInformation(jwt: String!): User
 }
 
 type Mutation{

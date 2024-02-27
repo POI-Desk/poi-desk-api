@@ -48,4 +48,20 @@ public class AuthHelper {
             return null;
         }
     }
+
+    public static String authWithJWT(String token){
+        DecodedJWT jwt;
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("lol");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("POIDesk")
+                    .build();
+            jwt = verifier.verify(token);
+
+            return token;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

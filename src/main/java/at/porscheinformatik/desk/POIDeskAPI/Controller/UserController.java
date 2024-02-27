@@ -157,6 +157,24 @@ public class UserController {
         return userService.getUsersWithNoDeskOnMap(mapId).get();
     }
 
+    @QueryMapping
+    public User getUserInformation(@Argument String jwt){
+        try {
+            var check = AuthHelper.authWithJWT(jwt);
+            if (check == null)
+                return null;
+            String useridString = AuthHelper.getUsernameFromJWT(check);
+            Optional<User> user = userRepo.findByUsername(useridString).stream().findFirst();
+            if (user.isEmpty())
+                return null;
+            return user.get();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @MutationMapping
     //public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     public boolean setdefaultLocation(@Argument UUID locationid)
@@ -241,20 +259,19 @@ public class UserController {
 
             String picture = jsonNode.get("picture").asText();
 
+
             // after the successful token request, we create a new account if it doesn't exist yet
             Account account = new Account(userIdentifier,"google", tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
-            accountRepo.save(account);
+
 
             // the username should ideally be set by the user themselves, so we temp. set it to the email
-            User user = new User(userEmail.split("@")[0], null, roleRepo.findByRolename("Standard"), account);
-            userRepo.save(user);
+            User user = new User(userEmail.split("@")[0], locationRepo.findByLocationname("Wien"), roleRepo.findByRolename("Standard"), account);
 
-            // session gets created (ideally with the attributeName being the account id and the attribute being the user_data_JWT)
-            Session session = sessionRepository.createSession();
 
-            // potentially set the session attribute for whatever reason
-            // session.setAttribute("name", "value");
-            sessionRepository.save(session);
+            if (!accountRepo.existsById(userIdentifier)){
+                accountRepo.save(account);
+                userRepo.save(user);
+            }
 
             try{
                 Algorithm algorithm = Algorithm.HMAC256("lol");
@@ -262,6 +279,7 @@ public class UserController {
                         .withClaim("email", userEmail)
                         .withClaim("name", name)
                         .withClaim("username", userEmail.split("@")[0])
+                        .withClaim("location", locationRepo.findByLocationname("Wien").getLocationname())
                         .withClaim("picture", picture)
                         .withClaim("sub", userIdentifier)
                         .withClaim("iss", "POIDesk")
