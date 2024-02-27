@@ -82,6 +82,8 @@ public class DeskService {
      */
     @Async
     public CompletableFuture<List<Desk>> updateDesks(Map map, List<UpdateDeskInput> deskInputs) throws Exception{
+        if (map.isPublished()) return null;
+
         List<Desk> desks = deskRepo.findAllByMap(map);
         List<Desk> finalDesks = new ArrayList<>();
 

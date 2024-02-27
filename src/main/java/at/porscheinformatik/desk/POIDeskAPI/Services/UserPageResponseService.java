@@ -1,8 +1,10 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
+import lombok.Getter;
+
 import java.util.List;
 
-
+@Getter
 public class UserPageResponseService<T> {
 
         private List<T> content;

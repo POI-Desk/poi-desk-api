@@ -103,8 +103,8 @@ CREATE TABLE Bookings
     isAfternoon   BOOLEAN      NOT NULL,
     fk_userId     UUID,
     fk_deskId     UUID,
-    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId),
-    FOREIGN KEY (fk_deskId) REFERENCES Desks (pk_deskId)
+    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId) ON DELETE SET NULL,
+    FOREIGN KEY (fk_deskId) REFERENCES Desks (pk_deskId) ON DELETE CASCADE
 );
 
 -- changeset liquibase:10

@@ -4,11 +4,11 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.MapService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 
 import javax.management.relation.InvalidRelationIdException;
@@ -20,6 +20,7 @@ import java.util.concurrent.ExecutionException;
 
 @Controller
 public class MapController {
+    @Lazy
     @Autowired
     private MapService mapService;
 
@@ -44,8 +45,8 @@ public class MapController {
     }
 
     @MutationMapping
-    public boolean publishMap(@Argument Optional<UUID> mapId, @Argument boolean force) throws ExecutionException, InterruptedException {
-        return mapService.publishMap(mapId, force).get();
+    public boolean publishMap(@Argument PublishMapInput publishMapInput) throws ExecutionException, InterruptedException {
+        return mapService.publishMap(publishMapInput).get();
     }
 
     @MutationMapping

@@ -29,4 +29,7 @@ public interface UserRepo extends CrudRepository<User, UUID>, PagingAndSortingRe
     // 🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮🤮
     @Query("SELECT u FROM User u WHERE NOT EXISTS (SELECT d FROM Desk d WHERE d.user = u AND d IN :desks)")
     List<User> getUsersWithoutDeskInDesks(@Param("desks") List<Desk> desks);
+
+    @Query("SELECT u FROM User u WHERE EXISTS (SELECT d FROM Desk d WHERE d.map.published = true AND d.user = u AND d.map != :map AND d.user IN :users)")
+    List<User> getUsersOnPublishedMapInUsersExcludeMap(@Param("users") List<User> users, @Param("map") Map map);
 }

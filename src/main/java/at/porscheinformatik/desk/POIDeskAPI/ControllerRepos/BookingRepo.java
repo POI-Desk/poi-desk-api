@@ -27,4 +27,6 @@ public interface BookingRepo extends CrudRepository<Booking, UUID> {
     List<Booking> findBookingsByDateAndDeskMapFloor(LocalDate date, Floor floor);
 
     List<Booking> findAllByDeskMap(Map map);
+
+    List<Booking> findBookingByDeskMap(Map map);
 }

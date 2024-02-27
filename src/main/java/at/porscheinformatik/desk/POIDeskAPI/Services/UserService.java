@@ -50,4 +50,9 @@ public class UserService {
 
         return CompletableFuture.completedFuture(userRepo.getUsersWithoutDeskInDesks(map.getDesks()));
     }
+
+    @Async
+    public  CompletableFuture<List<User>> getUsersOnPublishedMapInUsersExcludeMap(List<User> users, Map map){
+        return CompletableFuture.completedFuture(userRepo.getUsersOnPublishedMapInUsersExcludeMap(users, map));
+    }
 }

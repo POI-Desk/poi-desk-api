@@ -70,6 +70,8 @@ public class RoomService {
      */
     @Async
     public CompletableFuture<List<Room>> updateRooms(Map map, List<UpdateRoomInput> roomInputs) throws Exception {
+        if (map.isPublished()) return null;
+
         List<Room> rooms = roomRepo.findAllByMap(map);
         List<Room> finalRooms = new ArrayList<>();
         for (UpdateRoomInput roomInput : roomInputs) {

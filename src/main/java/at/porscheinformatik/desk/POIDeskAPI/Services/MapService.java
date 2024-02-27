@@ -4,7 +4,6 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
-import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
@@ -41,7 +40,7 @@ public class MapService {
     private InteriorService interiorService;
     @Lazy
     @Autowired
-    BookingService bookingService;
+    private BookingService bookingService;
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
         Floor floor = floorService.getFloorById(floorId).get();
@@ -53,6 +52,15 @@ public class MapService {
         return map;
     }
 
+    /**
+     * Creates a snapshot of the currently published map of the floor.
+     * If there is no map, a fallback map will be created.
+     * @param floorId id of the floor to take a snapshot of.
+     * @param name name of the new map
+     * @param fallback fallback data. If no map is published on the floor.
+     * @return the snapshot
+     * @throws Exception
+     */
     @Async
     public CompletableFuture<Map> createMapSnapshotOfFloor(Optional<UUID> floorId, String name, MapInput fallback) throws Exception {
         if (floorId.isEmpty()) return null;
@@ -155,11 +163,13 @@ public class MapService {
             return CompletableFuture.completedFuture(false);
 
         Map map = o_map.get();
+        return deleteMap(map);
+    }
 
+    @Async
+    public CompletableFuture<Boolean> deleteMap(Map map) throws ExecutionException, InterruptedException {
         if (map.isPublished())
             return CompletableFuture.completedFuture(false);
-
-
 
         mapRepo.delete(map);
 
@@ -167,21 +177,22 @@ public class MapService {
     }
 
     @Async
-    public CompletableFuture<Boolean> publishMap(Optional<UUID> mapId, boolean force) throws ExecutionException, InterruptedException {
-        if (mapId.isEmpty()) return CompletableFuture.completedFuture(false);
+    public CompletableFuture<Boolean> publishMap(PublishMapInput publishMapInput) throws ExecutionException, InterruptedException {
+        if (publishMapInput.mapId().isEmpty()) return CompletableFuture.completedFuture(false);
 
-        Map map = getMapById(mapId.get()).get();
+        Map map = getMapById(publishMapInput.mapId().get()).get();
         if (map == null)
             return CompletableFuture.completedFuture(false);
 
         Map publishedMap = mapRepo.findMapByFloorAndPublishedTrue(map.getFloor());
         if (publishedMap == null){
             map.setPublished(true);
+            // userService.getUsersOnPublishedMapInUsersExcludeMap(map.getDesks().stream().map(Desk::getUser).toList(), map);
+
             mapRepo.save(map);
             return CompletableFuture.completedFuture(true);
         }
-
-        if (!force){
+        else if (Objects.equals(publishedMap.getPk_mapId().toString(), map.getPk_mapId().toString())){
             return CompletableFuture.completedFuture(false);
         }
 
@@ -192,7 +203,17 @@ public class MapService {
         maps.add(map);
         maps.add(publishedMap);
 
-        bookingService.deleteAllBookingsOnMap(Optional.of(publishedMap.getPk_mapId())).get();
+        if (publishMapInput.keepBookings()){
+            bookingService.copyBookingsFromMapToMap(publishedMap, map).get();
+        }
+
+        if (publishMapInput.keepOldMap()){
+            bookingService.deleteAllBookingsOnMap(Optional.of(publishedMap.getPk_mapId())).get();
+        }
+        else{
+            deleteMap(publishedMap).get();
+            maps.remove(publishedMap);
+        }
         mapRepo.saveAll(maps);
 
         return CompletableFuture.completedFuture(true);

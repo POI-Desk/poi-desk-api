@@ -30,8 +30,7 @@ VALUES ((SELECT pk_roleId FROM Roles WHERE roleName = 'Standard'),
 -- changeset liquibase:5
 INSERT INTO Buildings (buildingName, fk_locationId)
 VALUES ('A', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
-       ('B', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien')),
-       ('C', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg'));
+       ('B', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien'));
 
 -- changeset liquibase:6
 INSERT INTO Floors (floorName, fk_buildingId)

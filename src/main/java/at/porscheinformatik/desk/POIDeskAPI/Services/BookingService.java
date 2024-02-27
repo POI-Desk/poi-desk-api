@@ -1,7 +1,9 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import jakarta.transaction.Transactional;
@@ -12,10 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.awt.print.Book;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -30,6 +29,9 @@ public class BookingService {
     @Lazy
     @Autowired
     private MapService mapService;
+    @Autowired
+    private DeskRepo deskRepo;
+
 
     @Async
     public CompletableFuture<Boolean> deleteBookingById(UUID bookingId){
@@ -90,6 +92,25 @@ public class BookingService {
         List<Booking> bookings = bookingRepo.findAllByDeskMap(map);
         bookingRepo.deleteAll(bookings);
 
+        return CompletableFuture.completedFuture(true);
+    }
+
+    @Async
+    public CompletableFuture<Boolean> copyBookingsFromMapToMap(Map from, Map to){
+
+        List<Booking> bookings = bookingRepo.findBookingByDeskMap(from);
+        for (Booking b:
+             bookings) {
+            Optional<Desk> o_desk = to.getDesks().stream().filter(d -> Objects.equals(d.getDesknum(), b.getDesk().getDesknum()) && b.getDesk().getUser() != null).findFirst();
+            if (o_desk.isEmpty()){
+                continue;
+            }
+
+            Desk desk = o_desk.get();
+            b.setDesk(desk);
+        }
+
+        bookingRepo.saveAll(bookings);
         return CompletableFuture.completedFuture(true);
     }
 

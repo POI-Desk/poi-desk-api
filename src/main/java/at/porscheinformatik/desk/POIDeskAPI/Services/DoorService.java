@@ -74,6 +74,8 @@ public class DoorService {
      */
     @Async
     public CompletableFuture<List<Door>> updateDoors(Map map, List<UpdateDoorInput> doorInputs) throws Exception {
+        if (map.isPublished()) return null;
+
         List<Door> doors = doorRepo.findAllByMap(map);
         List<Door> finalDoors = new ArrayList<>();
         for (UpdateDoorInput doorInput : doorInputs) {

@@ -65,8 +65,11 @@ public class LabelService {
      */
     @Async
     public CompletableFuture<List<Label>> updateLabels(Map map, List<UpdateLabelInput> labelInputs) throws Exception {
+        if (map.isPublished()) return null;
+
         List<Label> labels = labelRepo.findAllByMap(map);
         List<Label> finalLabels = new ArrayList<>();
+
         for (UpdateLabelInput labelInput : labelInputs) {
             if (labelInput.pk_labelId() == null) {
                 finalLabels.add(new Label(labelInput.text(), labelInput.x(), labelInput.y(), labelInput.rotation(), map));

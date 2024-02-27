@@ -70,6 +70,8 @@ public class WallService {
      */
     @Async
     public CompletableFuture<List<Wall>> updateWalls(Map map, List<UpdateWallInput> wallInputs) throws Exception {
+        if (map.isPublished()) return null;
+
         List<Wall> walls = wallRepo.findAllByMap(map);
         List<Wall> finalWalls = new ArrayList<>();
         for (UpdateWallInput wallInput : wallInputs) {

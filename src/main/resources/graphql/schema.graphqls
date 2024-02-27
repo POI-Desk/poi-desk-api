@@ -48,6 +48,7 @@ type Query{
     getMapSnapshotsOfFloor(floorId: ID!): [Map!]
     getMapSnapshotById(mapId: ID!): Map
     getUserInformation(jwt: String!): User
+    getUsersOnPublishedMapInUsers: [User!]
 }
 
 type Mutation{
@@ -75,7 +76,7 @@ type Mutation{
     loginWizzGoogol(authToken: String!) : String
     deleteLabels(labelIds: [ID!]!): [Label!]
     assignUserToDesk(deskId: ID!, userId: ID!): Desk
-    publishMap(mapId: ID!, force: Boolean!): Boolean!
+    publishMap(publishMapInput: PublishMapInput!): Boolean!
     createMapSnapshotOfFloor(floorId: ID!, name: String!, fallback: MapInput): Map
 }
 
@@ -533,4 +534,10 @@ input UpdateLabelInput{
     x: Int!
     y: Int!
     rotation: Int!
+}
+
+input PublishMapInput{
+    mapId: ID!
+    keepOldMap: Boolean!
+    keepBookings: Boolean!
 }

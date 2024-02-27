@@ -1,5 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.ControllerRepos;
 
+import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import org.springframework.data.repository.CrudRepository;

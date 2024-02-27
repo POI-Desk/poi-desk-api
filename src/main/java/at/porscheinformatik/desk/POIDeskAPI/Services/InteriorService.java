@@ -32,6 +32,7 @@ public class InteriorService {
 
         Map map = mapService.getMapById(mapId.get()).get();
         if (map == null) return null;
+        if (map.isPublished()) return null;
 
 
         Interior interior = new Interior(input.type(), input.x(), input.y(), input.rotation(), input.width(), input.height(), map);
