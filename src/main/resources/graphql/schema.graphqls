@@ -11,7 +11,7 @@ type Query{
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
     getDesksOnFloor(floorid: ID!): [Desk!]
-    getBookingsByUserId(userid: ID!): [Booking!]
+    getBookingsByUserId: [Booking!]
     isBookedAt(deskId: ID!, date: String!, dayTime: String!): Boolean
     getBookingsByUserid(userid: ID!): [Booking!]
     getFloorsInBuilding(buildingid: ID!): [Floor!]
@@ -27,7 +27,7 @@ type Query{
     getYearlyBooking(year: String!, location: ID!): YearlyBooking
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
     getAlLYears: [String]
-    authorizeUser(token: String!): Boolean
+    authorizeUser: String
     getUserDataFromGoogle(jwt: String!): String
 }
 

@@ -4,11 +4,17 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Helper.AuthHelper;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.BookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Services.BookingService;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -51,6 +57,9 @@ public class BookingController {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private HttpServletRequest request;
+
     /**
      * Return all bookings in the database
      *
@@ -79,10 +88,30 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByUserid(@Argument UUID userid) {
-        List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
-        Collections.sort(bookings);
-        return bookings;
+    //public List<Booking> getBookingsByUserid(@Argument UUID userid) {
+    public List<Booking> getBookingsByUserId() {
+        try {
+            var check = AuthHelper.authenticate(request);
+            if (check == null)
+                return null;
+            DecodedJWT jwt;
+            Algorithm algorithm = Algorithm.HMAC256("lol");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("POIDesk")
+                    .build();
+            jwt = verifier.verify(check);
+            String useridString = jwt.getClaim("username").asString();
+            List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findByUsername(useridString).get(0));
+            Collections.sort(bookings);
+            return bookings;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        //List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
+        //Collections.sort(bookings);
+        //return bookings;
     }
 
     @QueryMapping
@@ -110,18 +139,37 @@ public class BookingController {
      */
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {
-        Booking newBooking = new Booking(booking);
-        String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
-        String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
-        String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
-        String bookingNumber = basicDate + interval + deskNum + booking.extendedid();
+        try {
+            var check = AuthHelper.authenticate(request);
+            if (check == null)
+                return null;
+            DecodedJWT jwt;
+            Algorithm algorithm = Algorithm.HMAC256("lol");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("POIDesk")
+                    .build();
+            jwt = verifier.verify(check);
+            String useridString = jwt.getClaim("username").asString();
+            List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findByUsername(useridString).get(0));
+            Booking newBooking = new Booking(booking);
+            String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
+            String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
+            String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
+            String bookingNumber = basicDate + interval + deskNum + booking.extendedid();
 
-        newBooking.setBookingnumber(bookingNumber);
-        newBooking.setUser(userRepo.findById(booking.userid()).get());
-        newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
-        bookingRepo.save(newBooking);
+            newBooking.setBookingnumber(bookingNumber);
+            newBooking.setUser(userRepo.findByUsername(useridString).get(0));
+            newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
+            bookingRepo.save(newBooking);
 
-        return newBooking;
+            return newBooking;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+
     }
 
     @MutationMapping

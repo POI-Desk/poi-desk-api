@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface UserRepo extends CrudRepository<User, UUID>, PagingAndSortingRepository <User, UUID>{
     List<User> findByUsername(String name);
 
+    User findByUsernameContaining(String Name);
+
     Page<User> findAll(Pageable pageable);
 
     // Page<User> findByUsernameStartsWith(String input, Pageable pageable);

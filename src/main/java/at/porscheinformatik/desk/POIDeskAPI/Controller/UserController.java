@@ -4,34 +4,27 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.RoleRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.AccountRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Helper.AuthHelper;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Role;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.people.v1.PeopleService;
-import com.google.api.services.people.v1.model.Person;
 import graphql.schema.DataFetchingEnvironment;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
-import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.graphql.data.method.annotation.*;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.stereotype.Controller;
@@ -68,6 +61,9 @@ public class UserController {
 
     @Autowired
     private SessionRepository sessionRepository;
+
+    @Autowired
+    private HttpServletRequest request;
 
     /**
      * The currently logged-in user
@@ -132,48 +128,18 @@ public class UserController {
     }
 
     @QueryMapping
-    public Boolean authorizeUser(@Argument String token){
-        DecodedJWT jwt;
-        try{
-
-            Algorithm algorithm = Algorithm.HMAC256("lol");
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("POIDesk")
-                    .build();
-            jwt = verifier.verify(token);
-
-            return true;
-        }
-        catch (Exception e) {
+    public String authorizeUser(){
+        try {
+            return AuthHelper.authenticate(request);
+        } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return null;
         }
     }
 
     @QueryMapping
-    public String getUserDataFromGoogle(@Argument String jwt){
-        DecodedJWT decodedJWT = JWT.decode(jwt);
-        String sub = decodedJWT.getSubject();
-
-        Optional<Account> account = accountRepo.findById(sub);
-        if (account.isEmpty())
-            return null;
-
-        String access_token = account.get().getAccess_token();
-
-        try{
-            PeopleService peopleService = new PeopleService(new NetHttpTransport(), new GsonFactory(), new GoogleCredential().setAccessToken(access_token));
-            Person profile = peopleService.people().get("people/me")
-                    .setPersonFields("names,emailAddresses")
-                    .execute();
-
-            return profile.toString();
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public String getUserDataFromGoogle(@Argument String jwt) throws IOException {
+        return "";
     }
 
     @MutationMapping
@@ -245,6 +211,10 @@ public class UserController {
 
             String userIdentifier = jsonNode.get("sub").asText();
 
+            String name = jsonNode.get("name").asText();
+
+            String picture = jsonNode.get("picture").asText();
+
             // after the successful token request, we create a new account if it doesn't exist yet
             Account account = new Account(userIdentifier,"google", tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
             accountRepo.save(account);
@@ -264,6 +234,9 @@ public class UserController {
                 Algorithm algorithm = Algorithm.HMAC256("lol");
                 String token = JWT.create()
                         .withClaim("email", userEmail)
+                        .withClaim("name", name)
+                        .withClaim("username", userEmail.split("@")[0])
+                        .withClaim("picture", picture)
                         .withClaim("sub", userIdentifier)
                         .withClaim("iss", "POIDesk")
                         .withClaim("aud", "POIDesk")
