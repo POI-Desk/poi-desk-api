@@ -51,9 +51,4 @@ public class FloorController {
                 floorRepo.findByBuilding(buildingRepo.findById(buildingid).get()) :
                 List.of();
     }
-
-    @QueryMapping
-    public Map getMapByFloor(@Argument UUID floorId){
-        return floorService.getMapByFloor(floorId);
-    }
 }

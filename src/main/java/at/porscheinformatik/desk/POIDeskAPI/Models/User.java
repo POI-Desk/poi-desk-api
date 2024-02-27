@@ -64,5 +64,6 @@ public class User {
     @JoinColumn(name = "fk_accountid")
     private Account account;
 
-
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Desk> desks;
 }

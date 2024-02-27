@@ -12,6 +12,9 @@ import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class InteriorController {
@@ -19,9 +22,8 @@ public class InteriorController {
     InteriorService interiorService;
 
     @MutationMapping
-    public Interior addInterior(@Argument InteriorInput input)
-    {
-        return interiorService.addInterior(input);
+    public Interior addInterior(@Argument Optional<UUID> mapId, @Argument InteriorInput input) throws ExecutionException, InterruptedException {
+        return interiorService.addInterior(mapId, input);
     }
 
     @SchemaMapping

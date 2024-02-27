@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name="dailybookings")
-public class DailyBooking {
+public class DailyBooking implements Comparable<DailyBooking>{
     @Id
     @Column(name = "pk_dailybookingid")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,8 +29,8 @@ public class DailyBooking {
     @Column(name = "afternoon", nullable = false)
     private Integer afternoon;
 
-    @Column(name = "totalbookings", nullable = false)
-    private Integer totalBookings;
+    @Column(name = "total", nullable = false)
+    private Integer total;
 
     @Column(name = "createdon", nullable = false)
     @CreationTimestamp
@@ -42,7 +42,7 @@ public class DailyBooking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_location", nullable = false)
-    private Location fk_Location;
+    private Location fk_location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_building")
@@ -91,4 +91,10 @@ public class DailyBooking {
 
     @OneToMany(mappedBy = "afternoon_lowestBooking", fetch = FetchType.LAZY)
     private List<YearlyBooking> year_afternoon_lowestBooking;
+
+    @Override
+    public int compareTo(DailyBooking other) {
+        // Assuming day is a String, change the comparison accordingly if it's a different type
+        return this.day.compareTo(other.day);
+    }
 }

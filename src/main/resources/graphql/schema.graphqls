@@ -11,17 +11,32 @@ type Query{
     getAllDesks: [Desk!]
     getAllFloors: [Floor!]
     getDesksOnFloor(floorid: ID!): [Desk!]
-    getBookingsByUserId: [Booking!]
+    getDesksOnMap(mapId: ID!): [Desk!]
     isBookedAt(deskId: ID!, date: String!, dayTime: String!): Boolean
-    getBookingsByUserid(userid: ID!): [Booking!]
+    getBookingsByUserid(isCurrent: Boolean): [Booking!]
     getFloorsInBuilding(buildingid: ID!): [Floor!]
     getBuildingsInLocation(locationid: ID!): [Building!]
     getSeatOfBooking(bookingid: ID!): Desk
     getYearlyBookings: [YearlyBooking!]
-    getMapByFloor(floorId: ID!): Map
+    getPublishedMapOnFloor(floorId: ID!): Map
     getMapById(mapId: ID!): Map
     getDeskById(deskId: ID!): Desk
     getDailyBookings: [DailyBooking!]
+    getMonthlyBookingByLocation(year: String!, month: String!, location: ID!): MonthlyBooking
+    getMonthlyBookingByBuilding(year: String!, month: String!, building: ID!): MonthlyBooking
+    getMonthlyBookingByFloor(year: String!, month: String!, floor: ID!): MonthlyBooking
+    getQuarterlyBookingByLocation(year: String!, quarter: Int!, location: ID!): QuarterlyBooking
+    getQuarterlyBookingByBuilding(year: String!, quarter: Int!, building: ID!): QuarterlyBooking
+    getQuarterlyBookingByFloor(year: String!, quarter: Int!, floor: ID!): QuarterlyBooking
+    getYearlyBookingByLocation(year: String!, location: ID!): YearlyBooking
+    getYearlyBookingByBuilding(year: String!, building: ID!): YearlyBooking
+    getYearlyBookingByFloor(year: String!, floor: ID!): YearlyBooking
+    getMonthlyBookingPrediction(identifier: ID!, identifierType: IdentifierType!): [MonthlyBookingPrediction]
+    getQuarterlyBookingPrediction(identifier: ID!, identifierType: IdentifierType!): [QuarterlyBookingPrediction]
+    getYearlyBookingPrediction(identifier: ID!, identifierType: IdentifierType!): [YearlyBookingPrediction]
+    getLast30DaysByLocation(locationId: ID!): [DailyBooking]
+    getAllYears: [String!]
+    getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
     getMonthlyBooking(year: String!, month: String!, location: ID!): MonthlyBooking
     getQuarterlyBooking(year: String!, quarter: String!, location: ID!): QuarterlyBooking
     getYearlyBooking(year: String!, location: ID!): YearlyBooking
@@ -29,15 +44,18 @@ type Query{
     getAlLYears: [String]
     authorizeUser: String
     getUserDataFromGoogle(jwt: String!): String
+    getUsersWithADeskOnMap(mapId: ID!): [User!]!
+    getUsersWithNoDeskOnMap(mapId: ID!): [User!]!
+    getMapSnapshotsOfFloor(floorId: ID!): [Map!]
+    getMapSnapshotById(mapId: ID!): Map
 }
 
 type Mutation{
     changeUsername(id: String!, name:String!): User
     bookDesk(booking: Bookinginput!): Booking
-    deleteBooking(bookingId: ID!): ID
+    deleteBooking(bookingId: ID!): Boolean
     setdefaultLocation(locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
-    addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking
     addRoom(roomInput: RoomInput!): Room
     addInterior(input: InteriorInput!): Interior
@@ -46,6 +64,7 @@ type Mutation{
     updateWallsOnMap(mapId: ID!, wallInputs: [UpdateWallInput!]!): [Wall!]
     updateDesksOnMap(mapId: ID!, deskInputs: [UpdateDeskInput!]!): [Desk!]
     updateRoomsOnMap(mapId: ID!, roomInputs: [UpdateRoomInput!]!): [Room!]
+    updateLabelsOnMap(mapId: ID!, labelInputs: [UpdateLabelInput!]!): [Label!]
     deleteRooms(roomIds: [ID!]!): [Room!]
     deleteWalls(wallIds: [ID!]!): [Wall!]
     deleteDoors(doorIds: [ID!]!): [Door!]
@@ -54,7 +73,10 @@ type Mutation{
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
     loginWizzGoogol(authToken: String!) : String
-
+    deleteLabels(labelIds: [ID!]!): [Label!]
+    assignUserToDesk(deskId: ID!, userId: ID!): Desk
+    publishMap(mapId: ID!, force: Boolean!): Boolean!
+    createMapSnapshotOfFloor(floorId: ID!, name: String!, fallback: MapInput): Map
 }
 
 type Attribute{
@@ -69,7 +91,7 @@ type DailyBooking{
     day: String!
     morning: Int!
     afternoon: Int!
-    totalBookings: Int!
+    total: Int! ##crashes if null
     createdon: String!
     updatedon: String!
     fk_Location: Location!
@@ -93,7 +115,7 @@ type DailyBooking{
 type MonthlyBooking{
     pk_monthlyBookingId: ID!
     month: String!
-    totalBookings: Int!
+    total: Int!
     days: Int!
     amountOfDesks: Int!
     morning_highestBooking: DailyBooking
@@ -114,8 +136,8 @@ type MonthlyBooking{
 type QuarterlyBooking{
     pk_quarterlyBookingId: ID!
     year: String!
-    quarter: String!
-    totalBookings: Int!
+    quarter: Int!
+    total: Int!
     days: Int!
     amountOfDesks: Int!
     morning_highestBooking: DailyBooking
@@ -136,7 +158,7 @@ type QuarterlyBooking{
 type YearlyBooking{
     pk_yearlyBookingId: ID!
     year: String!
-    totalBookings: Int!
+    total: Int!
     days: Int!
     amountOfDesks: Int!
     morning_highestBooking: DailyBooking
@@ -151,6 +173,38 @@ type YearlyBooking{
     fk_building: Building!
     fk_floor: Floor!
     quarterlyBookings: [QuarterlyBooking!]
+}
+
+type MonthlyBookingPrediction{
+    month: String!
+    total: Int!
+    morning_highestBooking: Float!
+    morningAverageBooking: Float!
+    morning_lowestBooking: Float!
+    afternoon_highestBooking: Float!
+    afternoonAverageBooking: Float!
+    afternoon_lowestBooking: Float!
+}
+type QuarterlyBookingPrediction{
+    year: String!
+    quarter: Int!
+    total: Int!
+    morning_highestBooking: Float!
+    morningAverageBooking: Float!
+    morning_lowestBooking: Float!
+    afternoon_highestBooking: Float!
+    afternoonAverageBooking: Float!
+    afternoon_lowestBooking: Float!
+}
+type YearlyBookingPrediction{
+    year: String!
+    total: Int!
+    morning_highestBooking: Float!
+    morningAverageBooking: Float!
+    morning_lowestBooking: Float!
+    afternoon_highestBooking: Float!
+    afternoonAverageBooking: Float!
+    afternoon_lowestBooking: Float!
 }
 
 type UserAnalytics{
@@ -222,8 +276,8 @@ type Desk{
     updatedon: String!
     bookings: [Booking!]
     attributes: [Attribute!]
-    floor: Floor
     map: Map
+    user: User
 }
 
 type User{
@@ -235,6 +289,7 @@ type User{
     bookings: [Booking!]
     location: Location
     userAnalytics: [UserAnalytics!]
+    desks: [Desk!]
 }
 
 type Account{
@@ -246,6 +301,8 @@ type Map{
     pk_mapId: ID!
     width: Int!
     height: Int!
+    published: Boolean!
+    name: String!
     createdOn: String!
     updatedOn: String!
     rooms: [Room!]
@@ -342,6 +399,7 @@ input DeskInput{
     desknum: String!
     x: Int!
     y: Int!
+    userId: ID
 }
 
 input Bookinginput{
@@ -382,9 +440,16 @@ enum InteriorType{
     Aquarium
 }
 
+enum IdentifierType{
+    Location,
+    Building,
+    Floor
+}
+
 input MapInput{
     width: Int!
     height: Int!
+    name: String!
 }
 
 input DoorInput{
@@ -399,6 +464,13 @@ input WallInput{
     y: Int!
     rotation: Int!
     width: Int!
+}
+
+input LabelInput{
+    text: String!
+    x: Int!
+    y: Int!
+    rotation: Int!
 }
 
 input UpdateDoorInput{
@@ -424,6 +496,7 @@ input UpdateDeskInput{
     desknum: String!    #TODO: change to camelCase
     x: Int!
     y: Int!
+    userId: ID
     #delete: Boolean!
 }
 
@@ -452,4 +525,12 @@ input UpdateRoomInput{
     width: Int!
     height: Int!
     #delete: Boolean!
+}
+
+input UpdateLabelInput{
+    pk_labelId: ID
+    text: String!
+    x: Int!
+    y: Int!
+    rotation: Int!
 }

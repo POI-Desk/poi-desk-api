@@ -97,4 +97,11 @@ public class DoorService {
         List<UUID> doorIds = doorRepo.findAllByMap(map).stream().map(Door::getPk_doorId).toList();
         return deleteDoors(doorIds);
     }
+
+    @Async
+    public CompletableFuture<List<Door>> copyDoorsToMap(List<Door> doors, Map map) {
+        List<Door> newDoors = doors.stream().map(d -> new Door(d.getX(), d.getY(), d.getRotation(), d.getWidth(), map)).toList();
+        doorRepo.saveAll(newDoors);
+        return CompletableFuture.completedFuture(newDoors);
+    }
 }

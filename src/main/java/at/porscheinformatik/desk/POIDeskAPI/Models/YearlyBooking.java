@@ -1,6 +1,5 @@
 package at.porscheinformatik.desk.POIDeskAPI.Models;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Types.TimeType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,8 +24,8 @@ public class YearlyBooking {
     @Column(name = "year", nullable = false)
     private String year;
 
-    @Column(name = "totalbookings", nullable = false)
-    private Integer totalBookings;
+    @Column(name = "total", nullable = false)
+    private Integer total;
 
     @Column(name = "days", nullable = false)
     private Integer days;
@@ -65,7 +65,7 @@ public class YearlyBooking {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_location", nullable = false)
-    private Location fk_Location;
+    private Location fk_location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_building")
@@ -77,4 +77,13 @@ public class YearlyBooking {
 
     @OneToMany(mappedBy = "fk_yearlyBookingId", fetch = FetchType.LAZY)
     private List<QuarterlyBooking> quarterlyBookings;
+
+    public List<QuarterlyBooking> getSortedQuarterlyBookings() {
+        if (quarterlyBookings != null) {
+            // Sort the list using a custom comparator
+            quarterlyBookings.sort(Comparator.comparing(QuarterlyBooking::getYear).thenComparing(QuarterlyBooking::getQuarter));
+            quarterlyBookings.forEach(QuarterlyBooking::getSortedMonthlyBookings);
+        }
+        return quarterlyBookings;
+    }
 }
