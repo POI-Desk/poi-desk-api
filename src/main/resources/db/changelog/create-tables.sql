@@ -47,6 +47,7 @@ CREATE TABLE Users
     createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_locationId UUID,
+    fk_accountId  varchar,
     FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId)
 );
 
@@ -310,3 +311,22 @@ CREATE TABLE Doors
     fk_mapId  UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
 )
+-- changeset liquibase:23
+ALTER TABLE DailyBookings
+    ADD CONSTRAINT fk_morningMonthlyBookingId FOREIGN KEY (fk_monthlyBookingId) REFERENCES MonthlyBookings (pk_monthlyBookingId);
+
+-- changeset liquibase:24
+
+CREATE TABLE accounts(
+    pk_accountid    varchar PRIMARY KEY NOT NULL,
+    provider        VARCHAR NOT NULL,
+    access_token    VARCHAR NOT NULL,
+    refresh_token   VARCHAR NOT NULL,
+    createdOn       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn       TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+)
+
+-- changeset liquibase:25
+
+ALTER TABLE Users ADD CONSTRAINT fk_accountid FOREIGN KEY (fk_accountId) references accounts (pk_accountid) ON DELETE CASCADE;
+
