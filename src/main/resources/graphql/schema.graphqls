@@ -35,7 +35,7 @@ type Mutation{
     changeUsername(id: String!, name:String!): User
     bookDesk(booking: Bookinginput!): Booking
     deleteBooking(bookingId: ID!): ID
-    setdefaultLocation(userid: ID!, locationid: ID!): Boolean
+    setdefaultLocation(locationid: ID!): Boolean
     createOrLoginAsUser(username: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     editBooking(bookingInput: EditBookingInput!) : Booking

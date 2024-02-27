@@ -32,4 +32,20 @@ public class AuthHelper {
         }
 
     }
+
+    public static String getUsernameFromJWT(String jwtToken){
+        DecodedJWT jwt;
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("lol");
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("POIDesk")
+                    .build();
+            jwt = verifier.verify(jwtToken);
+
+            return jwt.getClaim("username").asString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

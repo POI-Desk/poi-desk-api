@@ -94,13 +94,7 @@ public class BookingController {
             var check = AuthHelper.authenticate(request);
             if (check == null)
                 return null;
-            DecodedJWT jwt;
-            Algorithm algorithm = Algorithm.HMAC256("lol");
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("POIDesk")
-                    .build();
-            jwt = verifier.verify(check);
-            String useridString = jwt.getClaim("username").asString();
+            String useridString = AuthHelper.getUsernameFromJWT(check);
             List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findByUsername(useridString).get(0));
             Collections.sort(bookings);
             return bookings;
@@ -143,13 +137,7 @@ public class BookingController {
             var check = AuthHelper.authenticate(request);
             if (check == null)
                 return null;
-            DecodedJWT jwt;
-            Algorithm algorithm = Algorithm.HMAC256("lol");
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("POIDesk")
-                    .build();
-            jwt = verifier.verify(check);
-            String useridString = jwt.getClaim("username").asString();
+            String useridString = AuthHelper.getUsernameFromJWT(check);
             List<Booking> bookings = bookingRepo.findBookingsByUser(userRepo.findByUsername(useridString).get(0));
             Booking newBooking = new Booking(booking);
             String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);

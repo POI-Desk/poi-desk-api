@@ -11,8 +11,10 @@ import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Services.UserPageResponseService;
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -143,16 +145,27 @@ public class UserController {
     }
 
     @MutationMapping
-    public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
+    //public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
+    public boolean setdefaultLocation(@Argument UUID locationid)
     {
-        Optional<User> user = userRepo.findById(userid);
-        Optional<Location> location = locationRepo.findById(locationid);
-        if (user.isEmpty() || location.isEmpty())
+        try {
+            var check = AuthHelper.authenticate(request);
+            if (check == null)
+                return false;
+            String useridString = AuthHelper.getUsernameFromJWT(check);
+            Optional<User> user = userRepo.findByUsername(useridString).stream().findFirst();
+            Optional<Location> location = locationRepo.findById(locationid);
+            if (user.isEmpty() || location.isEmpty())
+                return false;
+            user.get().setLocation(location.get());
+            User updatedUser = user.get();
+            userRepo.save(updatedUser);
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
-        user.get().setLocation(location.get());
-        User updateduser = user.get();
-        userRepo.save(updateduser);
-        return true;
+        }
     }
 
     @MutationMapping
