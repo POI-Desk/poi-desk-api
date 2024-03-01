@@ -2,6 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.LocationRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
+import at.porscheinformatik.desk.POIDeskAPI.Models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -26,19 +27,6 @@ public class LocationController {
     @QueryMapping
     public List<Location> getAllLocations() { return (List<Location>)locationRepo.findAll(); }
 
-//    @MutationMapping
-//    public Location addLocation(@Argument String name, @Argument UUID id) {
-//        if (locationRepo.existsLocationByLocationname(name)) return null;
-//        Location location = new Location();
-//        location.setLocationname(name);
-//        System.out.println("LOCATIONNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN");
-//        System.out.println(id);
-//        location.setPklocationid(id);
-//        System.out.println(location.getPklocationid());
-//        locationRepo.save(location);
-//        return location;
-//    }
-
     @MutationMapping
     public Location addLocation(@Argument String name) {
         if (locationRepo.existsLocationByLocationname(name)) return null;
@@ -62,6 +50,15 @@ public class LocationController {
         location.setLocationname(newName);
         locationRepo.save(location);
         return location;
+    }
+
+    @QueryMapping
+    public List<User> getAdminsOfLocation(@Argument UUID locationid) {
+        Location location = locationRepo.findById(locationid).get();
+        System.out.println(location.getLocationname());
+        List<User> admins = location.getAdmins();
+        admins.forEach(System.out::println);
+        return admins;
     }
 
 }

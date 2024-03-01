@@ -25,7 +25,7 @@ public class User {
     @Column(name="username", nullable = false)
     private String username;
 
-    @Column(name="password")
+    @Column(name="password", nullable = true)
     private String password;
 
     @Column(name="createdon", nullable = false)
@@ -44,12 +44,19 @@ public class User {
     )
     private List<Role> roles;
 
+    @ManyToMany(mappedBy = "teammembers", fetch = FetchType.LAZY)
+    private List<Team> teams;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Booking> bookings;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_locationid")
     private Location location;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "fk_locationadminid")
+    private Location adminLocation;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserAnalytic> userAnalytics;

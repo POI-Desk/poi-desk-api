@@ -37,6 +37,10 @@ type Query{
     getYearlyBookingByFloor(year: String!, floor: ID!): YearlyBooking
     getAllYears: [String!]
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
+    getAllTeams: [Team]
+    getExtendedUsers: [User]
+    getAdminUsers: [User]
+    getAdminsOfLocation(locationid: ID!): [User]
 }
 
 type Mutation{
@@ -71,6 +75,18 @@ type Mutation{
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
     addUser(username: String!, isExtended: Boolean!, isAdmin: Boolean!, isSuperAdmin: Boolean!): User
+    addTeam(name: String!, memberids: [ID!]!, leaderid: ID!): Team
+    setAdminLocation(userid: ID!, locationid: ID!): Location
+    removeAdminLocation(userid: ID!): User
+    deleteTeam(teamid: ID!): Team
+}
+
+type Team{
+    pk_teamid: ID!
+    teamname: String!
+    createdon: String!
+    updatedon: String!
+    teammembers: [User]
 }
 
 type Attribute{
@@ -245,6 +261,7 @@ type Location{
     createdon: String!
     updatedon: String!
     users: [User!]
+    admins: [User]
     buildings: [Building!]
     dailyBookings: [DailyBooking!]
     monthlyBookings: [MonthlyBooking!]

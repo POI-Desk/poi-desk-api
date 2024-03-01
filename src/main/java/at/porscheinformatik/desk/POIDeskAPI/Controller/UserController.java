@@ -93,6 +93,20 @@ public class UserController {
         return (List<User>) userRepo.findAll();
     }
 
+    /**
+     * get all users with role Extended
+     * @return list of extended users
+     */
+    @QueryMapping
+    public List<User> getExtendedUsers() {
+        return userRepo.findByRolesContaining(roleRepo.findByRolename("Extended").stream().findFirst().get());
+    }
+
+    @QueryMapping
+    public List<User> getAdminUsers() {
+        return userRepo.findByRolesContaining(roleRepo.findByRolename("Admin").stream().findFirst().get());
+    }
+
     @MutationMapping
     public boolean setdefaultLocation(@Argument UUID userid, @Argument UUID locationid)
     {
@@ -118,7 +132,7 @@ public class UserController {
     }
 
     /**
-     * Log in as user, if user with entered username does not exist yet, it will be created and logged in
+     * Log in as user
      * @param username
      * @return User
      */
@@ -133,6 +147,14 @@ public class UserController {
         return null;
     }
 
+    /**
+     * Creates a new user with specified username and permissions
+     * @param username
+     * @param isExtended
+     * @param isAdmin
+     * @param isSuperAdmin
+     * @return
+     */
     @MutationMapping
     public User addUser(@Argument String username, @Argument Boolean isExtended, @Argument Boolean isAdmin, @Argument Boolean isSuperAdmin) {
         List<Character> randomChars = new ArrayList<>(
@@ -162,6 +184,25 @@ public class UserController {
         user.setUsername(username);
         user.setRoles(roles);
         user.setPassword(password);
+        userRepo.save(user);
+        return user;
+    }
+
+    @MutationMapping
+    public Location setAdminLocation(@Argument UUID userid, @Argument UUID locationid) {
+        Location location = locationRepo.findById(locationid).get();
+        List<User> emptyList = new ArrayList<>();
+        location.setAdmins(emptyList);
+        User user = userRepo.findById(userid).get();
+        user.setAdminLocation(location);
+        userRepo.save(user);
+        return location;
+    }
+
+    @MutationMapping
+    public User removeAdminLocation(@Argument UUID userid) {
+        User user = userRepo.findById(userid).get();
+        user.setAdminLocation(null);
         userRepo.save(user);
         return user;
     }
