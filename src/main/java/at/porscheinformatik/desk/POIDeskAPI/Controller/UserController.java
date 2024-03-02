@@ -207,7 +207,16 @@ public class UserController {
         return user;
     }
 
-
+    @MutationMapping
+    public User changePassword(@Argument UUID userid, @Argument String oldPassword, @Argument String newPassword) {
+        User user = userRepo.findById(userid).get();
+        if (user.getPassword().equals(oldPassword) && !oldPassword.equals(newPassword)) {
+            user.setPassword(newPassword);
+            userRepo.save(user);
+            return user;
+        }
+        return null;
+    }
 
     @SchemaMapping
     public List<Role> roles(User user) {

@@ -83,6 +83,7 @@ type Mutation{
     changeNameOfTeam(teamid: ID!, newName: String): Team
     removeMembersOfTeam(teamid: ID!, userids: [ID!]!): User
     addMemberToTeam(teamid: ID!, userids: [ID!]!): User
+    changePassword(userid: ID!, oldPassword: String, newPassword: String): User
 }
 
 type Team{
