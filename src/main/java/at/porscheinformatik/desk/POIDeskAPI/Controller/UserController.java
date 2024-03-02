@@ -16,6 +16,7 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Controller;
 
 import java.util.*;
@@ -44,6 +45,9 @@ public class UserController {
      * The currently logged-in user
      */
     private User loggedInUser;
+
+    private Argon2PasswordEncoder arg2SpringSecurity = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+
 
     /**
      * Getter for the currently logged-in user
@@ -139,7 +143,7 @@ public class UserController {
     @MutationMapping
     public User createOrLoginAsUser(@Argument String username, @Argument String password) {
         Optional<User> loggingInUser = userRepo.findByUsername(username).stream().findFirst();
-        if (userRepo.findByUsername(username).stream().findFirst().get().getPassword().equals(password)) {
+        if (arg2SpringSecurity.matches(password, userRepo.findByUsername(username).stream().findFirst().get().getPassword())) {
             this.loggedInUser = loggingInUser.get();
             return loggedInUser;
         }
@@ -156,12 +160,10 @@ public class UserController {
      * @return
      */
     @MutationMapping
-    public User addUser(@Argument String username, @Argument Boolean isExtended, @Argument Boolean isAdmin, @Argument Boolean isSuperAdmin) {
-        List<Character> randomChars = new ArrayList<>(
-                Arrays.asList('#', '!', '+', '?', '^')
-        );
+    public User addUser(@Argument String username, @Argument Boolean isExtended, @Argument Boolean isAdmin, @Argument Boolean isSuperAdmin, @Argument String password) {
 
-        String password = username + randomChars.get((int) ((Math.random() * (randomChars.size() - 1)) + 1)) + ((int) (Math.random() * (9)));
+
+        password = arg2SpringSecurity.encode(password);
 
         List<Role> roles = new ArrayList<>();
 
@@ -209,13 +211,22 @@ public class UserController {
 
     @MutationMapping
     public User changePassword(@Argument UUID userid, @Argument String oldPassword, @Argument String newPassword) {
+        newPassword = arg2SpringSecurity.encode(newPassword);
         User user = userRepo.findById(userid).get();
-        if (user.getPassword().equals(oldPassword) && !oldPassword.equals(newPassword)) {
+        if (arg2SpringSecurity.matches(oldPassword, user.getPassword()) && !oldPassword.equals(newPassword) && !newPassword.isEmpty()) {
             user.setPassword(newPassword);
             userRepo.save(user);
             return user;
         }
         return null;
+    }
+
+    @MutationMapping
+    public User resetPassword(@Argument UUID userid, @Argument String newPassword) {
+        User user = userRepo.findById(userid).get();
+        user.setPassword(arg2SpringSecurity.encode(newPassword));
+        userRepo.save(user);
+        return user;
     }
 
     @SchemaMapping
@@ -228,4 +239,6 @@ public class UserController {
 
     @SchemaMapping
     public Location location(User user) { return user.getLocation(); }
+
+
 }

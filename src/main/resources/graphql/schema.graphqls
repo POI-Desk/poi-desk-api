@@ -75,7 +75,7 @@ type Mutation{
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
-    addUser(username: String!, isExtended: Boolean!, isAdmin: Boolean!, isSuperAdmin: Boolean!): User
+    addUser(username: String!, isExtended: Boolean!, isAdmin: Boolean!, isSuperAdmin: Boolean!, password: String!): User
     addTeam(name: String!, memberids: [ID!]!, leaderid: ID!): Team
     setAdminLocation(userid: ID!, locationid: ID!): Location
     removeAdminLocation(userid: ID!): User
@@ -84,6 +84,7 @@ type Mutation{
     removeMembersOfTeam(teamid: ID!, userids: [ID!]!): User
     addMemberToTeam(teamid: ID!, userids: [ID!]!): User
     changePassword(userid: ID!, oldPassword: String, newPassword: String): User
+    resetPassword(userid: ID!, newPassword: String): User
 }
 
 type Team{
