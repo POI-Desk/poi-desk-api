@@ -41,6 +41,7 @@ type Query{
     getExtendedUsers: [User]
     getAdminUsers: [User]
     getAdminsOfLocation(locationid: ID!): [User]
+    getMembersOfTeam(teamid: ID!): [User]
 }
 
 type Mutation{
@@ -79,6 +80,9 @@ type Mutation{
     setAdminLocation(userid: ID!, locationid: ID!): Location
     removeAdminLocation(userid: ID!): User
     deleteTeam(teamid: ID!): Team
+    changeNameOfTeam(teamid: ID!, newName: String): Team
+    removeMembersOfTeam(teamid: ID!, userids: [ID!]!): User
+    addMemberToTeam(teamid: ID!, userids: [ID!]!): User
 }
 
 type Team{

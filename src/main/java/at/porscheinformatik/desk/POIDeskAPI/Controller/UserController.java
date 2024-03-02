@@ -207,13 +207,7 @@ public class UserController {
         return user;
     }
 
-//    public User createUser(String username) {
-//        User user = new User();
-//        user.setUsername(username);
-//        user.setRoles(roleRepo.findByRolename("Standard"));
-//        userRepo.save(user);
-//        return user;
-//    }
+
 
     @SchemaMapping
     public List<Role> roles(User user) {

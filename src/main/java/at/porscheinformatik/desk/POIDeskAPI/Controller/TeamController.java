@@ -25,6 +25,12 @@ public class TeamController {
     @QueryMapping
     public List<Team> getAllTeams() { return (List<Team>)teamRepo.findAll(); }
 
+    @QueryMapping
+    public List<User> getMembersOfTeam(@Argument UUID teamid) {
+        Team team = teamRepo.findById(teamid).get();
+        return team.getTeammembers();
+    }
+
     @MutationMapping
     public Team addTeam(@Argument String name, @Argument List<UUID> memberids, @Argument UUID leaderid) {
         Team team = new Team();
@@ -44,9 +50,35 @@ public class TeamController {
         return team;
     }
 
+    @MutationMapping
+    public Team changeNameOfTeam(@Argument UUID teamid, @Argument String newName) {
+        Team team = teamRepo.findById(teamid).get();
+        team.setTeamname(newName);
+        teamRepo.save(team);
+        return team;
+    }
 
-    // 04ac4bcc-6ae0-4f81-8bea-2a0f4289e267
-    // fb5b8832-bf20-4de8-aa37-e82579df8f2c
-    // 5e928dcc-a8e8-4b61-8b83-f6d26e78ab6a
+    @MutationMapping
+    public User removeMembersOfTeam(@Argument UUID teamid, @Argument List<UUID> userids) {
+        Team team = teamRepo.findById(teamid).get();
+        List<User> membersToRemove = userids.stream().map((i) -> userRepo.findById(i).get()).toList();
+        List<User> members = team.getTeammembers();
+        members.removeAll(membersToRemove);
+        team.setTeammembers(members);
+        teamRepo.save(team);
+        return new User();
+    }
+
+    @MutationMapping
+    public List<User> addMemberToTeam(@Argument UUID teamid, @Argument List<UUID> userids) {
+        Team team = teamRepo.findById(teamid).get();
+        List<User> newMembers = userids.stream()
+                .map((u) -> userRepo.findById(u).get()).toList();
+        List<User> members = team.getTeammembers();
+        members.addAll(newMembers);
+        team.setTeammembers(members);
+        teamRepo.save(team);
+        return newMembers;
+    }
 
 }
