@@ -42,12 +42,15 @@ CREATE TABLE Floors
 -- changeset liquibase:5
 CREATE TABLE Users
 (
-    pk_userId     UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
-    username      VARCHAR(255) NOT NULL,
-    createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fk_locationId UUID,
-    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId) on delete set null
+    pk_userId          UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    username           VARCHAR(255) NOT NULL,
+    password           VARCHAR(255),
+    createdOn          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn          TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_locationId      UUID,
+    fk_locationAdminId UUID,
+    FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId) on delete set null,
+    FOREIGN KEY (fk_locationAdminId) REFERENCES Locations (pk_locationId) on delete set null
 );
 
 -- changeset liquibase:6
@@ -63,12 +66,12 @@ CREATE TABLE Roles_Users
 -- changeset liquibase:7
 CREATE TABLE Maps
 (
-    pk_mapId    UUID PRIMARY KEY    DEFAULT gen_random_uuid(),
-    width       INT NOT NULL,
-    height      INT NOT NULL,
-    createdOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-    updatedOn   TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-    fk_floorId  UUID,
+    pk_mapId   UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
+    width      INT       NOT NULL,
+    height     INT       NOT NULL,
+    createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_floorId UUID,
     FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId) on delete cascade
 );
 
@@ -85,7 +88,7 @@ CREATE TABLE Desks
     fk_floorId UUID,
     fk_mapId   UUID,
     FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId) on delete cascade,
-    FOREIGN KEY (fk_mapId)   REFERENCES Maps   (pk_mapId) on delete cascade
+    FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId) on delete cascade
 );
 
 -- changeset liquibase:9
@@ -135,10 +138,10 @@ CREATE TABLE Rooms
     updatedOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId  UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
 
 -- changeset liquibase:13
-CREATE TYPE interiorType AS ENUM ('Couch', 'Aquarium')
+CREATE TYPE interiorType AS ENUM ('Couch', 'Aquarium');
 
 -- changeset liquibase:14
 CREATE TABLE Interiors
@@ -154,7 +157,7 @@ CREATE TABLE Interiors
     updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId      UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
 
 -- changeset liquibase:15
 CREATE TABLE Labels
@@ -168,7 +171,7 @@ CREATE TABLE Labels
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId   UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
 -- changeset liquibase:16
 create table DailyBookings
 (
@@ -305,4 +308,25 @@ CREATE TABLE Doors
     updatedOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId  UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
+);
+
+--changeset liquibase:23
+CREATE TABLE Teams
+(
+    pk_teamId       UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
+    teamName        VARCHAR(255) NOT NULL,
+    createdOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_teamLeaderId UUID,
+    FOREIGN KEY (fk_teamLeaderId) REFERENCES Users (pk_userId)
+);
+
+--changeset liquibase:24
+CREATE TABLE Users_Teams
+(
+    pk_fk_userId UUID,
+    pk_fk_teamId UUID,
+    PRIMARY KEY (pk_fk_teamId, pk_fk_userId),
+    FOREIGN KEY (pk_fk_userId) REFERENCES Users (pk_userId),
+    FOREIGN KEY (pk_fk_teamId) REFERENCES Teams (pk_teamId)
 );

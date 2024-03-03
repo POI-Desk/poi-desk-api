@@ -35,6 +35,9 @@ public class Location {
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<User> users;
 
+    @OneToMany(mappedBy = "adminLocation", fetch = FetchType.LAZY)
+    private List<User> admins;
+
     @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
     private List<Building> buildings;
 

@@ -37,6 +37,11 @@ type Query{
     getYearlyBookingByFloor(year: String!, floor: ID!): YearlyBooking
     getAllYears: [String!]
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
+    getAllTeams: [Team]
+    getExtendedUsers: [User]
+    getAdminUsers: [User]
+    getAdminsOfLocation(locationid: ID!): [User]
+    getMembersOfTeam(teamid: ID!): [User]
 }
 
 type Mutation{
@@ -44,7 +49,7 @@ type Mutation{
     bookDesk(booking: Bookinginput!): Booking
     deleteBooking(bookingId: ID!): ID
     setdefaultLocation(userid: ID!, locationid: ID!): Boolean
-    createOrLoginAsUser(username: String!): User
+    createOrLoginAsUser(username: String!, password: String!): User
     addDesksToFloor(floorId: ID!, mapId: ID!, desks: [DeskInput!]!): [Desk!]
     addLocation(name: String!): Location
     deleteLocation(id: ID): Location
@@ -70,6 +75,24 @@ type Mutation{
     updateMap(mapId: ID!, mapInput: MapInput!): Map
     deleteMap(mapId: ID!): Boolean
     getBookingsByDate(date: String!): [Booking]
+    addUser(username: String!, isExtended: Boolean!, isAdmin: Boolean!, isSuperAdmin: Boolean!, password: String!): User
+    addTeam(name: String!, memberids: [ID!]!, leaderid: ID!): Team
+    setAdminLocation(userid: ID!, locationid: ID!): Location
+    removeAdminLocation(userid: ID!): User
+    deleteTeam(teamid: ID!): Team
+    changeNameOfTeam(teamid: ID!, newName: String): Team
+    removeMembersOfTeam(teamid: ID!, userids: [ID!]!): User
+    addMemberToTeam(teamid: ID!, userids: [ID!]!): User
+    changePassword(userid: ID!, oldPassword: String, newPassword: String): User
+    resetPassword(userid: ID!, newPassword: String): User
+}
+
+type Team{
+    pk_teamid: ID!
+    teamname: String!
+    createdon: String!
+    updatedon: String!
+    teammembers: [User]
 }
 
 type Attribute{
@@ -244,6 +267,7 @@ type Location{
     createdon: String!
     updatedon: String!
     users: [User!]
+    admins: [User]
     buildings: [Building!]
     dailyBookings: [DailyBooking!]
     monthlyBookings: [MonthlyBooking!]
