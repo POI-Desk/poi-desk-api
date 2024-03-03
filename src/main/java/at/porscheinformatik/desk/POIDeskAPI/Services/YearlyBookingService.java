@@ -70,6 +70,10 @@ public class YearlyBookingService {
     @Async
     public CompletableFuture<YearlyBookingPrediction[]> getYearlyBookingPrediction(UUID IdentifierId, IdentifierType identifier){
         List<YearlyBooking> yearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
+        if(yearlyBookings.isEmpty())
+        {
+            return CompletableFuture.completedFuture(null);
+        }
         List<YearlyBooking> selectedYearlyBookings;
         switch (identifier){
             case Location -> {
@@ -98,13 +102,17 @@ public class YearlyBookingService {
             }
             default -> throw new IllegalArgumentException("False identifiere");
         }
+        if(selectedYearlyBookings.isEmpty())
+        {
+            return CompletableFuture.completedFuture(null);
+        }
         int bookingSize = selectedYearlyBookings.size();
         YearlyBookingPrediction[] convertedBookings = new YearlyBookingPrediction[bookingSize+1];
         for (int i = 0; i < selectedYearlyBookings.size(); i++) {
             YearlyBooking sourceBooking = selectedYearlyBookings.get(i);
             YearlyBookingPrediction convertedBooking = new YearlyBookingPrediction();
             convertedBooking.setYear(sourceBooking.getYear());
-            convertedBooking.setTotalBookings(sourceBooking.getTotal());
+            convertedBooking.setTotal(sourceBooking.getTotal());
             convertedBooking.setMorning_highestBooking((double) sourceBooking.getMorning_highestBooking().getMorning());
             convertedBooking.setMorningAverageBooking(sourceBooking.getMorningAverageBooking());
             convertedBooking.setMorning_lowestBooking((double) sourceBooking.getMorning_lowestBooking().getMorning());
@@ -113,7 +121,7 @@ public class YearlyBookingService {
             convertedBooking.setAfternoon_lowestBooking((double) sourceBooking.getAfternoon_lowestBooking().getAfternoon());
             convertedBookings[i] = convertedBooking;
         }
-        if(bookingSize < 2)
+        if(bookingSize == 1)
         {
             return CompletableFuture.completedFuture((YearlyBookingPrediction[]) Arrays.stream(convertedBookings).toArray());
         } else if (bookingSize <= 13) {
@@ -129,7 +137,7 @@ public class YearlyBookingService {
     private YearlyBookingPrediction perdictionResultUnder13(YearlyBookingPrediction[] yearlyBookingPredictions){
         YearlyBookingPrediction prediction = new YearlyBookingPrediction();
         prediction.setYear(yearlyBookingPredictions[yearlyBookingPredictions.length].getYear()+1);
-        prediction.setTotalBookings(predictNextValue((List<Double>) Arrays.stream(yearlyBookingPredictions).mapToDouble(YearlyBookingPrediction::getTotalBookings)).intValue());
+        prediction.setTotal(predictNextValue((List<Double>) Arrays.stream(yearlyBookingPredictions).mapToDouble(YearlyBookingPrediction::getTotal)).intValue());
         prediction.setMorning_highestBooking(predictNextValue(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorning_highestBooking).toList()));
         prediction.setMorningAverageBooking(predictNextValue(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorningAverageBooking).toList()));
         prediction.setMorning_lowestBooking(predictNextValue(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorning_lowestBooking).toList()));
@@ -142,7 +150,7 @@ public class YearlyBookingService {
     private YearlyBookingPrediction perdictionResultOver13(YearlyBookingPrediction[] yearlyBookingPredictions){
         YearlyBookingPrediction prediction = new YearlyBookingPrediction();
         prediction.setYear(yearlyBookingPredictions[yearlyBookingPredictions.length].getYear()+1);
-        prediction.setTotalBookings(calculateDiffernce((List<Double>) Arrays.stream(yearlyBookingPredictions).mapToDouble(YearlyBookingPrediction::getTotalBookings)).intValue());
+        prediction.setTotal(calculateDiffernce((List<Double>) Arrays.stream(yearlyBookingPredictions).mapToDouble(YearlyBookingPrediction::getTotal)).intValue());
         prediction.setMorning_highestBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorning_highestBooking).toList()));
         prediction.setMorningAverageBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorningAverageBooking).toList()));
         prediction.setMorning_lowestBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorning_lowestBooking).toList()));

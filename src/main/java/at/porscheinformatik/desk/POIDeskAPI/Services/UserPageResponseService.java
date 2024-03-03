@@ -2,6 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import java.util.List;
 
+
 public class UserPageResponseService<T> {
 
         private List<T> content;

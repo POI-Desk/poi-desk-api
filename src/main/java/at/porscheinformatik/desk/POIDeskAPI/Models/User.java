@@ -60,4 +60,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserAnalytic> userAnalytics;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Desk> desks;
 }

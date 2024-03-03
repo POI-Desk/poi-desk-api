@@ -69,26 +69,28 @@ CREATE TABLE Maps
     pk_mapId   UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
     width      INT       NOT NULL,
     height     INT       NOT NULL,
+    published  BOOLEAN   NOT NULL DEFAULT FALSE,
+    name       TEXT      NOT NULL,
     createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_floorId UUID,
-    FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId) on delete cascade
+    FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId)
 );
 
 -- changeset liquibase:8
 CREATE TABLE Desks
 (
-    pk_deskId  UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
-    deskNum    VARCHAR   NOT NULL,
-    x          INT       NOT NULL,
-    y          INT       NOT NULL,
-    rotation   INT       NOT NULL,
-    createdOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    fk_floorId UUID,
-    fk_mapId   UUID,
-    FOREIGN KEY (fk_floorId) REFERENCES Floors (pk_floorId) on delete cascade,
-    FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId) on delete cascade
+    pk_deskId UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
+    deskNum   VARCHAR   NOT NULL,
+    x         INT       NOT NULL,
+    y         INT       NOT NULL,
+    rotation  INT       NOT NULL,
+    createdOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fk_mapId  UUID,
+    fk_userId UUID,
+    FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId),
+    FOREIGN KEY (fk_userId) REFERENCES Users (pk_userId) ON DELETE SET NULL
 );
 
 -- changeset liquibase:9
@@ -163,6 +165,7 @@ CREATE TABLE Interiors
 CREATE TABLE Labels
 (
     pk_labelId UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
+    text       VARCHAR,
     x          INT       NOT NULL,
     y          INT       NOT NULL,
     rotation   INT       NOT NULL,
@@ -171,7 +174,8 @@ CREATE TABLE Labels
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId   UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-);
+)
+
 -- changeset liquibase:16
 create table DailyBookings
 (

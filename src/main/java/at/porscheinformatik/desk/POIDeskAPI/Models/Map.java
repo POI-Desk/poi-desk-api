@@ -18,10 +18,12 @@ public class Map {
 
     public Map (){}
 
-    public Map (int width, int height, Floor floor)
+    public Map (int width, int height, String name, Floor floor)
     {
         this.width = width;
         this.height = height;
+        this.published = false;
+        this.name = name;
         this.floor = floor;
     }
 
@@ -36,6 +38,12 @@ public class Map {
     @Column(name="height", nullable = false)
     private int height;
 
+    @Column(name="published", nullable = false)
+    private boolean published;
+
+    @Column(name="name", nullable = false)
+    private String name;
+
     @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
@@ -44,31 +52,33 @@ public class Map {
     @UpdateTimestamp
     private LocalDateTime updatedOn;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Room> rooms;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Desk> desks;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Label> labels;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Interior> interiors;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Door> doors;
 
-    @OneToMany(mappedBy = "map", fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "map", fetch = FetchType.LAZY)
     private List<Wall> walls;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_floorid")
     private Floor floor;
 
-    public void updateProps(int width, int height, Floor floor){
+    public void updateProps(int width, int height, boolean published, String name, Floor floor){
         this.width = width;
         this.height = height;
+        this.published = published;
+        this.name = name;
         this.floor = floor;
     }
 

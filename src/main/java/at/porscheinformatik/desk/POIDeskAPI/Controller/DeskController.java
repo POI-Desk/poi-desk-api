@@ -46,37 +46,18 @@ public class DeskController {
     }
 
     /**
-     * Finds all desks on the floor with the specified id
-     * @param floorid UUID, search for desks here
-     * @return List of Desks on Floor
+     * Finds all desks on the map with the specified id
+     * @param mapId UUID, search for desks here
+     * @return List of desks on map
      */
     @QueryMapping
-    public List<Desk> getDesksOnFloor(@Argument UUID floorid) {
-        return deskRepo.findByFloor(floorRepo.findById(floorid).get());
+    public List<Desk> getDesksOnMap(@Argument UUID mapId) throws ExecutionException, InterruptedException {
+        return deskService.getDesksOnMap(mapId).get();
     }
 
     @QueryMapping
     public Desk getDeskById(@Argument UUID deskId) throws ExecutionException, InterruptedException {
         return deskService.getDeskById(deskId).get();
-    }
-
-    @MutationMapping
-    public List<Desk> addDesksToFloor(@Argument UUID floorId, @Argument UUID mapId, @Argument List<DeskInput> desks) throws InvalidRelationIdException {
-        List<Desk> newDesks = new ArrayList<>();
-        Optional<Floor> o_floor = floorRepo.findById(floorId);
-        if (o_floor.isEmpty())
-            throw new InvalidRelationIdException("floor id does not exist");
-
-        Optional<Map> o_map = mapRepo.findById(mapId);
-        if (o_map.isEmpty())
-            throw new InvalidRelationIdException("map id does not exist");
-
-        desks.forEach(s -> {
-            newDesks.add(new Desk(s.desknum(), s.x(), s.y(), o_floor.get(), o_map.get()));
-        });
-        deskRepo.saveAll(newDesks);
-
-        return newDesks;
     }
 
     @MutationMapping
@@ -89,10 +70,18 @@ public class DeskController {
         return deskService.deleteDesks(deskIds).get();
     }
 
+    @MutationMapping
+    public Desk assignUserToDesk(@Argument UUID deskId, @Argument UUID userId) throws ExecutionException, InterruptedException {
+        return deskService.assignUserToDesk(deskId, userId).get();
+    }
+
     @SchemaMapping
-    public List<Booking> bookings(Desk desk) {return desk.getBookings();}
+    public List<Booking> bookings(Desk desk) { return desk.getBookings(); }
 
     @SchemaMapping
     public Map map(Desk desk) { return desk.getMap(); }
+
+    @SchemaMapping
+    public User user(Desk desk) { return desk.getUser(); }
 
 }

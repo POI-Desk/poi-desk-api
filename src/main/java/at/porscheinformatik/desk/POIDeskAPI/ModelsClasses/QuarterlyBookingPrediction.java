@@ -9,7 +9,7 @@ import lombok.Setter;
 public class QuarterlyBookingPrediction {
     private String year;
     private Integer quarter;
-    private Integer totalBookings;
+    private Integer total;
     private Double morning_highestBooking;
     private Double morningAverageBooking;
     private Double morning_lowestBooking;

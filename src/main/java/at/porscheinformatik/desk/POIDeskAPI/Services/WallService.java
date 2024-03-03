@@ -95,4 +95,11 @@ public class WallService {
         List<UUID> wallIds = wallRepo.findAllByMap(map).stream().map(Wall::getPk_wallId).toList();
         return deleteWalls(wallIds);
     }
+
+    @Async
+    public CompletableFuture<List<Wall>> copyWallsToMap(List<Wall> walls, Map map){
+        List<Wall> newWalls = walls.stream().map(w -> new Wall(w.getX(), w.getY(), w.getRotation(), w.getWidth(), map)).toList();
+        wallRepo.saveAll(newWalls);
+        return CompletableFuture.completedFuture(newWalls);
+    }
 }

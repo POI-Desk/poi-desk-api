@@ -5,6 +5,7 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
+import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.BookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.EditBookingInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.User;
@@ -121,6 +122,19 @@ public class BookingController {
         if (!canBook) return null;
 
         Booking newBooking = new Booking(booking);
+
+        Desk desk = deskRepo.findById(booking.deskid()).get();
+
+        // Check if the desk is permanently used
+        if (desk.getUser() != null)
+            return null;
+
+        User user = userRepo.findById(booking.userid()).get();
+
+        if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2))){
+            return null;
+        }
+
         String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
         String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
         String deskNum = deskRepo.findById(booking.deskid()).get().getDesknum();
@@ -128,15 +142,15 @@ public class BookingController {
 
         newBooking.setBookingnumber(bookingNumber);
         newBooking.setUser(user);
-        newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
+        newBooking.setDesk(desk);
         bookingRepo.save(newBooking);
 
         return newBooking;
     }
 
     @MutationMapping
-    public UUID deleteBooking(@Argument UUID bookingId) {
-        return bookingService.deleteBooking(bookingId);
+    public boolean deleteBooking(@Argument UUID bookingId) throws ExecutionException, InterruptedException {
+        return bookingService.deleteBookingById(bookingId).get();
     }
 
     @MutationMapping
