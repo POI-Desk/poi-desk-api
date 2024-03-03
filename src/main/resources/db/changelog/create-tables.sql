@@ -305,4 +305,4 @@ CREATE TABLE Doors
     updatedOn TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId  UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
