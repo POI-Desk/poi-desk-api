@@ -101,7 +101,7 @@ public class BookingService {
         List<Booking> bookings = bookingRepo.findBookingByDeskMap(from);
         for (Booking b:
              bookings) {
-            Optional<Desk> o_desk = to.getDesks().stream().filter(d -> Objects.equals(d.getDesknum(), b.getDesk().getDesknum()) && b.getDesk().getUser() != null).findFirst();
+            Optional<Desk> o_desk = to.getDesks().stream().filter(d -> Objects.equals(d.getDesknum(), b.getDesk().getDesknum()) && d.getUser() == null).findFirst();
             if (o_desk.isEmpty()){
                 continue;
             }
