@@ -2,7 +2,6 @@ package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BuildingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.FloorRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Building;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import at.porscheinformatik.desk.POIDeskAPI.Services.FloorService;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Controller;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 
 @Controller
 public class FloorController {
@@ -55,7 +55,7 @@ public class FloorController {
     }
 
     @QueryMapping
-    public Map getMapByFloor(@Argument UUID floorId){
+    public Map getMapByFloor(@Argument UUID floorId) throws ExecutionException, InterruptedException {
         return floorService.getMapByFloor(floorId);
     }
 

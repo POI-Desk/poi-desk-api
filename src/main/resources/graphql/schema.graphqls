@@ -21,6 +21,7 @@ type Query{
     getYearlyBookings: [YearlyBooking!]
     getPublishedMapOnFloor(floorId: ID!): Map
     getMapById(mapId: ID!): Map
+    getMapByFloor(floorId: ID!): Map
     getDeskById(deskId: ID!): Desk
     getDailyBookings: [DailyBooking!]
     getMonthlyBookingByLocation(year: String!, month: String!, location: ID!): MonthlyBooking
