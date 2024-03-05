@@ -95,6 +95,10 @@ type Mutation{
     addMemberToTeam(teamid: ID!, userids: [ID!]!): User
     changePassword(userid: ID!, oldPassword: String, newPassword: String): User
     resetPassword(userid: ID!, newPassword: String): User
+    publishMap(mapId: ID!, force: Boolean!): Boolean!
+    deleteLabels(labelIds: [ID!]!): [Label!]
+    assignUserToDesk(deskId: ID!, userId: ID!): Desk
+    createMapSnapshotOfFloor(floorId: ID!, name: String!, fallback: MapInput): Map
 }
 
 type Team{
@@ -103,10 +107,6 @@ type Team{
     createdon: String!
     updatedon: String!
     teammembers: [User]
-    deleteLabels(labelIds: [ID!]!): [Label!]
-    assignUserToDesk(deskId: ID!, userId: ID!): Desk
-    publishMap(mapId: ID!, force: Boolean!): Boolean!
-    createMapSnapshotOfFloor(floorId: ID!, name: String!, fallback: MapInput): Map
 }
 
 type Attribute{
