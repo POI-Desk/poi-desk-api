@@ -129,8 +129,6 @@ public class BookingController {
         if (desk.getUser() != null)
             return null;
 
-        User user = userRepo.findById(booking.userid()).get();
-
         if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2))){
             return null;
         }
