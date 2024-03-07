@@ -79,7 +79,12 @@ public class BookingController {
     }
 
     @QueryMapping
-    public List<Booking> getBookingsByUserid(@Argument UUID userid, @Argument boolean isCurrent) {
+    public List<Booking> getBookingsByUserId(@Argument UUID userid) {
+        return bookingRepo.findBookingsByUser(userRepo.findById(userid).get());
+    }
+
+    @QueryMapping
+    public List<Booking> getBookingsByUserAndCurrent(@Argument UUID userid, @Argument boolean isCurrent) {
         List<Booking> bookings = isCurrent ?
                 bookingRepo.findBookingsByUserAndDateAfter(userRepo.findById(userid).get(), LocalDate.now().minusDays(1)) :
                 bookingRepo.findBookingsByUserAndDateBefore(userRepo.findById(userid).get(), LocalDate.now());
