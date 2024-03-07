@@ -59,8 +59,8 @@ CREATE TABLE Roles_Users
     pk_fk_roleId UUID,
     pk_fk_userId UUID,
     PRIMARY KEY (pk_fk_roleId, pk_fk_userId),
-    FOREIGN KEY (pk_fk_roleId) REFERENCES Roles (pk_roleId),
-    FOREIGN KEY (pk_fk_userId) REFERENCES Users (pk_userId)
+    FOREIGN KEY (pk_fk_roleId) REFERENCES Roles (pk_roleId) ON DELETE CASCADE,
+    FOREIGN KEY (pk_fk_userId) REFERENCES Users (pk_userId) ON DELETE CASCADE
 );
 
 -- changeset liquibase:7
