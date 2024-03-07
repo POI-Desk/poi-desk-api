@@ -96,12 +96,6 @@ public class UserController {
         else return u.get().getLocation() != null;
     }
 
-    @QueryMapping
-    public List<User> getUsersInTeam() {
-        // TODO implement team functionality
-        return (List<User>) userRepo.findAll();
-    }
-
     /**
      * get all users with role Extended
      * @return list of extended users

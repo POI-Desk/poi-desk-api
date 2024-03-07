@@ -1,6 +1,5 @@
 type Query{
     getAllUsers(input: String, pageNumber: Int, pageSize: Int): UserPageResponse!
-    getUsersInTeam: [User]
     getUserById(id: ID): User
     getRolesOfUser(id: ID): [Role!]
     allBookings: [Booking!]
@@ -40,6 +39,7 @@ type Query{
     getAllYears: [String!]
     getBookingsByDateBetween(startDate: String, endDate: String): [Booking!]
     getAllTeams: [Team]
+    getTeamsOfLeader(userid: ID!): [Team]
     getExtendedUsers: [User]
     getAdminUsers: [User]
     getAdminsOfLocation(locationid: ID!): [User]
@@ -106,7 +106,8 @@ type Team{
     teamname: String!
     createdon: String!
     updatedon: String!
-    teammembers: [User]
+    teamleader: User!
+    teammembers: [User!]!
 }
 
 type Attribute{

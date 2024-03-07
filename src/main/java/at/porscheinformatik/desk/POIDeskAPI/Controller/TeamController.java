@@ -31,6 +31,11 @@ public class TeamController {
         return team.getTeammembers();
     }
 
+    @QueryMapping
+    public List<Team> getTeamsOfLeader(@Argument UUID userid) {
+        return teamRepo.findByTeamleaderIn(List.of(userRepo.findById(userid).get()));
+    }
+
     @MutationMapping
     public Team addTeam(@Argument String name, @Argument List<UUID> memberids, @Argument UUID leaderid) {
         Team team = new Team();
