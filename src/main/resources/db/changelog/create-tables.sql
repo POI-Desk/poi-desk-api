@@ -28,6 +28,7 @@ CREATE TABLE Buildings
     fk_locationId UUID,
     FOREIGN KEY (fk_locationId) REFERENCES Locations (pk_locationId) on delete cascade
 );
+
 -- changeset liquibase:4
 CREATE TABLE Floors
 (
@@ -143,9 +144,12 @@ CREATE TABLE Rooms
 );
 
 -- changeset liquibase:13
-CREATE TYPE interiorType AS ENUM ('Couch', 'Aquarium');
+DROP TYPE IF EXISTS interiorType;
 
 -- changeset liquibase:14
+CREATE TYPE interiorType AS ENUM ('');
+
+-- changeset liquibase:15
 CREATE TABLE Interiors
 (
     pk_interiorId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
@@ -161,7 +165,7 @@ CREATE TABLE Interiors
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
 );
 
--- changeset liquibase:15
+-- changeset liquibase:16
 CREATE TABLE Labels
 (
     pk_labelId UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
@@ -174,9 +178,9 @@ CREATE TABLE Labels
     updatedOn  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fk_mapId   UUID,
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
-)
+);
 
--- changeset liquibase:16
+-- changeset liquibase:17
 create table DailyBookings
 (
     pk_dailyBookingId   uuid PRIMARY KEY   DEFAULT gen_random_uuid(),
@@ -195,7 +199,7 @@ create table DailyBookings
     Foreign Key (fk_floor) REFERENCES floors (pk_floorid) ON DELETE CASCADE
 );
 
--- changeset liquibase:17
+-- changeset liquibase:18
 create table YearlyBookings
 (
     pk_yearlyBookingId       uuid PRIMARY KEY          DEFAULT gen_random_uuid(),
@@ -222,7 +226,7 @@ create table YearlyBookings
     Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
     Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE
 );
--- changeset liquibase:18
+-- changeset liquibase:19
 create table QuarterlyBookings
 (
     pk_quarterlyBookingId    UUID PRIMARY KEY          DEFAULT gen_random_uuid(),
@@ -252,7 +256,8 @@ create table QuarterlyBookings
     Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
     Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE
 );
--- changeset liquibase:19
+
+-- changeset liquibase:20
 create table MonthlyBookings
 (
     pk_monthlyBookingId      UUID PRIMARY KEY          DEFAULT gen_random_uuid(),
@@ -282,11 +287,11 @@ create table MonthlyBookings
     Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE
 );
 
--- changeset liquibase:20
+-- changeset liquibase:21
 ALTER TABLE DailyBookings
     ADD CONSTRAINT fk_MonthlyBookingId FOREIGN KEY (fk_monthlyBookingId) REFERENCES MonthlyBookings (pk_monthlyBookingId) ON DELETE CASCADE;
 
---changeset liquibase:21
+--changeset liquibase:22
 CREATE TABLE Walls
 (
     pk_wallId UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
@@ -300,7 +305,7 @@ CREATE TABLE Walls
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
 );
 
---changeset liquibase:22
+--changeset liquibase:23
 CREATE TABLE Doors
 (
     pk_doorId UUID PRIMARY KEY   DEFAULT gen_random_uuid(),
@@ -314,7 +319,7 @@ CREATE TABLE Doors
     FOREIGN KEY (fk_mapId) REFERENCES Maps (pk_mapId)
 );
 
---changeset liquibase:23
+--changeset liquibase:24
 CREATE TABLE Teams
 (
     pk_teamId       UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
@@ -325,7 +330,7 @@ CREATE TABLE Teams
     FOREIGN KEY (fk_teamLeaderId) REFERENCES Users (pk_userId)
 );
 
---changeset liquibase:24
+--changeset liquibase:25
 CREATE TABLE Users_Teams
 (
     pk_fk_userId UUID,
