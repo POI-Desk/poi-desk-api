@@ -14,19 +14,17 @@ VALUES ('Salzburg'),
        ('Hagenberg');
 
 -- changeset liquibase:3
-INSERT INTO Users (username, fk_locationId)
-VALUES ('Alina', (SELECT pk_locationId FROM Locations WHERE locationName = 'Salzburg')),
-       ('Markus', (SELECT pk_locationId FROM Locations WHERE locationName = 'Wien')),
-       ('Jupp', (SELECT pk_locationId FROM Locations WHERE locationName = 'Hagenberg'));
+INSERT INTO Users (username, password)
+VALUES ('admin', '$argon2id$v=19$m=16384,t=2,p=1$AkRjz6sebXLjD6+dtf6rRw$nMiqJ9CTpHHV2DB8n7kEcQD91Iif66IwmlzT018BIX8');
 
 -- changeset liquibase:4
 INSERT INTO Roles_Users (pk_fk_roleId, pk_fk_userId)
 VALUES ((SELECT pk_roleId FROM Roles WHERE roleName = 'Standard'),
-        (SELECT pk_userId FROM Users WHERE username = 'Alina')),
+        (SELECT pk_userId FROM Users WHERE username = 'admin')),
        ((SELECT pk_roleId FROM Roles WHERE roleName = 'Admin'),
-        (SELECT pk_userId FROM Users WHERE username = 'Markus')),
+        (SELECT pk_userId FROM Users WHERE username = 'admin')),
        ((SELECT pk_roleId FROM Roles WHERE roleName = 'Super Admin'),
-        (SELECT pk_userId FROM Users WHERE username = 'Jupp'));
+        (SELECT pk_userId FROM Users WHERE username = 'admin'));
 
 -- changeset liquibase:5
 INSERT INTO Buildings (buildingName, fk_locationId)
