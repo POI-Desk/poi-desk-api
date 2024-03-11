@@ -100,6 +100,7 @@ type Mutation{
     deleteLabels(labelIds: [ID!]!): [Label!]
     assignUserToDesk(deskId: ID!, userId: ID!): Desk
     createMapSnapshotOfFloor(floorId: ID!, name: String!, fallback: MapInput): Map
+    deleteUser(userid: ID!): User
 }
 
 type Team{

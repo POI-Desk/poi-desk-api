@@ -200,6 +200,13 @@ public class UserController {
     }
 
     @MutationMapping
+    public User deleteUser(@Argument UUID userid) {
+        User deletedUser = userRepo.findById(userid).get();
+        userRepo.delete(deletedUser);
+        return deletedUser;
+    }
+
+    @MutationMapping
     public Location setAdminLocation(@Argument UUID userid, @Argument UUID locationid) {
         Location location = locationRepo.findById(locationid).get();
         List<User> emptyList = new ArrayList<>();
