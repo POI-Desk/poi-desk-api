@@ -65,6 +65,11 @@ public class MapController {
     }
 
     @QueryMapping
+    public List<Map> getMapSnapshotsByLocationBuildingFloorName(@Argument UUID locationId, @Argument String buildingName, @Argument String floorName) throws ExecutionException, InterruptedException {
+        return mapService.getMapSnapshotsByLocationBuildingFloorName(locationId, buildingName, floorName).get();
+    }
+
+    @QueryMapping
     public Map getMapSnapshotById(@Argument UUID mapId) throws ExecutionException, InterruptedException {
         return mapService.getMapSnapshotById(mapId).get();
     }

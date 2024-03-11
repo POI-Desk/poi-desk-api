@@ -49,6 +49,7 @@ type Query{
     getMapSnapshotById(mapId: ID!): Map
     getUserInformation(jwt: String!): User
     getUsersOnPublishedMapInUsers: [User!]
+    getMapSnapshotsByLocationBuildingFloorName(locationId: ID!, buildingName: String!, floorName: String!): [Map!]!
 }
 
 type Mutation{

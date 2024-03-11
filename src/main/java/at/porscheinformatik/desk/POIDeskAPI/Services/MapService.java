@@ -41,6 +41,9 @@ public class MapService {
     @Lazy
     @Autowired
     private BookingService bookingService;
+    @Lazy
+    @Autowired
+    private LocationService locationService;
 
     public Map createMap (UUID floorId, MapInput mapInput) throws Exception {
         Floor floor = floorService.getFloorById(floorId).get();
@@ -123,6 +126,23 @@ public class MapService {
             return null;
 
         return CompletableFuture.completedFuture(mapRepo.findMapsByFloorAndPublishedFalse(floor));
+    }
+
+    @Async
+    public CompletableFuture<List<Map>> getMapSnapshotsByLocationBuildingFloorName(UUID locationId, String buildingName, String floorName) throws ExecutionException, InterruptedException {
+
+        Location location = locationService.getLocationById(locationId).get();
+        if (location == null){
+            return CompletableFuture.completedFuture(new ArrayList<Map>());
+        }
+
+
+        Optional<List<Map>> o_maps = mapRepo.findMapsByFloorFloornameAndFloorBuildingBuildingnameAndFloorBuildingLocationAndPublishedFalse(floorName, buildingName, location);
+
+        System.out.println(o_maps.isPresent());
+
+        return o_maps.map(CompletableFuture::completedFuture).orElseGet(() -> CompletableFuture.completedFuture(new ArrayList<>()));
+
     }
 
     /**
