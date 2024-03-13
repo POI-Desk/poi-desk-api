@@ -50,6 +50,8 @@ type Query{
     getUserInformation(jwt: String!): User
     getUsersOnPublishedMapInUsers: [User!]
     getMapSnapshotsByLocationBuildingFloorName(locationId: ID!, buildingName: String!, floorName: String!): [Map!]!
+    getPublishedMapByLocationBuildingFloorName(locationId: ID!, buildingName: String!, floorName: String!): Map
+    getBookingsByDateInLocationAndBuildingNameFloorName(date: String!, locationId: ID!, buildingName: String!, floorName: String!): [Booking!]!
 }
 
 type Mutation{

@@ -2,9 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Booking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
+import at.porscheinformatik.desk.POIDeskAPI.Models.*;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +27,12 @@ public class BookingService {
     @Lazy
     @Autowired
     private MapService mapService;
+    @Lazy
     @Autowired
     private DeskRepo deskRepo;
+    @Lazy
+    @Autowired
+    private LocationService locationService;
 
 
     @Async
@@ -72,6 +74,18 @@ public class BookingService {
         List<Booking> bookings = bookingRepo.findBookingsByDateAndDeskMapFloor(date, floor);
         return CompletableFuture.completedFuture(bookings);
     }
+
+    @Async
+    public CompletableFuture<List<Booking>> getBookingsByDateInLocationAndBuildingNameFloorName(LocalDate date, UUID locationId, String floorName, String buildingName) throws ExecutionException, InterruptedException {
+        Location location = locationService.getLocationById(locationId).get();
+        if (location == null)
+            return CompletableFuture.completedFuture(new ArrayList<>());
+
+        Optional<List<Booking>> o_bookings = bookingRepo.findBookingsByDateAndDeskMapFloorBuildingLocationAndDeskMapFloorFloornameAndDeskMapFloorBuildingBuildingname(date, location, floorName, buildingName);
+        return o_bookings.map(CompletableFuture::completedFuture).orElseGet(() -> CompletableFuture.completedFuture(new ArrayList<>()));
+
+    }
+
     @Async
     public CompletableFuture<List<Booking>> getBookingsBetweenDates(LocalDate startDate, LocalDate endDate) {
         Iterable<Booking> i_bookings = bookingRepo.findBookingsByDateBetween(startDate, endDate);

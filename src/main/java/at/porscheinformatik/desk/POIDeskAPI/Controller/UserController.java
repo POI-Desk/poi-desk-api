@@ -42,43 +42,21 @@ import java.util.concurrent.ExecutionException;
 @Controller
 @CrossOrigin(origins = "*")
 public class UserController {
-    /**
-     * The user repository
-     */
     @Autowired
     private UserRepo userRepo;
-
-    /**
-     * The location repository
-     */
     @Autowired
     private LocationRepo locationRepo;
-
-    /**
-     * The role repository
-     */
     @Autowired
     private RoleRepo roleRepo;
-    /**
-     * The account repository
-     */
     @Autowired
     private AccountRepo accountRepo;
-
     @Autowired
     private SessionRepository sessionRepository;
-
     @Autowired
     private HttpServletRequest request;
-
-    /**
-     * The currently logged-in user
-     */
     private User loggedInUser;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private MapService mapService;
 

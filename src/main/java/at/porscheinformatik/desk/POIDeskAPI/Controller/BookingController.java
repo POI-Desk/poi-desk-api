@@ -16,6 +16,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.http.HttpServletRequest;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -76,6 +77,11 @@ public class BookingController {
         return bookingService.getBookingsByDateOnFloor(date, floorId).get();
     }
 
+    // TODO: use input type for location floorName and buildingName (more)
+    @QueryMapping
+    public List<Booking> getBookingsByDateInLocationAndBuildingNameFloorName(@Argument LocalDate date, @Argument UUID locationId, @Argument String floorName, @Argument String buildingName) throws ExecutionException, InterruptedException {
+        return bookingService.getBookingsByDateInLocationAndBuildingNameFloorName(date, locationId, floorName, buildingName).get();
+    }
 
     @QueryMapping
     public List<Booking> getBookingsByDateBetween(@Argument LocalDate startDate, @Argument LocalDate endDate) throws ExecutionException, InterruptedException {

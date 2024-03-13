@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.awt.print.Book;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BookingRepo extends CrudRepository<Booking, UUID> {
@@ -29,4 +30,6 @@ public interface BookingRepo extends CrudRepository<Booking, UUID> {
     List<Booking> findAllByDeskMap(Map map);
 
     List<Booking> findBookingByDeskMap(Map map);
+
+    Optional<List<Booking>> findBookingsByDateAndDeskMapFloorBuildingLocationAndDeskMapFloorFloornameAndDeskMapFloorBuildingBuildingname(LocalDate date, Location location, String floorName, String buildingName);
 }

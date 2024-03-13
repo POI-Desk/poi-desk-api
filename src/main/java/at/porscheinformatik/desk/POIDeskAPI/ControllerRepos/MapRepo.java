@@ -19,6 +19,8 @@ public interface MapRepo extends CrudRepository<Map, UUID> {
 
     Optional<List<Map>> findMapsByFloorFloornameAndFloorBuildingBuildingnameAndFloorBuildingLocationAndPublishedFalse(String floorName, String BuildingName, Location location);
 
+    Optional<Map> findMapByFloorFloornameAndFloorBuildingBuildingnameAndFloorBuildingLocationAndPublishedTrue(String floorName, String BuildingName, Location location);
+
     boolean existsByFloorAndPublishedTrue(Floor floor);
 
 }

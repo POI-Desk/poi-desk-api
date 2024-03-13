@@ -139,9 +139,21 @@ public class MapService {
 
         Optional<List<Map>> o_maps = mapRepo.findMapsByFloorFloornameAndFloorBuildingBuildingnameAndFloorBuildingLocationAndPublishedFalse(floorName, buildingName, location);
 
-        System.out.println(o_maps.isPresent());
-
         return o_maps.map(CompletableFuture::completedFuture).orElseGet(() -> CompletableFuture.completedFuture(new ArrayList<>()));
+
+    }
+
+    @Async
+    public CompletableFuture<Map> getPublishedMapByLocationBuildingFloorName(UUID locationId, String buildingName, String floorName) throws ExecutionException, InterruptedException {
+
+        Location location = locationService.getLocationById(locationId).get();
+        if (location == null){
+            return null;
+        }
+
+        Optional<Map> o_map = mapRepo.findMapByFloorFloornameAndFloorBuildingBuildingnameAndFloorBuildingLocationAndPublishedTrue(floorName, buildingName, location);
+        return o_map.map(CompletableFuture::completedFuture).orElse(null);
+
 
     }
 
