@@ -20,10 +20,12 @@ public class LocationService {
     @Async
     public CompletableFuture<Location> getLocationById(UUID locationId){
         Optional<Location> o_location = locationRepo.findById(locationId);
-        if (o_location.isEmpty()){
-            return null;
-        }
+        return o_location.map(CompletableFuture::completedFuture).orElse(null);
 
-        return CompletableFuture.completedFuture(o_location.get());
+    }
+
+    @Async
+    public CompletableFuture<Location> getLocationByName(String name){
+        return CompletableFuture.completedFuture(locationRepo.findByLocationname(name));
     }
 }

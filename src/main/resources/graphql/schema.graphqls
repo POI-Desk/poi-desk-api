@@ -52,6 +52,7 @@ type Query{
     getMapSnapshotsByLocationBuildingFloorName(locationId: ID!, buildingName: String!, floorName: String!): [Map!]!
     getPublishedMapByLocationBuildingFloorName(locationId: ID!, buildingName: String!, floorName: String!): Map
     getBookingsByDateInLocationAndBuildingNameFloorName(date: String!, locationId: ID!, buildingName: String!, floorName: String!): [Booking!]!
+    getLocationByName(name: String!): Location
 }
 
 type Mutation{

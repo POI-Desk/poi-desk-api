@@ -13,7 +13,7 @@ CREATE TABLE Roles
 CREATE TABLE Locations
 (
     pk_locationId UUID PRIMARY KEY      DEFAULT gen_random_uuid(),
-    locationName  VARCHAR(255) NOT NULL,
+    locationName  VARCHAR(255) NOT NULL UNIQUE,
     createdOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updatedOn     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
