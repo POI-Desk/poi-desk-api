@@ -166,6 +166,8 @@ CREATE TABLE Labels
     text            VARCHAR,
     x               INT NOT NULL,
     y               INT NOT NULL,
+    width           INT NOT NULL,
+    height          INT NOT NULL,
     rotation        INT NOT NULL,
     pt              INT NOT NULL,
     createdOn       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,

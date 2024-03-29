@@ -17,10 +17,12 @@ public class Label {
 
     public Label(){}
 
-    public Label(String text, int x, int y, int rotation, Map map) {
+    public Label(String text, int x, int y, int width, int height, int rotation, Map map) {
         this.text = text;
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
         this.rotation = rotation;
         this.map = map;
     }
@@ -38,6 +40,12 @@ public class Label {
 
     @Column(name="y", nullable = false)
     private int y;
+
+    @Column(name="width", nullable = false)
+    private int width;
+
+    @Column(name="height", nullable = false)
+    private int height;
 
     @Column(name = "rotation", nullable = false)
     private int rotation;
@@ -57,10 +65,12 @@ public class Label {
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
-    public void updateProps(String text, int x, int y, int rotation) {
+    public void updateProps(String text, int x, int y, int width, int height, int rotation) {
         this.text = text;
         this.x = x;
         this.y = y;
+        this.width = width;
+        this. height = height;
         this.rotation = rotation;
     }
 }
