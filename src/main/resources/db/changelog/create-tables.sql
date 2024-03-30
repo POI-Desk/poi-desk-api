@@ -216,10 +216,10 @@ create table YearlyBookings
     FOREIGN KEY (fk_location) REFERENCES locations (pk_locationid) ON DELETE CASCADE,
     Foreign Key (fk_building) REFERENCES buildings (pk_buildingid) ON DELETE CASCADE,
     Foreign Key (fk_floor) REFERENCES floors (pk_floorid) ON DELETE CASCADE,
-    Foreign Key (morning_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (morning_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE
+    Foreign Key (morning_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (morning_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL
 );
 -- changeset liquibase:18
 create table QuarterlyBookings
@@ -246,10 +246,10 @@ create table QuarterlyBookings
     Foreign Key (fk_building) REFERENCES buildings (pk_buildingid) ON DELETE CASCADE,
     Foreign Key (fk_floor) REFERENCES floors (pk_floorid) ON DELETE CASCADE,
     FOREIGN KEY (fk_yearlyBookingId) REFERENCES YearlyBookings (pk_yearlyBookingId) ON DELETE CASCADE,
-    Foreign Key (morning_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (morning_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE
+    Foreign Key (morning_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL ,
+    Foreign Key (morning_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL
 );
 -- changeset liquibase:19
 create table MonthlyBookings
@@ -275,10 +275,10 @@ create table MonthlyBookings
     Foreign Key (fk_building) REFERENCES buildings (pk_buildingid) ON DELETE CASCADE,
     Foreign Key (fk_floor) REFERENCES floors (pk_floorid) ON DELETE CASCADE,
     FOREIGN KEY (fk_quarterlyBookingId) REFERENCES QuarterlyBookings (pk_quarterlyBookingId) ON DELETE CASCADE,
-    Foreign Key (morning_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (morning_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE,
-    Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) ON DELETE CASCADE
+    Foreign Key (morning_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (morning_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (afternoon_highestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL,
+    Foreign Key (afternoon_lowestBooking) REFERENCES DailyBookings (pk_dailyBookingId) On DELETE SET NULL
 );
 
 -- changeset liquibase:20

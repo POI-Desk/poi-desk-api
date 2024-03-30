@@ -5,3 +5,5 @@ databaseChangeLog:
       file: db/changelog/create-functions.sql
   - include:
       file: db/changelog/insert-into-tables.sql
+  #- include:
+  #    file: db/changelog/create-cronjobs.sql

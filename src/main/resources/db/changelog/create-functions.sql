@@ -49,12 +49,7 @@ CREATE OR REPLACE FUNCTION getCurrentQuarter()
 AS
 $$
 BEGIN
-    return CASE
-               WHEN to_char(CURRENT_DATE, 'MM')::Integer BETWEEN 1 AND 3 THEN 1
-               WHEN to_char(CURRENT_DATE, 'MM')::Integer BETWEEN 4 AND 6 THEN 2
-               WHEN to_char(CURRENT_DATE, 'MM')::Integer BETWEEN 7 AND 9 THEN 3
-               WHEN to_char(CURRENT_DATE, 'MM')::Integer BETWEEN 10 AND 12 THEN 4
-        END;
+    return CEIL(EXTRACT(MONTH FROM CURRENT_DATE) / 3);
 END;
 $$
     LANGUAGE plpgsql;
@@ -218,7 +213,8 @@ BEGIN
               and Left(d.day, 7) = m.month)
     FROM DailyBookings d
              JOIN Floors f ON d.fk_floor = f.pk_floorId
-    WHERE d.fk_floor IS NOT NULL
+    WHERE d.fk_floor IS NOT NULL AND
+          d.day = current_date
     GROUP BY f.fk_buildingid, day;
 END;
 $$
@@ -243,7 +239,8 @@ BEGIN
               and Left(d.day, 7) = m.month)
     FROM DailyBookings d
              JOIN Buildings b ON d.fk_building = b.pk_buildingId
-    WHERE d.fk_building IS NOT NULL
+    WHERE d.fk_building IS NOT NULL AND
+          d.day = current_date
     GROUP BY b.fk_locationid, day;
 END;
 $$
@@ -299,7 +296,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:12
-CREATE OR REPLACE FUNCTION createMonthlyAnalysisEntriesForBuilding()
+CREATE OR REPLACE FUNCTION createMonthlyAnalysisEntriesForBuildings()
     RETURNS VOID
 AS
 $$
@@ -349,7 +346,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:13
-CREATE OR REPLACE FUNCTION createMonthlyAnalysisEntriesForLocation()
+CREATE OR REPLACE FUNCTION createMonthlyAnalysisEntriesForLocations()
     RETURNS VOID
 AS
 $$
@@ -455,7 +452,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:15
-CREATE OR REPLACE FUNCTION createQuarterlyAnalysisEntriesForBuilding()
+CREATE OR REPLACE FUNCTION createQuarterlyAnalysisEntriesForBuildings()
     RETURNS VOID
 AS
 $$
@@ -511,7 +508,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:16
-CREATE OR REPLACE FUNCTION createQuarterlyAnalysisEntriesForLocation()
+CREATE OR REPLACE FUNCTION createQuarterlyAnalysisEntriesForLocations()
     RETURNS VOID
 AS
 $$
@@ -620,7 +617,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:18
-CREATE OR REPLACE FUNCTION createYearAnalysisEntriesForBuilding()
+CREATE OR REPLACE FUNCTION createYearlyAnalysisEntriesForBuildings()
     RETURNS VOID
 AS
 $$
@@ -673,7 +670,7 @@ $$
     LANGUAGE plpgsql;
 
 --changeset liquibase:19
-CREATE OR REPLACE FUNCTION createYearAnalysisEntriesForLocation()
+CREATE OR REPLACE FUNCTION createYearlyAnalysisEntriesForLocations()
     RETURNS VOID
 AS
 $$
@@ -721,6 +718,63 @@ BEGIN
         updatedOn                = current_timestamp
     where year = to_char(CURRENT_DATE, 'YYYY')
       and y.fk_location is not null;
+END;
+$$
+    LANGUAGE plpgsql;
+
+--changeset liquibase:20
+CREATE OR REPLACE FUNCTION runDailyAnalysisFunctions()
+    RETURNS void AS
+$$
+BEGIN
+    PERFORM createDailyAnalysisEntriesForFloors();
+
+    PERFORM createDailyAnalysisEntriesForBuildings();
+
+    PERFORM createDailyAnalysisEntriesForLocations();
+END;
+$$
+    LANGUAGE plpgsql;
+
+--changeset liquibase:21
+CREATE OR REPLACE FUNCTION runMonthlyAnalysisFunctions()
+    RETURNS void AS
+$$
+BEGIN
+    PERFORM createMonthlyAnalysisEntriesForFloors();
+
+    PERFORM createMonthlyAnalysisEntriesForBuildings();
+
+    PERFORM createMonthlyAnalysisEntriesForLocations();
+END;
+$$
+    LANGUAGE plpgsql;
+
+--changeset liquibase:22
+CREATE OR REPLACE FUNCTION runQuarterlyAnalysisFunctions()
+    RETURNS void AS
+$$
+BEGIN
+    PERFORM createQuarterlyAnalysisEntriesForFloors();
+
+    PERFORM createQuarterlyAnalysisEntriesForBuildings();
+
+    PERFORM createQuarterlyAnalysisEntriesForLocations();
+END;
+$$
+    LANGUAGE plpgsql
+    PARALLEL UNSAFE ;
+
+--changeset liquibase:22
+CREATE OR REPLACE FUNCTION runYearlyAnalysisFunctions()
+    RETURNS void AS
+$$
+BEGIN
+    PERFORM createYearlyAnalysisEntriesForFloors();
+
+    PERFORM createYearlyAnalysisEntriesForBuildings();
+
+    PERFORM createYearlyAnalysisEntriesForLocations();
 END;
 $$
     LANGUAGE plpgsql;

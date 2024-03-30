@@ -107,11 +107,12 @@ public class QuarterlyBookingService {
         int bookingSize = selectedQuarterlyBookings.size();
         QuarterlyBookingPrediction[] convertedBookings = new QuarterlyBookingPrediction[bookingSize+1];
         for (int i = 0; i < bookingSize; i++) {
-            QuarterlyBookingPrediction convertedBooking = getQuarterlyBookingPrediction(selectedQuarterlyBookings.get(i));
-            convertedBookings[i] = convertedBooking;
+            convertedBookings[i] = getQuarterlyBookingPrediction(selectedQuarterlyBookings.get(i));
         }
         if(bookingSize == 1)
         {
+            convertedBookings[bookingSize] = convertedBookings[bookingSize-1];
+            convertedBookings[bookingSize].setQuarter((convertedBookings[bookingSize].getQuarter() % 4) + 1);
             return CompletableFuture.completedFuture(convertedBookings);
         } else if (bookingSize <= 13) {
             convertedBookings[bookingSize+1] = perdictionResultUnder13(convertedBookings);
@@ -141,8 +142,8 @@ public class QuarterlyBookingService {
     ;
     private QuarterlyBookingPrediction perdictionResultUnder13(QuarterlyBookingPrediction[] quarterlyBookingPredictions){
         QuarterlyBookingPrediction prediction = new QuarterlyBookingPrediction();
-        prediction.setQuarter((quarterlyBookingPredictions[quarterlyBookingPredictions.length].getQuarter() % 4) + 1);
-        prediction.setYear(prediction.getQuarter() == 1 ? Integer.toString(Integer.parseInt(quarterlyBookingPredictions[quarterlyBookingPredictions.length].getYear())+1) : quarterlyBookingPredictions[quarterlyBookingPredictions.length].getYear());
+        prediction.setQuarter((quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getQuarter() % 4) + 1);
+        prediction.setYear(prediction.getQuarter() == 1 ? Integer.toString(Integer.parseInt(quarterlyBookingPredictions[quarterlyBookingPredictions.length -1].getYear())+1) : quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getYear());
         prediction.setTotal(predictNextValue((List<Double>) Arrays.stream(quarterlyBookingPredictions).mapToDouble(QuarterlyBookingPrediction::getTotal)).intValue());
         prediction.setMorning_highestBooking(predictNextValue(Arrays.stream(quarterlyBookingPredictions).map(QuarterlyBookingPrediction::getMorning_highestBooking).toList()));
         prediction.setMorningAverageBooking(predictNextValue(Arrays.stream(quarterlyBookingPredictions).map(QuarterlyBookingPrediction::getMorningAverageBooking).toList()));
@@ -155,8 +156,8 @@ public class QuarterlyBookingService {
 
     private QuarterlyBookingPrediction perdictionResultOver13(QuarterlyBookingPrediction[] quarterlyBookingPredictions){
         QuarterlyBookingPrediction prediction = new QuarterlyBookingPrediction();
-        prediction.setQuarter((quarterlyBookingPredictions[quarterlyBookingPredictions.length].getQuarter() % 4) + 1);
-        prediction.setYear(prediction.getQuarter() == 1 ? Integer.toString(Integer.parseInt(quarterlyBookingPredictions[quarterlyBookingPredictions.length].getYear())+1) : quarterlyBookingPredictions[quarterlyBookingPredictions.length].getYear());
+        prediction.setQuarter((quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getQuarter() % 4) + 1);
+        prediction.setYear(prediction.getQuarter() == 1 ? Integer.toString(Integer.parseInt(quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getYear())+1) : quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getYear());
         prediction.setTotal(calculateDiffernce((List<Double>) Arrays.stream(quarterlyBookingPredictions).mapToDouble(QuarterlyBookingPrediction::getTotal)).intValue());
         prediction.setMorning_highestBooking(calculateDiffernce(Arrays.stream(quarterlyBookingPredictions).map(QuarterlyBookingPrediction::getMorning_highestBooking).toList()));
         prediction.setMorningAverageBooking(calculateDiffernce(Arrays.stream(quarterlyBookingPredictions).map(QuarterlyBookingPrediction::getMorningAverageBooking).toList()));

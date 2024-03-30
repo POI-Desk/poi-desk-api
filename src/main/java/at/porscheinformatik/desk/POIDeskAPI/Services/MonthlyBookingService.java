@@ -3,6 +3,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingsComparator;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.QuarterlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,30 +37,20 @@ public class MonthlyBookingService {
         switch (identifier){
             case Location -> {
                  selectedMonthlyBooking = monthlyBooking.stream()
-                        .filter(booking -> booking.getFk_location() != null &&
-                                Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId) &&
-                                booking.getFk_building() == null &&
-                                booking.getFk_floor() == null)
+                        .filter(booking -> Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId))
                         .findFirst();
             }
             case Building -> {
                 selectedMonthlyBooking = monthlyBooking.stream()
-                        .filter(booking -> booking.getFk_location() == null &&
-                        booking.getFk_building() != null &&
-                        Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId) &&
-                        booking.getFk_floor() == null)
+                        .filter(booking -> Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId))
                         .findFirst();
             }
             case Floor -> {
                  selectedMonthlyBooking = monthlyBooking.stream()
-                        .filter(booking -> booking.getFk_location() == null &&
-                        booking.getFk_building() == null &&
-                        booking.getFk_floor() != null &&
-                        Objects.equals(booking.getFk_floor().getPk_floorid(), IdentifierId))
+                        .filter(booking -> Objects.equals(booking.getFk_floor().getPk_floorid(), IdentifierId))
                         .findFirst();
-
             }
-            default -> throw new IllegalArgumentException("False identifiere");
+            default -> throw new IllegalArgumentException("False Identifier");
         }
         if(selectedMonthlyBooking.isEmpty())
             return null;
@@ -101,10 +92,11 @@ public class MonthlyBookingService {
         {
             return CompletableFuture.completedFuture(null);
         }
-        int bookingSize = selectedMonthlyBookings.size();
+        List<MonthlyBooking> sortedBookings = selectedMonthlyBookings.stream().sorted(Comparator.comparing(MonthlyBooking::getMonth)).toList();
+        int bookingSize = sortedBookings.size();
         MonthlyBookingPrediction[] convertedBookings = new MonthlyBookingPrediction[bookingSize+1];
-        for (int i = 0; i < selectedMonthlyBookings.size(); i++) {
-            MonthlyBooking sourceBooking = selectedMonthlyBookings.get(i);
+        for (int i = 0; i < sortedBookings.size(); i++) {
+            MonthlyBooking sourceBooking = sortedBookings.get(i);
             MonthlyBookingPrediction convertedBooking = new MonthlyBookingPrediction();
             convertedBooking.setMonth(sourceBooking.getMonth());
             convertedBooking.setTotal(sourceBooking.getTotal());
@@ -119,6 +111,7 @@ public class MonthlyBookingService {
         if(bookingSize == 1)
         {
             convertedBookings[bookingSize] = convertedBookings[bookingSize-1];
+            convertedBookings[bookingSize].setMonth(String.valueOf(YearMonth.parse(convertedBookings[bookingSize].getMonth(), DateTimeFormatter.ofPattern("yyyy-MM")).plusMonths(1)));
             return CompletableFuture.completedFuture(convertedBookings);
         } else if (bookingSize <= 13) {
             convertedBookings[bookingSize] = perdictionResultUnder13(Arrays.copyOfRange(convertedBookings,0 , bookingSize));
