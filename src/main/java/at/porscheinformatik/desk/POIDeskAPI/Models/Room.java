@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.scheduling.support.SimpleTriggerContext;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -17,12 +18,13 @@ public class Room {
 
     public Room(){}
 
-    public Room(int x, int y, int width, int height, Map map){
+    public Room(int x, int y, int width, int height, Map map, String localId){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.map = map;
+        this.localId = localId;
     }
 
     @Id
@@ -42,6 +44,9 @@ public class Room {
     @Column(name="height", nullable = false)
     private int height;
 
+    @Column(name = "localid", nullable = false)
+    private String localId;
+
     @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
@@ -54,11 +59,12 @@ public class Room {
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
-    public void updateProps(int x, int y, int width, int height){
+    public void updateProps(int x, int y, int width, int height, String localId){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.localId = localId;
     }
 
 }

@@ -97,7 +97,7 @@ public class DeskService {
                     continue;
                 }
 
-                finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map, user));
+                finalDesks.add(new Desk(deskInput.desknum(), deskInput.x(), deskInput.y(), map, deskInput.localId(), user));
                 continue;
             }
             Optional<Desk> o_desk = desks.stream().filter(desk -> Objects.equals(desk.getPk_deskid().toString(), deskInput.pk_deskid().toString())).findFirst();
@@ -105,7 +105,7 @@ public class DeskService {
                 continue;
             }
             Desk c_desk = o_desk.get();
-            c_desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y(), user);
+            c_desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y(), deskInput.localId(), user);
             finalDesks.add(c_desk);
         }
 
@@ -148,7 +148,7 @@ public class DeskService {
 
     @Async
     public CompletableFuture<List<Desk>> copyDesksToMap(List<Desk> desks, Map map){
-        List<Desk> newDesks = desks.stream().map(d -> new Desk(d.getDesknum(), d.getX(), d.getY(), map, d.getUser())).toList();
+        List<Desk> newDesks = desks.stream().map(d -> new Desk(d.getDesknum(), d.getX(), d.getY(), map, d.getLocalId(), d.getUser())).toList();
         deskRepo.saveAll(newDesks);
         return CompletableFuture.completedFuture(newDesks);
     }

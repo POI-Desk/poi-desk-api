@@ -22,11 +22,12 @@ public class Desk {
 
     public Desk(){}
 
-    public Desk(String desknum, int x, int y, Map map, User user){
+    public Desk(String desknum, int x, int y, Map map, String localId, User user){
         this.desknum = desknum;
         this.x = x;
         this.y = y;
         this.map = map;
+        this.localId = localId;
         this.user = user;
     }
 
@@ -46,6 +47,9 @@ public class Desk {
 
     @Column(name = "rotation", nullable = false)
     private int rotation;
+
+    @Column(name = "localid", nullable = false)
+    private String localId;
 
     @Column(name = "createdon", nullable = false)
     @CreationTimestamp
@@ -69,10 +73,11 @@ public class Desk {
     @JoinColumn(name = "fk_userid")
     private User user;
 
-    public void updateProps(String deskNum, int x, int y, User user){
+    public void updateProps(String deskNum, int x, int y, String localId,  User user){
         this.desknum = deskNum;
         this.x = x;
         this.y = y;
+        this.localId = localId;
         this.user = user;
     }
 }

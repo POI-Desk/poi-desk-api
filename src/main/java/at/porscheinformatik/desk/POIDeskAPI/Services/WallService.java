@@ -76,7 +76,7 @@ public class WallService {
         List<Wall> finalWalls = new ArrayList<>();
         for (UpdateWallInput wallInput : wallInputs) {
             if (wallInput.pk_wallId() == null) {
-                finalWalls.add(new Wall(wallInput.x(), wallInput.y(), wallInput.rotation(), wallInput.width(), map));
+                finalWalls.add(new Wall(wallInput.x(), wallInput.y(), wallInput.rotation(), wallInput.width(), map, wallInput.localId()));
                 continue;
             }
             Optional<Wall> o_wall = walls.stream().filter(wall -> Objects.equals(wall.getPk_wallId().toString(), wallInput.pk_wallId().toString())).findFirst();
@@ -84,7 +84,7 @@ public class WallService {
                 throw new Exception("any given wall ID does not exist");
             }
             Wall c_wall = o_wall.get();
-            c_wall.updateProps(wallInput.x(), wallInput.y(), wallInput.rotation(), wallInput.width());
+            c_wall.updateProps(wallInput.x(), wallInput.y(), wallInput.rotation(), wallInput.width(), wallInput.localId());
             finalWalls.add(c_wall);
         }
 
@@ -100,7 +100,7 @@ public class WallService {
 
     @Async
     public CompletableFuture<List<Wall>> copyWallsToMap(List<Wall> walls, Map map){
-        List<Wall> newWalls = walls.stream().map(w -> new Wall(w.getX(), w.getY(), w.getRotation(), w.getWidth(), map)).toList();
+        List<Wall> newWalls = walls.stream().map(w -> new Wall(w.getX(), w.getY(), w.getRotation(), w.getWidth(), map, w.getLocalId())).toList();
         wallRepo.saveAll(newWalls);
         return CompletableFuture.completedFuture(newWalls);
     }

@@ -277,6 +277,7 @@ type Desk{
     x: Float!
     y: Float!
     rotation: Int!
+    localId: String!
     createdon: String!
     updatedon: String!
     bookings: [Booking!]
@@ -325,6 +326,7 @@ type Door{
     y: Int!
     rotation: Int!
     width: Int!
+    localId: String!
     createdOn: String!
     updatedOn: String!
     map: Map
@@ -336,6 +338,7 @@ type Wall{
     y: Int!
     rotation: Int!
     width: Int!
+    localId: String!
     createdOn: String!
     updatedOn: String!
     map: Map
@@ -347,6 +350,7 @@ type Room{
     y: Int!
     width: Int!
     height: Int!
+    localId: String!
     createdOn: String!
     updatedOn: String!
     map: Map
@@ -361,6 +365,7 @@ type Interior{
     rotation: Int!
     width: Int!
     height: Int!
+    #localId: String!
     createdOn: String!
     updatedOn: String!
     map: Map
@@ -375,6 +380,7 @@ type Label{
     height: Int!
     rotation: Int!
     pt: Int!
+    localId: String!
     createdOn: String!
     updatedOn: String!
     map: Map
@@ -486,6 +492,7 @@ input UpdateDoorInput{
     y: Int!
     rotation: Int!
     width: Int!
+    localId: String!
     #delete: Boolean!
 }
 
@@ -495,6 +502,7 @@ input UpdateWallInput{
     y: Int!
     rotation: Int!
     width: Int!
+    localId: String!
     #delete: Boolean!
 }
 
@@ -503,6 +511,7 @@ input UpdateDeskInput{
     desknum: String!    #TODO: change to camelCase
     x: Int!
     y: Int!
+    localId: String!
     userId: ID
     #delete: Boolean!
 }
@@ -531,6 +540,7 @@ input UpdateRoomInput{
     y: Int!
     width: Int!
     height: Int!
+    localId: String!
     #delete: Boolean!
 }
 
@@ -542,6 +552,7 @@ input UpdateLabelInput{
     width: Int!
     height: Int!
     rotation: Int!
+    localId: String!
 }
 
 input PublishMapInput{

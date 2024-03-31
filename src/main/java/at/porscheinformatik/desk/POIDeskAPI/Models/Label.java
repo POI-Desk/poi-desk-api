@@ -17,7 +17,7 @@ public class Label {
 
     public Label(){}
 
-    public Label(String text, int x, int y, int width, int height, int rotation, Map map) {
+    public Label(String text, int x, int y, int width, int height, int rotation, Map map, String localId) {
         this.text = text;
         this.x = x;
         this.y = y;
@@ -25,6 +25,7 @@ public class Label {
         this.height = height;
         this.rotation = rotation;
         this.map = map;
+        this.localId = localId;
     }
 
     @Id
@@ -53,6 +54,9 @@ public class Label {
     @Column(name = "pt", nullable = false)
     private int pt;
 
+    @Column(name = "localid", nullable = false)
+    private String localId;
+
     @Column(name="createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
@@ -65,12 +69,13 @@ public class Label {
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
-    public void updateProps(String text, int x, int y, int width, int height, int rotation) {
+    public void updateProps(String text, int x, int y, int width, int height, int rotation, String localId) {
         this.text = text;
         this.x = x;
         this.y = y;
         this.width = width;
         this. height = height;
         this.rotation = rotation;
+        this.localId = localId;
     }
 }
