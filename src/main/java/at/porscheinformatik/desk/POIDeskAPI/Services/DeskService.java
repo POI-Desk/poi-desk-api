@@ -106,6 +106,9 @@ public class DeskService {
             }
             Desk c_desk = o_desk.get();
             c_desk.updateProps(deskInput.desknum(), deskInput.x(), deskInput.y(), user);
+            if (user != null){
+                bookingService.deleteBookings(c_desk.getBookings());
+            }
             finalDesks.add(c_desk);
         }
 
