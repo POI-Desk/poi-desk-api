@@ -17,12 +17,13 @@ public class Door {
 
     public Door(){}
 
-    public Door(int x, int y, int rotation, int width, Map map){
+    public Door(int x, int y, int rotation, int width, Map map, String localId){
         this.x = x;
         this.y = y;
         this.rotation = rotation;
         this.width = width;
         this.map = map;
+        this.localId = localId;
     }
 
     @Id
@@ -42,6 +43,9 @@ public class Door {
     @Column(name = "width", nullable = false)
     private int width;
 
+    @Column(name = "localid", nullable = false)
+    private String localId;
+
     @Column(name = "createdon", nullable = false)
     @CreationTimestamp
     private LocalDateTime createdOn;
@@ -54,11 +58,12 @@ public class Door {
     @JoinColumn(name = "fk_mapid")
     private Map map;
 
-    public void updateProps(int x, int y, int rotation, int width){
+    public void updateProps(int x, int y, int rotation, int width, String localId){
         this.x = x;
         this.y = y;
         this.rotation = rotation;
         this.width = width;
+        this.localId = localId;
     }
 
 }

@@ -73,7 +73,7 @@ public class LabelService {
         for (UpdateLabelInput labelInput : labelInputs) {
             if (labelInput.pk_labelId() == null) {
                 System.out.println(labelInput.width());
-                finalLabels.add(new Label(labelInput.text(), labelInput.x(), labelInput.y(), labelInput.width(), labelInput.height(), labelInput.rotation(), map));
+                finalLabels.add(new Label(labelInput.text(), labelInput.x(), labelInput.y(), labelInput.width(), labelInput.height(), labelInput.rotation(), map, labelInput.localId()));
                 continue;
             }
             Optional<Label> o_label = labels.stream().filter(room -> Objects.equals(room.getPk_labelId().toString(), labelInput.pk_labelId().toString())).findFirst();
@@ -81,7 +81,7 @@ public class LabelService {
                 throw new Exception("Any given label ID does not exist");
             }
             Label c_label = o_label.get();
-            c_label.updateProps(labelInput.text(), labelInput.x(), labelInput.y(), labelInput.width(), labelInput.height(), labelInput.rotation());
+            c_label.updateProps(labelInput.text(), labelInput.x(), labelInput.y(), labelInput.width(), labelInput.height(), labelInput.rotation(), labelInput.localId());
             finalLabels.add(c_label);
         }
 
@@ -91,7 +91,7 @@ public class LabelService {
 
     @Async
     public CompletableFuture<List<Label>> copyLabelsToMap(List<Label> labels, Map map) {
-        List<Label> newLabels = labels.stream().map(l -> new Label(l.getText(), l.getX(), l.getY(), l.getWidth(), l.getHeight(), l.getRotation(), map)).toList();
+        List<Label> newLabels = labels.stream().map(l -> new Label(l.getText(), l.getX(), l.getY(), l.getWidth(), l.getHeight(), l.getRotation(), map, l.getLocalId())).toList();
         labelRepo.saveAll(newLabels);
         return CompletableFuture.completedFuture(newLabels);
     }

@@ -80,7 +80,7 @@ public class DoorService {
         List<Door> finalDoors = new ArrayList<>();
         for (UpdateDoorInput doorInput : doorInputs) {
             if (doorInput.pk_doorId() == null) {
-                finalDoors.add(new Door(doorInput.x(), doorInput.y(), doorInput.rotation(), doorInput.width(), map));
+                finalDoors.add(new Door(doorInput.x(), doorInput.y(), doorInput.rotation(), doorInput.width(), map, doorInput.localId()));
                 continue;
             }
             Optional<Door> o_door = doors.stream().filter(door -> Objects.equals(door.getPk_doorId().toString(), doorInput.pk_doorId().toString())).findFirst();
@@ -88,7 +88,7 @@ public class DoorService {
                 throw new Exception("any given door ID does not exist");
             }
             Door c_door = o_door.get();
-            c_door.updateProps(doorInput.x(), doorInput.y(), doorInput.rotation(), doorInput.width());
+            c_door.updateProps(doorInput.x(), doorInput.y(), doorInput.rotation(), doorInput.width(), doorInput.localId());
             finalDoors.add(c_door);
         }
         return CompletableFuture.completedFuture(finalDoors);
@@ -102,7 +102,7 @@ public class DoorService {
 
     @Async
     public CompletableFuture<List<Door>> copyDoorsToMap(List<Door> doors, Map map) {
-        List<Door> newDoors = doors.stream().map(d -> new Door(d.getX(), d.getY(), d.getRotation(), d.getWidth(), map)).toList();
+        List<Door> newDoors = doors.stream().map(d -> new Door(d.getX(), d.getY(), d.getRotation(), d.getWidth(), map, d.getLocalId())).toList();
         doorRepo.saveAll(newDoors);
         return CompletableFuture.completedFuture(newDoors);
     }

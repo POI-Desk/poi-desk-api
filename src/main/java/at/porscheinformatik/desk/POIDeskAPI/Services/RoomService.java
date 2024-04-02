@@ -76,7 +76,7 @@ public class RoomService {
         List<Room> finalRooms = new ArrayList<>();
         for (UpdateRoomInput roomInput : roomInputs) {
             if (roomInput.pk_roomId() == null) {
-                finalRooms.add(new Room(roomInput.x(), roomInput.y(), roomInput.width(), roomInput.height(), map));
+                finalRooms.add(new Room(roomInput.x(), roomInput.y(), roomInput.width(), roomInput.height(), map, roomInput.localId()));
                 continue;
             }
             Optional<Room> o_room = rooms.stream().filter(room -> Objects.equals(room.getPk_roomId().toString(), roomInput.pk_roomId().toString())).findFirst();
@@ -84,7 +84,7 @@ public class RoomService {
                 throw new Exception("Any given room ID does not exist");
             }
             Room c_room = o_room.get();
-            c_room.updateProps(roomInput.x(), roomInput.y(), roomInput.width(), roomInput.height());
+            c_room.updateProps(roomInput.x(), roomInput.y(), roomInput.width(), roomInput.height(), roomInput.localId());
             finalRooms.add(c_room);
         }
 
@@ -100,7 +100,7 @@ public class RoomService {
 
     @Async
     public CompletableFuture<List<Room>> copyRoomsToMap(List<Room> rooms, Map map) {
-        List<Room> newRooms = rooms.stream().map(r -> new Room(r.getX(), r.getY(), r.getWidth(), r.getHeight(), map)).toList();
+        List<Room> newRooms = rooms.stream().map(r -> new Room(r.getX(), r.getY(), r.getWidth(), r.getHeight(), map, r.getLocalId())).toList();
         roomRepo.saveAll(newRooms);
         return CompletableFuture.completedFuture(newRooms);
     }

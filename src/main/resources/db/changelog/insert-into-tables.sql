@@ -39,17 +39,17 @@ VALUES ('3', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'A')),
        ('5', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'C'));
 
 -- changeset liquibase:7
-INSERT INTO Desks (deskNum, x, y, rotation)
-VALUES ('301', 10, 10, 0),
-       ('401', 20, 20, 0),
-       ('402', 25, 20, 0),
-       ('403', 30, 20, 0),
-       ('404', 35, 20, 0),
-       ('405', 40, 20, 0),
-       ('406', 45, 20, 0),
-       ('407', 50, 20, 0),
-       ('408', 55, 20, 0),
-       ('501', 15, 15, 0);
+-- INSERT INTO Desks (deskNum, x, y, rotation)
+-- VALUES ('301', 10, 10, 0),
+--        ('401', 20, 20, 0),
+--        ('402', 25, 20, 0),
+--        ('403', 30, 20, 0),
+--        ('404', 35, 20, 0),
+--        ('405', 40, 20, 0),
+--        ('406', 45, 20, 0),
+--        ('407', 50, 20, 0),
+--        ('408', 55, 20, 0),
+--        ('501', 15, 15, 0);
 
 -- changeset liquibase:8
 INSERT INTO Attributes (attributeName)
@@ -58,13 +58,13 @@ VALUES ('Silent'),
        ('Loud');
 
 -- changeset liquibase:9
-INSERT INTO Desks_Attributes (pk_fk_deskId, pk_fk_attributeId)
-VALUES ((SELECT pk_deskId FROM Desks WHERE deskNum = '301'),
-        (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Silent')),
-       ((SELECT pk_deskId FROM Desks WHERE deskNum = '401'),
-        (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Noisy')),
-       ((SELECT pk_deskId FROM Desks WHERE deskNum = '501'),
-        (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Loud'));
+-- INSERT INTO Desks_Attributes (pk_fk_deskId, pk_fk_attributeId)
+-- VALUES ((SELECT pk_deskId FROM Desks WHERE deskNum = '301'),
+--         (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Silent')),
+--        ((SELECT pk_deskId FROM Desks WHERE deskNum = '401'),
+--         (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Noisy')),
+--        ((SELECT pk_deskId FROM Desks WHERE deskNum = '501'),
+--         (SELECT pk_attributeId FROM Attributes WHERE attributeName = 'Loud'));
 
 -- changeset liquibase:11
 INSERT INTO Buildings (buildingName, fk_locationId)
