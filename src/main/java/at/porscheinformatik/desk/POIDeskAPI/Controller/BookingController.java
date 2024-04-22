@@ -1,6 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
 
+import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.AccountRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.BookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DeskRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.UserRepo;
@@ -61,6 +62,8 @@ public class BookingController {
 
     @Autowired
     private HttpServletRequest request;
+    @Autowired
+    private AccountRepo accountRepo;
 
     /**
      * Return all bookings in the database
@@ -98,7 +101,7 @@ public class BookingController {
     //public List<Booking> getBookingsByUserid(@Argument UUID userid) {
     public List<Booking> getBookingsByUserid(@Argument boolean isCurrent) {
         try {
-            var check = AuthHelper.authenticate(request);
+            var check = AuthHelper.authenticate(request, accountRepo);
             if (check == null)
                 return null;
             String useridString = AuthHelper.getUsernameFromJWT(check);
@@ -143,15 +146,21 @@ public class BookingController {
     @MutationMapping
     public Booking bookDesk(@Argument BookingInput booking) {
         try {
-            var check = AuthHelper.authenticate(request);
+            var check = AuthHelper.authenticate(request, accountRepo);
             if (check == null)
                 return null;
             String useridString = AuthHelper.getUsernameFromJWT(check);
             User user = userRepo.findByUsername(useridString).get(0);
+            Desk desk = deskRepo.findById(booking.deskid()).get();
 
-            if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2))){
+            if (desk.getUser() != null)
                 return null;
-            }
+
+            if (booking.date().isBefore(LocalDate.now()) || booking.date().isAfter(LocalDate.now().plusWeeks(2)))
+                return null;
+
+            if (bookingRepo.findByDateAndDesk(booking.date(), desk).stream().anyMatch(b -> b.isIsmorning() == booking.ismorning() && b.isIsafternoon() == booking.isafternoon()))
+                return null;
             Booking newBooking = new Booking(booking);
             String basicDate = booking.date().format(DateTimeFormatter.BASIC_ISO_DATE);
             String interval = (booking.ismorning() ? "M" : "") + (booking.isafternoon() ? "A" : "");
@@ -159,8 +168,8 @@ public class BookingController {
             String bookingNumber = basicDate + interval + deskNum + booking.extendedid();
 
             newBooking.setBookingnumber(bookingNumber);
-            newBooking.setUser(userRepo.findByUsername(useridString).get(0));
-            newBooking.setDesk(deskRepo.findById(booking.deskid()).get());
+            newBooking.setUser(user);
+            newBooking.setDesk(desk);
             bookingRepo.save(newBooking);
 
             return newBooking;
