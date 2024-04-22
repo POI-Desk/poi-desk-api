@@ -118,7 +118,8 @@ public class UserController {
     @QueryMapping
     public String authorizeUser(){
         try {
-            return AuthHelper.authenticate(request);
+
+            return AuthHelper.authenticate(request, accountRepo);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -161,7 +162,7 @@ public class UserController {
     public boolean setdefaultLocation(@Argument UUID locationid)
     {
         try {
-            var check = AuthHelper.authenticate(request);
+            var check = AuthHelper.authenticate(request, accountRepo);
             if (check == null)
                 return false;
             String useridString = AuthHelper.getUsernameFromJWT(check);
