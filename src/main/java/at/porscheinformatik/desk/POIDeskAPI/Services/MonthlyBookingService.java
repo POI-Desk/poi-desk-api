@@ -3,8 +3,6 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingsComparator;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.QuarterlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -14,11 +12,9 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.calculateDiffernce;
+import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.calculateDifference;
 import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.predictNextValue;
 
 @Service
@@ -28,75 +24,38 @@ public class MonthlyBookingService {
 
     @Async
     public CompletableFuture<MonthlyBooking> getMonthlyBooking(String year, String month, UUID IdentifierId, IdentifierType identifier){
-        String finalMonth = String.format("%02d", Integer.parseInt(month));
-        List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
-
-        List<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
-                .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + finalMonth)).toList();
-        Optional<MonthlyBooking> selectedMonthlyBooking;
-        switch (identifier){
-            case Location -> {
-                 selectedMonthlyBooking = monthlyBooking.stream()
-                        .filter(booking -> Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId))
-                        .findFirst();
-            }
-            case Building -> {
-                selectedMonthlyBooking = monthlyBooking.stream()
-                        .filter(booking -> Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId))
-                        .findFirst();
-            }
-            case Floor -> {
-                 selectedMonthlyBooking = monthlyBooking.stream()
-                        .filter(booking -> Objects.equals(booking.getFk_floor().getPk_floorid(), IdentifierId))
-                        .findFirst();
-            }
-            default -> throw new IllegalArgumentException("False Identifier");
+        List<MonthlyBooking> monthlyBookings = filterMonthlyBookings(IdentifierId, identifier);
+        if(monthlyBookings == null || monthlyBookings.isEmpty()){
+            System.err.println("monthlyBookings is null or empty. Unable to proceed.");
+            return CompletableFuture.completedFuture(null);
         }
-        if(selectedMonthlyBooking.isEmpty())
-            return null;
-        selectedMonthlyBooking.get().setDailyBookings(selectedMonthlyBooking.get().getSortedDailyBookings());
-        return CompletableFuture.completedFuture(selectedMonthlyBooking.get());
+        String finalMonth = String.format("%02d", Integer.parseInt(month));
+        Optional<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
+                .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + finalMonth)).findAny();
+        if(monthlyBooking.isEmpty())
+            return CompletableFuture.completedFuture(null);
+        MonthlyBooking selectedBooking = monthlyBooking.get();
+        //selectedBooking.setDailyBookings(selectedBooking.getSortedDailyBookings());
+        return CompletableFuture.completedFuture(selectedBooking);
     };
     @Async
     public CompletableFuture<MonthlyBookingPrediction[]> getMonthlyBookingPrediction(UUID IdentifierId, IdentifierType identifier){
-        List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
-        List<MonthlyBooking> selectedMonthlyBookings;
-        switch (identifier){
-            case Location -> {
-                selectedMonthlyBookings = monthlyBookings.stream()
-                        .filter(booking -> booking.getFk_location() != null &&
-                                Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId) &&
-                                booking.getFk_building() == null &&
-                                booking.getFk_floor() == null)
-                        .toList();
-            }
-            case Building -> {
-                selectedMonthlyBookings = monthlyBookings.stream()
-                        .filter(booking -> booking.getFk_location() == null &&
-                                booking.getFk_building() != null &&
-                                Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId) &&
-                                booking.getFk_floor() == null)
-                        .toList();
-            }
-            case Floor -> {
-                selectedMonthlyBookings = monthlyBookings.stream()
-                        .filter(booking -> booking.getFk_location() == null &&
-                                booking.getFk_building() == null &&
-                                booking.getFk_floor() != null &&
-                                Objects.equals(booking.getFk_floor().getPk_floorid(), IdentifierId))
-                        .toList();
-            }
-            default -> throw new IllegalArgumentException("False identifiere");
-        }
-        if(selectedMonthlyBookings.isEmpty() || selectedMonthlyBookings.get(0).getDays() == 0)
-        {
+        List<MonthlyBooking> monthlyBookings = filterMonthlyBookings(IdentifierId, identifier);
+        if (monthlyBookings == null || monthlyBookings.isEmpty()) {
+            System.err.println("monthlyBookings is null or empty. Unable to proceed.");
             return CompletableFuture.completedFuture(null);
         }
-        List<MonthlyBooking> sortedBookings = selectedMonthlyBookings.stream().sorted(Comparator.comparing(MonthlyBooking::getMonth)).toList();
-        int bookingSize = sortedBookings.size();
+        try {
+            monthlyBookings.sort(Comparator.comparing(MonthlyBooking::getMonth));
+            monthlyBookings.forEach(MonthlyBooking::getSortedDailyBookings);
+        }
+        catch (Exception ex){
+            System.out.println("Error" + ex);
+        }
+        int bookingSize = monthlyBookings.size();
         MonthlyBookingPrediction[] convertedBookings = new MonthlyBookingPrediction[bookingSize+1];
-        for (int i = 0; i < sortedBookings.size(); i++) {
-            MonthlyBooking sourceBooking = sortedBookings.get(i);
+        for (int i = 0; i < monthlyBookings.size(); i++) {
+            MonthlyBooking sourceBooking = monthlyBookings.get(i);
             MonthlyBookingPrediction convertedBooking = new MonthlyBookingPrediction();
             convertedBooking.setMonth(sourceBooking.getMonth());
             convertedBooking.setTotal(sourceBooking.getTotal());
@@ -108,6 +67,7 @@ public class MonthlyBookingService {
             convertedBooking.setAfternoon_lowestBooking((double) sourceBooking.getAfternoon_lowestBooking().getAfternoon());
             convertedBookings[i] = convertedBooking;
         }
+
         if(bookingSize == 1)
         {
             convertedBookings[bookingSize] = convertedBookings[bookingSize-1];
@@ -115,7 +75,6 @@ public class MonthlyBookingService {
             return CompletableFuture.completedFuture(convertedBookings);
         } else if (bookingSize <= 13) {
             convertedBookings[bookingSize] = perdictionResultUnder13(Arrays.copyOfRange(convertedBookings,0 , bookingSize));
-            int i = 0;
             return  CompletableFuture.completedFuture(convertedBookings);
         } else {
             int newSize = Math.min(23, bookingSize);
@@ -146,13 +105,37 @@ public class MonthlyBookingService {
 
         MonthlyBookingPrediction prediction = new MonthlyBookingPrediction();
         prediction.setMonth(String.valueOf(YearMonth.parse(monthlyBookingsPrediction[monthlyBookingsPrediction.length-1].getMonth(), DateTimeFormatter.ofPattern("yyyy-MM")).plusMonths(1)));
-        prediction.setTotal(calculateDiffernce((List<Double>) resultMap.values().stream().mapToDouble(MonthlyBookingPrediction::getTotal)).intValue());
-        prediction.setMorning_highestBooking(calculateDiffernce(resultMap.values().stream().map(MonthlyBookingPrediction::getMorning_highestBooking).toList()));
-        prediction.setMorningAverageBooking(calculateDiffernce(resultMap.values().stream().map(MonthlyBookingPrediction::getMorningAverageBooking).toList()));
-        prediction.setMorning_lowestBooking(calculateDiffernce(resultMap.values().stream().map(MonthlyBookingPrediction::getMorning_lowestBooking).toList()));
-        prediction.setAfternoon_highestBooking(calculateDiffernce(resultMap.values().stream().map(MonthlyBookingPrediction::getAfternoon_highestBooking).toList()));
-        prediction.setAfternoonAverageBooking(calculateDiffernce(resultMap.values().stream().map(MonthlyBookingPrediction::getAfternoonAverageBooking).toList()));
-        prediction.setAfternoon_lowestBooking(calculateDiffernce(resultMap.values().stream().map(MonthlyBookingPrediction::getAfternoon_lowestBooking).toList()));
+        prediction.setTotal(calculateDifference((List<Double>) resultMap.values().stream().mapToDouble(MonthlyBookingPrediction::getTotal), 12).intValue());
+        prediction.setMorning_highestBooking(calculateDifference(resultMap.values().stream().map(MonthlyBookingPrediction::getMorning_highestBooking).toList(), 12));
+        prediction.setMorningAverageBooking(calculateDifference(resultMap.values().stream().map(MonthlyBookingPrediction::getMorningAverageBooking).toList(), 12));
+        prediction.setMorning_lowestBooking(calculateDifference(resultMap.values().stream().map(MonthlyBookingPrediction::getMorning_lowestBooking).toList(), 12));
+        prediction.setAfternoon_highestBooking(calculateDifference(resultMap.values().stream().map(MonthlyBookingPrediction::getAfternoon_highestBooking).toList(), 12));
+        prediction.setAfternoonAverageBooking(calculateDifference(resultMap.values().stream().map(MonthlyBookingPrediction::getAfternoonAverageBooking).toList(), 12));
+        prediction.setAfternoon_lowestBooking(calculateDifference(resultMap.values().stream().map(MonthlyBookingPrediction::getAfternoon_lowestBooking).toList(), 12));
         return prediction;
+    }
+    private List<MonthlyBooking> filterMonthlyBookings(UUID IdentifierId, IdentifierType identifier){
+        List<MonthlyBooking> monthlyBookings = (List<MonthlyBooking>)monthlyBookingRepo.findAll();
+        switch (identifier){
+            case Location -> {
+                return monthlyBookings.stream()
+                        .filter(booking -> booking.getFk_location() != null &&
+                                Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId))
+                        .toList();
+            }
+            case Building -> {
+                return monthlyBookings.stream()
+                        .filter(booking -> booking.getFk_building() != null &&
+                                Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId))
+                        .toList();
+            }
+            case Floor -> {
+                return monthlyBookings.stream()
+                        .filter(booking -> booking.getFk_floor() != null &&
+                                Objects.equals(booking.getFk_floor().getPk_floorid(), IdentifierId))
+                        .toList();
+            }
+            default -> throw new IllegalArgumentException("False Identifier");
+        }
     }
 }

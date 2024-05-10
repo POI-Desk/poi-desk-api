@@ -3,26 +3,29 @@ package at.porscheinformatik.desk.POIDeskAPI.ModelsClasses;
 import java.util.List;
 
 public class Prediction {
-    public static Double calculateDiffernce (List<Double> data){
-        Double percentageIncreases = 0.00;
-        for (int i = 12; i < data.size(); i++) {
+    public static Double calculateDifference(List<Double> data, int count){
+        double percentageChange = 0.00;
+        for (int i = count; i < data.size(); i++) {
             Double currentData = data.get(i);
-            Double previousData = data.get(i - 12);
+            Double previousData = data.get(i - count);
 
-            double percentageIncrease = calculatePercentageIncrease(
+            double percentageDifference = calculatePercentageDifference(
                     currentData,
                     previousData
             );
-            percentageIncreases += percentageIncrease;
+            percentageChange += percentageDifference;
         }
-        return data.get(11) * percentageIncreases;
+
+        double result = data.get(count - 1) * (1 +(percentageChange / count));
+        if(result < 0)
+            return 0.00;
+        return result;
     }
 
     public static Double predictNextValue(List<Double> data) {
         int size = data.size();
 
         if (size < 2) {
-            // You may want to handle this case according to your requirements
             throw new IllegalArgumentException("Linear regression requires at least two data points.");
         }
 
@@ -97,8 +100,8 @@ public class Prediction {
         return intercept + (slope * x);
     }
 
-    private static double calculatePercentageIncrease(double currentValue, double previousValue) {
-        return ((currentValue - previousValue) / previousValue) * 100.0;
+    private static double calculatePercentageDifference(double currentValue, double previousValue) {
+        return ((currentValue - previousValue) / previousValue) / 100.0;
     }
 
     public static double predictValueWithIncrease(double previousValue, double percentageIncrease) {

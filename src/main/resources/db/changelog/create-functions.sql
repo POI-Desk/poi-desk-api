@@ -755,6 +755,8 @@ CREATE OR REPLACE FUNCTION runQuarterlyAnalysisFunctions()
     RETURNS void AS
 $$
 BEGIN
+    PERFORM runMonthlyAnalysisFunctions();
+
     PERFORM createQuarterlyAnalysisEntriesForFloors();
 
     PERFORM createQuarterlyAnalysisEntriesForBuildings();
@@ -770,6 +772,8 @@ CREATE OR REPLACE FUNCTION runYearlyAnalysisFunctions()
     RETURNS void AS
 $$
 BEGIN
+    PERFORM runQuarterlyAnalysisFunctions();
+
     PERFORM createYearlyAnalysisEntriesForFloors();
 
     PERFORM createYearlyAnalysisEntriesForBuildings();
