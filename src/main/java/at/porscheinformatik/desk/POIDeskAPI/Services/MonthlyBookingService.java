@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.calculateDifference;
 import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.predictNextValue;
@@ -29,32 +30,37 @@ public class MonthlyBookingService {
             System.err.println("monthlyBookings is null or empty. Unable to proceed.");
             return CompletableFuture.completedFuture(null);
         }
+
         String finalMonth = String.format("%02d", Integer.parseInt(month));
         Optional<MonthlyBooking> monthlyBooking = monthlyBookings.stream()
                 .filter(booking -> Objects.equals(booking.getMonth(), year + "-" + finalMonth)).findAny();
         if(monthlyBooking.isEmpty())
             return CompletableFuture.completedFuture(null);
         MonthlyBooking selectedBooking = monthlyBooking.get();
-        //selectedBooking.setDailyBookings(selectedBooking.getSortedDailyBookings());
+
+        selectedBooking.setDailyBookings(selectedBooking.getSortedDailyBookings());
+
         return CompletableFuture.completedFuture(selectedBooking);
     };
     @Async
     public CompletableFuture<MonthlyBookingPrediction[]> getMonthlyBookingPrediction(UUID IdentifierId, IdentifierType identifier){
         List<MonthlyBooking> monthlyBookings = filterMonthlyBookings(IdentifierId, identifier);
+
         if (monthlyBookings == null || monthlyBookings.isEmpty()) {
             System.err.println("monthlyBookings is null or empty. Unable to proceed.");
             return CompletableFuture.completedFuture(null);
         }
         try {
-            monthlyBookings.sort(Comparator.comparing(MonthlyBooking::getMonth));
+            monthlyBookings = monthlyBookings.stream().sorted(Comparator.comparing(MonthlyBooking::getMonth)).toList();
             monthlyBookings.forEach(MonthlyBooking::getSortedDailyBookings);
         }
         catch (Exception ex){
-            System.out.println("Error" + ex);
+            System.out.println("Error: " + ex);
         }
+
         int bookingSize = monthlyBookings.size();
-        MonthlyBookingPrediction[] convertedBookings = new MonthlyBookingPrediction[bookingSize+1];
-        for (int i = 0; i < monthlyBookings.size(); i++) {
+        MonthlyBookingPrediction[] convertedBookings = new MonthlyBookingPrediction[bookingSize];
+        for (int i = 0; i < bookingSize-1; i++) {
             MonthlyBooking sourceBooking = monthlyBookings.get(i);
             MonthlyBookingPrediction convertedBooking = new MonthlyBookingPrediction();
             convertedBooking.setMonth(sourceBooking.getMonth());
@@ -67,23 +73,27 @@ public class MonthlyBookingService {
             convertedBooking.setAfternoon_lowestBooking((double) sourceBooking.getAfternoon_lowestBooking().getAfternoon());
             convertedBookings[i] = convertedBooking;
         }
+        convertedBookings[bookingSize-1] = new MonthlyBookingPrediction();;
 
-        if(bookingSize == 1)
+        if(bookingSize <= 1){
+            return null;
+        }
+        if(bookingSize == 2)
         {
-            convertedBookings[bookingSize] = convertedBookings[bookingSize-1];
-            convertedBookings[bookingSize].setMonth(String.valueOf(YearMonth.parse(convertedBookings[bookingSize].getMonth(), DateTimeFormatter.ofPattern("yyyy-MM")).plusMonths(1)));
+            convertedBookings[1] = convertedBookings[0];
+            convertedBookings[1].setMonth(String.valueOf(YearMonth.parse(convertedBookings[0].getMonth(), DateTimeFormatter.ofPattern("yyyy-MM")).plusMonths(1)));
             return CompletableFuture.completedFuture(convertedBookings);
-        } else if (bookingSize <= 13) {
-            convertedBookings[bookingSize] = perdictionResultUnder13(Arrays.copyOfRange(convertedBookings,0 , bookingSize));
+        } else if (bookingSize <= 24) {
+            convertedBookings[bookingSize-1] = perdictionResultUnder25(Arrays.copyOfRange(convertedBookings,0 , bookingSize-1));
             return  CompletableFuture.completedFuture(convertedBookings);
         } else {
-            int newSize = Math.min(23, bookingSize);
-            MonthlyBookingPrediction[] last23Entries = Arrays.copyOfRange(convertedBookings, bookingSize - newSize, bookingSize);
-            convertedBookings[bookingSize] = perdictionResultOver13(last23Entries);
+            int newSize = 25;
+            MonthlyBookingPrediction[] last25Entries = Arrays.copyOfRange(convertedBookings, bookingSize - newSize, bookingSize-1);
+            convertedBookings[bookingSize-1] = perdictionResultOver25(last25Entries);
             return  CompletableFuture.completedFuture((MonthlyBookingPrediction[]) Arrays.stream(convertedBookings).toArray());
         }
     };
-    private MonthlyBookingPrediction perdictionResultUnder13(MonthlyBookingPrediction[] monthlyBookingsPrediction) {
+    private MonthlyBookingPrediction perdictionResultUnder25(MonthlyBookingPrediction[] monthlyBookingsPrediction) {
         MonthlyBookingPrediction prediction = new MonthlyBookingPrediction();
         prediction.setMonth(String.valueOf(YearMonth.parse(monthlyBookingsPrediction[monthlyBookingsPrediction.length-1].getMonth(), DateTimeFormatter.ofPattern("yyyy-MM")).plusMonths(1)));
         prediction.setTotal(predictNextValue((Arrays.stream(monthlyBookingsPrediction)).mapToDouble(MonthlyBookingPrediction::getTotal).boxed().collect(Collectors.toList())).intValue());
@@ -97,7 +107,7 @@ public class MonthlyBookingService {
         return prediction;
     }
 
-    private MonthlyBookingPrediction perdictionResultOver13(MonthlyBookingPrediction[] monthlyBookingsPrediction){
+    private MonthlyBookingPrediction perdictionResultOver25(MonthlyBookingPrediction[] monthlyBookingsPrediction){
         Map<Integer, MonthlyBookingPrediction> resultMap = new HashMap<>();
         for (int i = 0; i < monthlyBookingsPrediction.length-1; i++) {
             resultMap.put(i + 1, monthlyBookingsPrediction[i]);

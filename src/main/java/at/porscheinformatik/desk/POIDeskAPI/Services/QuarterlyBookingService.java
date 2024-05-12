@@ -2,6 +2,7 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.QuarterlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.QuarterlyBooking;
+import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.QuarterlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class QuarterlyBookingService {
             return CompletableFuture.completedFuture(null);
         }
         try{
-            quarterlyBookings.sort(Comparator.comparing(QuarterlyBooking::getYear).thenComparing(QuarterlyBooking::getQuarter));
+            quarterlyBookings =  quarterlyBookings.stream().sorted(Comparator.comparing(QuarterlyBooking::getYear).thenComparing(QuarterlyBooking::getQuarter)).toList();
 
         }
         catch(Error er){
@@ -55,42 +56,50 @@ public class QuarterlyBookingService {
             return CompletableFuture.completedFuture(null);
         }
         int bookingSize = quarterlyBookings.size();
-        QuarterlyBookingPrediction[] convertedBookings = new QuarterlyBookingPrediction[bookingSize+1];
-        for (int i = 0; i < bookingSize; i++) {
-            convertedBookings[i] = getQuarterlyBookingPrediction(quarterlyBookings.get(i));
+        QuarterlyBookingPrediction[] convertedBookings = new QuarterlyBookingPrediction[bookingSize];
+        for (int i = 0; i < bookingSize-1; i++) {
+            QuarterlyBooking sourceBooking = quarterlyBookings.get(i);
+            QuarterlyBookingPrediction convertedBooking = new QuarterlyBookingPrediction();
+            convertedBooking.setYear(sourceBooking.getYear());
+            convertedBooking.setQuarter(sourceBooking.getQuarter());
+            convertedBooking.setTotal(sourceBooking.getTotal());
+            convertedBooking.setMorning_highestBooking((double) sourceBooking.getMorning_highestBooking().getMorning());
+            convertedBooking.setMorningAverageBooking(sourceBooking.getMorningAverageBooking());
+            convertedBooking.setMorning_lowestBooking((double) sourceBooking.getMorning_lowestBooking().getMorning());
+            convertedBooking.setAfternoon_highestBooking((double) sourceBooking.getAfternoon_highestBooking().getAfternoon());
+            convertedBooking.setAfternoonAverageBooking(sourceBooking.getAfternoonAverageBooking());
+            convertedBooking.setAfternoon_lowestBooking((double) sourceBooking.getAfternoon_lowestBooking().getAfternoon());
+            convertedBookings[i] = convertedBooking;
         }
-        if(bookingSize == 1)
+        convertedBookings[bookingSize-1] = new QuarterlyBookingPrediction();
+
+        if(bookingSize <= 1){
+            return null;
+        }
+        else if(bookingSize == 2)
         {
-            convertedBookings[bookingSize] = convertedBookings[bookingSize-1];
-            convertedBookings[bookingSize].setQuarter(((int)Math.ceil(convertedBookings[bookingSize].getQuarter() % 3)) + 1);
+            convertedBookings[1] = new QuarterlyBookingPrediction(convertedBookings[0]);
+            if(convertedBookings[0].getQuarter() == 4){
+                convertedBookings[1].setQuarter(1);
+                convertedBookings[1].setYear( Integer.toString(Integer.parseInt(convertedBookings[0].getYear()) + 1 ));
+            }
+            else{
+                convertedBookings[1].setQuarter( convertedBookings[1].getQuarter() + 1);
+            }
             return CompletableFuture.completedFuture(convertedBookings);
-        } else if (bookingSize <= 5) {
-            convertedBookings[bookingSize+1] = perdictionResultUnder5(convertedBookings);
+        } else if (bookingSize <= 8) {
+            convertedBookings[bookingSize-1] = perdictionResultUnder9(convertedBookings);
             return  CompletableFuture.completedFuture((QuarterlyBookingPrediction[]) Arrays.stream(convertedBookings).toArray());
         } else {
-            int newSize = Math.min(23, bookingSize);
-            QuarterlyBookingPrediction[] last7Entries = Arrays.copyOfRange(convertedBookings, bookingSize - newSize, bookingSize);
-            convertedBookings[bookingSize+1] = perdictionResultOver5(last7Entries);
+            int newSize = 9;
+            QuarterlyBookingPrediction[] last9Entries = Arrays.copyOfRange(convertedBookings, bookingSize - newSize, bookingSize-1);
+            convertedBookings[bookingSize-1] = perdictionResultOver9(last9Entries);
             return  CompletableFuture.completedFuture((QuarterlyBookingPrediction[]) Arrays.stream(convertedBookings).toArray());
         }
-    }
-
-    private static QuarterlyBookingPrediction getQuarterlyBookingPrediction(QuarterlyBooking sourceBooking) {
-        QuarterlyBookingPrediction convertedBooking = new QuarterlyBookingPrediction();
-        convertedBooking.setYear(sourceBooking.getYear());
-        convertedBooking.setQuarter(sourceBooking.getQuarter());
-        convertedBooking.setTotal(sourceBooking.getTotal());
-        convertedBooking.setMorning_highestBooking((double) sourceBooking.getMorning_highestBooking().getMorning());
-        convertedBooking.setMorningAverageBooking(sourceBooking.getMorningAverageBooking());
-        convertedBooking.setMorning_lowestBooking((double) sourceBooking.getMorning_lowestBooking().getMorning());
-        convertedBooking.setAfternoon_highestBooking((double) sourceBooking.getAfternoon_highestBooking().getAfternoon());
-        convertedBooking.setAfternoonAverageBooking(sourceBooking.getAfternoonAverageBooking());
-        convertedBooking.setAfternoon_lowestBooking((double) sourceBooking.getAfternoon_lowestBooking().getAfternoon());
-        return convertedBooking;
     }
 
     ;
-    private QuarterlyBookingPrediction perdictionResultUnder5(QuarterlyBookingPrediction[] quarterlyBookingPredictions){
+    private QuarterlyBookingPrediction perdictionResultUnder9(QuarterlyBookingPrediction[] quarterlyBookingPredictions){
         QuarterlyBookingPrediction prediction = new QuarterlyBookingPrediction();
         prediction.setQuarter((quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getQuarter() % 4) + 1);
         prediction.setYear(prediction.getQuarter() == 1 ? Integer.toString(Integer.parseInt(quarterlyBookingPredictions[quarterlyBookingPredictions.length -1].getYear())+1) : quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getYear());
@@ -104,7 +113,7 @@ public class QuarterlyBookingService {
         return prediction;
     }
 
-    private QuarterlyBookingPrediction perdictionResultOver5(QuarterlyBookingPrediction[] quarterlyBookingPredictions){
+    private QuarterlyBookingPrediction perdictionResultOver9(QuarterlyBookingPrediction[] quarterlyBookingPredictions){
         QuarterlyBookingPrediction prediction = new QuarterlyBookingPrediction();
         prediction.setQuarter((quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getQuarter() % 4) + 1);
         prediction.setYear(prediction.getQuarter() == 1 ? Integer.toString(Integer.parseInt(quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getYear())+1) : quarterlyBookingPredictions[quarterlyBookingPredictions.length - 1].getYear());
@@ -126,20 +135,20 @@ public class QuarterlyBookingService {
         switch (identifier){
             case Location -> {
                 return quarterlyBookings.stream()
-                        .filter(booking -> Objects.equals(
-                        booking.getFk_location().getPk_locationid(), IdentifierId))
+                        .filter(booking -> booking.getFk_location() != null &&
+                        Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId))
                         .toList();
             }
             case Building -> {
                 return quarterlyBookings.stream()
-                        .filter(booking -> Objects.equals(
-                        booking.getFk_building().getPk_buildingid(), IdentifierId))
+                        .filter(booking -> booking.getFk_building() != null &&
+                        Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId))
                         .toList();
             }
             case Floor -> {
                 return quarterlyBookings.stream()
-                        .filter(booking -> Objects.equals(
-                        booking.getFk_floor().getPk_floorid(), IdentifierId))
+                        .filter(booking -> booking.getFk_floor() != null &&
+                         Objects.equals(booking.getFk_floor().getPk_floorid(), IdentifierId))
                         .toList();
             }
             default -> throw new IllegalArgumentException("False identifiers");

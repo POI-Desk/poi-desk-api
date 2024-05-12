@@ -16,7 +16,7 @@ public class Prediction {
             percentageChange += percentageDifference;
         }
 
-        double result = data.get(count - 1) * (1 +(percentageChange / count));
+        double result = data.get(count) * (1 +(percentageChange / count));
         if(result < 0)
             return 0.00;
         return result;
@@ -101,7 +101,7 @@ public class Prediction {
     }
 
     private static double calculatePercentageDifference(double currentValue, double previousValue) {
-        return ((currentValue - previousValue) / previousValue) / 100.0;
+        return (currentValue - previousValue) / 100.0;
     }
 
     public static double predictValueWithIncrease(double previousValue, double percentageIncrease) {

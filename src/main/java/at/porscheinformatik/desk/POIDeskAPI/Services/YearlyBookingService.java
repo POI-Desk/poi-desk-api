@@ -1,6 +1,7 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.YearlyBookingRepo;
+import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.YearlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.YearlyBookingPrediction;
@@ -33,13 +34,13 @@ public class YearlyBookingService {
     }
     @Async
     public CompletableFuture<YearlyBooking> getYearlyBooking(String year, UUID IdentifierId, IdentifierType identifier){
-        List<YearlyBooking> yearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
-        List<YearlyBooking> yearlyBooking = yearlyBookings.stream()
+        List<YearlyBooking> dbYearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
+        List<YearlyBooking> yearlyBookings = dbYearlyBookings.stream()
                 .filter(booking -> Objects.equals(booking.getYear(), year)).toList();
-        Optional<YearlyBooking> selectedYearlyBooking;
+        Optional<YearlyBooking> yearlyBooking;
         switch (identifier){
             case Location -> {
-                selectedYearlyBooking = yearlyBooking.stream()
+                yearlyBooking = yearlyBookings.stream()
                         .filter(booking -> booking.getFk_location() != null &&
                                 Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId) &&
                                 booking.getFk_building() == null &&
@@ -47,7 +48,7 @@ public class YearlyBookingService {
                         .findFirst();
             }
             case Building -> {
-                selectedYearlyBooking = yearlyBooking.stream()
+                yearlyBooking = yearlyBookings.stream()
                         .filter(booking -> booking.getFk_location() == null &&
                                 booking.getFk_building() != null &&
                                 Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId) &&
@@ -55,7 +56,7 @@ public class YearlyBookingService {
                         .findFirst();
             }
             case Floor -> {
-                selectedYearlyBooking = yearlyBooking.stream()
+                yearlyBooking = yearlyBookings.stream()
                         .filter(booking -> booking.getFk_location() == null &&
                                 booking.getFk_building() == null &&
                                 booking.getFk_floor() != null &&
@@ -64,7 +65,11 @@ public class YearlyBookingService {
             }
             default -> throw new IllegalArgumentException("False identifiere");
         }
-        return CompletableFuture.completedFuture(selectedYearlyBooking.orElse(null));
+        if(yearlyBooking.isEmpty())
+            return CompletableFuture.completedFuture(null);
+        YearlyBooking selectedBooking = yearlyBooking.get();
+        selectedBooking.setQuarterlyBookings(selectedBooking.getSortedQuarterlyBookings());
+        return CompletableFuture.completedFuture(selectedBooking);
     };
     @Async
     public CompletableFuture<YearlyBookingPrediction[]> getYearlyBookingPrediction(UUID IdentifierId, IdentifierType identifier){
