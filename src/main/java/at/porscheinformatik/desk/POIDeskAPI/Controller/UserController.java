@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -118,7 +119,6 @@ public class UserController {
     @QueryMapping
     public String authorizeUser(){
         try {
-
             return AuthHelper.authenticate(request, accountRepo);
         } catch (Exception e) {
             e.printStackTrace();
@@ -212,9 +212,12 @@ public class UserController {
     public String loginWizzGoogol(@Argument String authToken, DataFetchingEnvironment env) throws IOException {
         // the google auth token workflow
         List<String> scopes = new ArrayList<String>(Arrays.asList("https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"));
-        GoogleAuthorizationCodeFlow a = new GoogleAuthorizationCodeFlow(new NetHttpTransport(), new GsonFactory(), "30449198569-8ti9l20a7quemfkp1phf27fhf546d469.apps.googleusercontent.com","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", scopes);
-        var tokenResponse = a.newTokenRequest(authToken).setRedirectUri("http://localhost:5173/api/auth/callback/google/").execute();
-
+        Map<String, String> environment_var = System.getenv();
+        GoogleAuthorizationCodeFlow a = new GoogleAuthorizationCodeFlow(new NetHttpTransport(),
+                new GsonFactory(),
+                environment_var.get("GOOGLE_CLIENT_ID"),
+                environment_var.get("GOOGLE_CLIENT_SECRET"), scopes);
+        var tokenResponse = a.newTokenRequest(authToken).setRedirectUri(environment_var.get("REDIRECT_URI")).execute();
 
         //get the id token
         String idToken = tokenResponse.getIdToken();
@@ -256,7 +259,7 @@ public class UserController {
             }
 
             try{
-                Algorithm algorithm = Algorithm.HMAC256("lol");
+                Algorithm algorithm = Algorithm.HMAC256("lol"); // TODO: change!!!!!!!
                 String token = JWT.create()
                         .withClaim("email", userEmail)
                         .withClaim("name", name)
