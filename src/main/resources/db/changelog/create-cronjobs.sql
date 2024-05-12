@@ -19,10 +19,10 @@ SELECT cron.schedule('0 3 1 * *', $$SELECT createEmptyMonthlyAnalysisEntries()$$
 SELECT cron.schedule('0 20 * * 1-5', $$SELECT runDailyAnalysisFunctions()$$);
 
 -- changeset liquibase:7
-SELECT cron.schedule('0 21 $ * *', $$SELECT runMonthlyAnalysisFunctions()$$);
+SELECT cron.schedule('0 21 $ 1,2,4,5,7,8,10,11 *', $$SELECT runMonthlyAnalysisFunctions()$$);
 
 -- changeset liquibase:8
-SELECT cron.schedule('0 22 $ 3,6,9,12 *', $$SELECT runQuarterlyAnalysisFunctions()$$);
+SELECT cron.schedule('0 21 $ 3,6,9 *', $$SELECT runQuarterlyAnalysisFunctions()$$);
 
 -- changeset liquibase:9
-SELECT cron.schedule('0 23 $ 12 *', $$SELECT runYearlyAnalysisFunctions()$$);
+SELECT cron.schedule('0 21 $ 12 *', $$SELECT runYearlyAnalysisFunctions()$$);

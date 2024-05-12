@@ -84,7 +84,6 @@ public class MonthlyBooking {
 
     public List<DailyBooking> getSortedDailyBookings() {
         if (dailyBookings != null) {
-            // Sort the list using a custom comparator
             dailyBookings.sort(Comparator.comparing(DailyBooking::getDay));
         }
         return dailyBookings;

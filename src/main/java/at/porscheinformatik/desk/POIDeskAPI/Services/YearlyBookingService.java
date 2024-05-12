@@ -1,24 +1,17 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.YearlyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.QuarterlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.YearlyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.QuarterlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.YearlyBookingPrediction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.calculateDiffernce;
 import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.predictNextValue;
 
 @Service
@@ -41,13 +34,13 @@ public class YearlyBookingService {
     }
     @Async
     public CompletableFuture<YearlyBooking> getYearlyBooking(String year, UUID IdentifierId, IdentifierType identifier){
-        List<YearlyBooking> yearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
-        List<YearlyBooking> yearlyBooking = yearlyBookings.stream()
+        List<YearlyBooking> dbYearlyBookings = (List<YearlyBooking>)yearlyBookingRepo.findAll();
+        List<YearlyBooking> yearlyBookings = dbYearlyBookings.stream()
                 .filter(booking -> Objects.equals(booking.getYear(), year)).toList();
-        Optional<YearlyBooking> selectedYearlyBooking;
+        Optional<YearlyBooking> yearlyBooking;
         switch (identifier){
             case Location -> {
-                selectedYearlyBooking = yearlyBooking.stream()
+                yearlyBooking = yearlyBookings.stream()
                         .filter(booking -> booking.getFk_location() != null &&
                                 Objects.equals(booking.getFk_location().getPk_locationid(), IdentifierId) &&
                                 booking.getFk_building() == null &&
@@ -55,7 +48,7 @@ public class YearlyBookingService {
                         .findFirst();
             }
             case Building -> {
-                selectedYearlyBooking = yearlyBooking.stream()
+                yearlyBooking = yearlyBookings.stream()
                         .filter(booking -> booking.getFk_location() == null &&
                                 booking.getFk_building() != null &&
                                 Objects.equals(booking.getFk_building().getPk_buildingid(), IdentifierId) &&
@@ -63,7 +56,7 @@ public class YearlyBookingService {
                         .findFirst();
             }
             case Floor -> {
-                selectedYearlyBooking = yearlyBooking.stream()
+                yearlyBooking = yearlyBookings.stream()
                         .filter(booking -> booking.getFk_location() == null &&
                                 booking.getFk_building() == null &&
                                 booking.getFk_floor() != null &&
@@ -72,7 +65,11 @@ public class YearlyBookingService {
             }
             default -> throw new IllegalArgumentException("False identifiere");
         }
-        return CompletableFuture.completedFuture(selectedYearlyBooking.orElse(null));
+        if(yearlyBooking.isEmpty())
+            return CompletableFuture.completedFuture(null);
+        YearlyBooking selectedBooking = yearlyBooking.get();
+        selectedBooking.setQuarterlyBookings(selectedBooking.getSortedQuarterlyBookings());
+        return CompletableFuture.completedFuture(selectedBooking);
     };
     @Async
     public CompletableFuture<YearlyBookingPrediction[]> getYearlyBookingPrediction(UUID IdentifierId, IdentifierType identifier){
@@ -133,17 +130,12 @@ public class YearlyBookingService {
             convertedBookings[bookingSize] = convertedBookings[bookingSize-1];
             convertedBookings[bookingSize].setYear(convertedBookings[bookingSize].getYear() + 1);
             return CompletableFuture.completedFuture(convertedBookings);
-        } else if (bookingSize <= 13) {
-            convertedBookings[bookingSize+1] = perdictionResultUnder13(convertedBookings);
-            return  CompletableFuture.completedFuture((YearlyBookingPrediction[]) Arrays.stream(convertedBookings).toArray());
         } else {
-            int newSize = Math.min(23, bookingSize);
-            YearlyBookingPrediction[] last23Entries = Arrays.copyOfRange(convertedBookings, bookingSize - newSize, bookingSize);
-            convertedBookings[bookingSize+1] = perdictionResultOver13(last23Entries);
+            convertedBookings[bookingSize+1] = perdictionResult(convertedBookings);
             return  CompletableFuture.completedFuture((YearlyBookingPrediction[]) Arrays.stream(convertedBookings).toArray());
         }
     };
-    private YearlyBookingPrediction perdictionResultUnder13(YearlyBookingPrediction[] yearlyBookingPredictions){
+    private YearlyBookingPrediction perdictionResult(YearlyBookingPrediction[] yearlyBookingPredictions){
         YearlyBookingPrediction prediction = new YearlyBookingPrediction();
         prediction.setYear(String.valueOf(Integer.parseInt(yearlyBookingPredictions[yearlyBookingPredictions.length - 1].getYear())+1));
         prediction.setTotal(predictNextValue((List<Double>) Arrays.stream(yearlyBookingPredictions).mapToDouble(YearlyBookingPrediction::getTotal)).intValue());
@@ -153,19 +145,6 @@ public class YearlyBookingService {
         prediction.setAfternoon_highestBooking(predictNextValue(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getAfternoon_highestBooking).toList()));
         prediction.setAfternoonAverageBooking(predictNextValue(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getAfternoonAverageBooking).toList()));
         prediction.setAfternoon_lowestBooking(predictNextValue(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getAfternoon_lowestBooking).toList()));
-        return prediction;
-    }
-
-    private YearlyBookingPrediction perdictionResultOver13(YearlyBookingPrediction[] yearlyBookingPredictions){
-        YearlyBookingPrediction prediction = new YearlyBookingPrediction();
-        prediction.setYear(yearlyBookingPredictions[yearlyBookingPredictions.length - 1].getYear()+1);
-        prediction.setTotal(calculateDiffernce((List<Double>) Arrays.stream(yearlyBookingPredictions).mapToDouble(YearlyBookingPrediction::getTotal)).intValue());
-        prediction.setMorning_highestBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorning_highestBooking).toList()));
-        prediction.setMorningAverageBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorningAverageBooking).toList()));
-        prediction.setMorning_lowestBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getMorning_lowestBooking).toList()));
-        prediction.setAfternoon_highestBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getAfternoon_highestBooking).toList()));
-        prediction.setAfternoonAverageBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getAfternoonAverageBooking).toList()));
-        prediction.setAfternoon_lowestBooking(calculateDiffernce(Arrays.stream(yearlyBookingPredictions).map(YearlyBookingPrediction::getAfternoon_lowestBooking).toList()));
         return prediction;
     }
 }

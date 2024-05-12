@@ -92,57 +92,73 @@ VALUES
     ('69', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'I')),
     ('79', (SELECT pk_buildingId FROM Buildings WHERE buildingName = 'I'));
 
--- changeset liquibase:14
--- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
--- SELECT
---         concat(deskNum, '10'),
---         x + 10,
---         y + 10,
---         rotation,
---         (SELECT pk_floorId FROM Floors WHERE floorName = '3')
--- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '3')
--- LIMIT 10;
-
--- changeset liquibase:15
--- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
--- SELECT
---         concat(deskNum, '100'),
---         x + 20,
---         y + 20,
---         rotation,
---         (SELECT pk_floorId FROM Floors WHERE floorName = '4')
--- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '4')
--- LIMIT 10;
-
--- changeset liquibase:16
--- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
--- SELECT
---         concat(deskNum, '200'),
---         x + 15,
---         y + 15,
---         rotation,
---         (SELECT pk_floorId FROM Floors WHERE floorName = '5')
--- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '5')
--- LIMIT 10;
-
--- changeset liquibase:17
--- INSERT INTO Desks (deskNum, x, y, rotation, fk_floorId)
--- SELECT
---         concat(deskNum, '10'),
---         x + 10,
---         y + 10,
---         rotation,
---         (SELECT pk_floorId FROM Floors WHERE floorName = '6')
--- FROM Desks WHERE fk_floorId = (SELECT pk_floorId FROM Floors WHERE floorName = '6')
--- LIMIT 10;
 
 -- changeset liquibase:18
 select createemptyyearlyanalysisentries();
+
 -- changeset liquibase:19
-select createemptyquarterlyanalysisentries();
+insert into QuarterlyBookings(fk_location, quarter, fk_yearlyBookingId)
+SELECT l.pk_locationid,
+       getCurrentQuarter()-1,
+       (select y.pk_yearlyBookingId
+        from yearlybookings y
+        where y.fk_location = l.pk_locationid
+          and y.year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY'))
+from locations l;
 -- changeset liquibase:20
-select createemptymonthlyanalysisentries();
+insert into QuarterlyBookings(fk_building, quarter, fk_yearlyBookingId)
+SELECT b.pk_buildingid,
+       getCurrentQuarter()-1,
+       (select y.pk_yearlyBookingId
+        from yearlybookings y
+        where y.fk_building = b.pk_buildingid
+          and y.year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY'))
+from buildings b;
+-- changeset liquibase:21
+insert into QuarterlyBookings(fk_floor, quarter, fk_yearlyBookingId)
+SELECT f.pk_floorid,
+       getCurrentQuarter()-1,
+       (select y.pk_yearlyBookingId
+        from yearlybookings y
+        where y.fk_floor = f.pk_floorid
+          and y.year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY'))
+from floors f;
+
+-- changeset liquibase:22
+insert into MonthlyBookings(month, fk_Location, fk_quarterlyBookingId)
+SELECT to_char((CURRENT_DATE - INTERVAL '2 month'), 'YYYY-MM'),
+       l.pk_locationid,
+       (select q.pk_quarterlyBookingId
+        from QuarterlyBookings q
+        where q.fk_location = l.pk_locationid
+          and year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY')
+          and q.quarter = getcurrentquarter()  - 1)
+from locations l;
+-- changeset liquibase:23
+insert into MonthlyBookings(month, fk_building, fk_quarterlyBookingId)
+SELECT to_char((CURRENT_DATE - INTERVAL '2 month'), 'YYYY-MM'),
+       b.pk_buildingid,
+       (select q.pk_quarterlyBookingId
+        from QuarterlyBookings q
+        where q.fk_building = b.pk_buildingid
+          and year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY')
+          and q.quarter = getcurrentquarter()  - 1)
+from buildings b;
 -- changeset liquibase:24
+insert into MonthlyBookings(month, fk_floor, fk_quarterlyBookingId)
+SELECT to_char((CURRENT_DATE - INTERVAL '2 month'), 'YYYY-MM'),
+       f.pk_floorid,
+       (select q.pk_quarterlyBookingId
+        from QuarterlyBookings q
+        where q.fk_floor = f.pk_floorid
+          and year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY')
+          and q.quarter = getcurrentquarter() - 1)
+from floors f;
+
+-- changeset liquibase:15
+select createemptyquarterlyanalysisentries();
+
+-- changeset liquibase:26
 insert into MonthlyBookings(month, fk_Location, fk_quarterlyBookingId)
 SELECT to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY-MM'),
        l.pk_locationid,
@@ -152,7 +168,7 @@ SELECT to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY-MM'),
           and year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY')
           and q.quarter = getcurrentquarter())
 from locations l;
--- changeset liquibase:25
+-- changeset liquibase:27
 insert into MonthlyBookings(month, fk_building, fk_quarterlyBookingId)
 SELECT to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY-MM'),
        b.pk_buildingid,
@@ -162,7 +178,7 @@ SELECT to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY-MM'),
           and year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY')
           and q.quarter = getcurrentquarter())
 from buildings b;
--- changeset liquibase:26
+-- changeset liquibase:28
 insert into MonthlyBookings(month, fk_floor, fk_quarterlyBookingId)
 SELECT to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY-MM'),
        f.pk_floorid,
@@ -172,296 +188,373 @@ SELECT to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY-MM'),
           and year = to_char((CURRENT_DATE - INTERVAL '1 month'), 'YYYY')
           and q.quarter = getcurrentquarter())
 from floors f;
--- changeset liquibase:27
-insert into dailybookings(day, morning, afternoon, total, fk_floor, fk_monthlybookingid) values
-                                                                                             ('2024-03-01', 73, 60, 133, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-02', 76, 98, 174, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-03', 81, 107, 188, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-04', 50, 42, 92, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-05', 35, 87, 122, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-06', 98, 84, 182, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-07', 103, 101, 204, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-08', 54, 44, 98, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-09', 70, 106, 176, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-10', 73, 39, 112, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-11', 26, 57, 83, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-12', 91, 55, 146, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-13', 44, 82, 126, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-14', 68, 119, 187, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-15', 101, 124, 225, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-16', 38, 78, 116, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-17', 66, 112, 178, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-18', 37, 94, 131, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-19', 105, 94, 199, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-20', 97, 115, 212, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-21', 43, 110, 153, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-22', 53, 93, 146, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-23', 72, 103, 175, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-24', 34, 47, 81, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-25', 69, 60, 129, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-26', 65, 90, 155, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-27', 54, 84, 138, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-28', 39, 106, 145, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-29', 99, 53, 152, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-03-30', 79, 36, 115, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
-                                                                                             ('2024-02-01', 98, 89, 187, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-02', 38, 104, 142, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-03', 77, 92, 169, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-04', 66, 62, 128, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-05', 51, 97, 148, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-06', 104, 40, 144, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-07', 61, 117, 178, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-08', 78, 67, 145, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-09', 53, 67, 120, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-10', 75, 84, 159, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-11', 107, 81, 188, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-12', 59, 83, 142, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-13', 30, 48, 78, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-14', 59, 117, 176, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-15', 47, 108, 155, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-16', 57, 49, 106, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-17', 89, 81, 170, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-18', 42, 55, 97, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-19', 61, 46, 107, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-20', 112, 89, 201, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-21', 39, 44, 83, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-22', 54, 55, 109, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-23', 108, 80, 188, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-24', 68, 105, 173, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-25', 41, 94, 135, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-26', 43, 87, 130, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-02-27', 35, 87, 122, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-02')),
-                                                                                             ('2024-03-01', 52, 92, 144, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-02', 89, 39, 128, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-03', 41, 61, 102, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-04', 82, 91, 173, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-05', 97, 63, 160, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-06', 47, 51, 98, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-07', 64, 113, 177, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-08', 70, 86, 156, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-09', 26, 95, 121, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-10', 49, 48, 97, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-11', 31, 64, 95, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-12', 71, 59, 130, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-13', 96, 97, 193, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-14', 81, 49, 130, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-15', 73, 124, 197, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-16', 84, 67, 151, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-17', 85, 62, 147, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-18', 101, 53, 154, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-19', 79, 43, 122, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-20', 36, 66, 102, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-21', 68, 110, 178, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-22', 84, 82, 166, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-23', 66, 112, 178, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-24', 87, 106, 193, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-25', 72, 50, 122, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-26', 97, 65, 162, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-27', 88, 35, 123, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-28', 56, 83, 139, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-29', 112, 44, 156, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-03-30', 103, 118, 221, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
-                                                                                             ('2024-02-01', 86, 98, 184, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-02', 67, 37, 104, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-03', 81, 92, 173, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-04', 87, 56, 143, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-05', 29, 117, 146, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-06', 82, 63, 145, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-07', 103, 50, 153, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-08', 74, 39, 113, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-09', 60, 35, 95, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-10', 58, 79, 137, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-11', 82, 90, 172, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-12', 91, 65, 156, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-13', 45, 31, 76, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-14', 79, 103, 182, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-15', 84, 77, 161, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-16', 63, 34, 97, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-17', 26, 121, 147, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-18', 67, 30, 97, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-19', 98, 112, 210, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-20', 86, 111, 197, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-21', 62, 111, 173, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-22', 69, 112, 181, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-23', 46, 73, 119, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-24', 70, 108, 178, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-25', 89, 58, 147, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-26', 84, 103, 187, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-02-27', 65, 39, 104, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-02')),
-                                                                                             ('2024-03-01', 62, 40, 102, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-02', 84, 76, 160, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-03', 58, 49, 107, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-04', 63, 98, 161, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-05', 61, 76, 137, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-06', 63, 75, 138, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-07', 31, 88, 119, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-08', 72, 90, 162, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-09', 45, 78, 123, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-10', 93, 106, 199, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-11', 79, 100, 179, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-12', 43, 86, 129, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-13', 91, 56, 147, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-14', 69, 70, 139, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-15', 89, 67, 156, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-16', 63, 108, 171, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-17', 101, 54, 155, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-18', 100, 117, 217, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-19', 85, 99, 184, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-20', 113, 124, 237, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-21', 56, 66, 122, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-22', 37, 45, 82, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-23', 35, 86, 121, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-24', 54, 52, 106, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-25', 35, 84, 119, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-26', 63, 38, 101, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-27', 106, 109, 215, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-28', 55, 32, 87, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-29', 29, 97, 126, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-03-30', 88, 101, 189, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
-                                                                                             ('2024-02-01', 60, 97, 157, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-02', 97, 101, 198, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-03', 96, 112, 208, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-04', 104, 42, 146, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-05', 27, 44, 71, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-06', 60, 54, 114, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-07', 66, 115, 181, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-08', 37, 58, 95, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-09', 70, 99, 169, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-10', 70, 101, 171, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-11', 90, 95, 185, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-12', 96, 32, 128, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-13', 38, 71, 109, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-14', 45, 38, 83, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-15', 108, 53, 161, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-16', 44, 99, 143, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-17', 96, 95, 191, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-18', 33, 38, 71, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-19', 42, 116, 158, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-20', 54, 74, 128, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-21', 55, 60, 115, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-22', 42, 55, 97, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-23', 34, 39, 73, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-24', 96, 124, 220, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-25', 110, 62, 172, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-26', 107, 94, 201, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-02-27', 75, 110, 185, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-02')),
-                                                                                             ('2024-03-01', 78, 67, 145, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-02', 44, 96, 140, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-03', 27, 120, 147, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-04', 102, 36, 138, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-05', 94, 89, 183, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-06', 88, 108, 196, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-07', 73, 36, 109, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-08', 86, 100, 186, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-09', 39, 64, 103, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-10', 49, 119, 168, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-11', 41, 113, 154, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-12', 43, 123, 166, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-13', 93, 96, 189, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-14', 65, 116, 181, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-15', 75, 119, 194, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-16', 79, 120, 199, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-17', 75, 89, 164, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-18', 85, 42, 127, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-19', 80, 41, 121, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-20', 37, 80, 117, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-21', 87, 107, 194, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-22', 43, 118, 161, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-23', 78, 86, 164, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-24', 25, 112, 137, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-25', 85, 72, 157, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-26', 84, 88, 172, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-27', 73, 113, 186, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-28', 75, 65, 140, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-29', 85, 68, 153, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-03-30', 87, 75, 162, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
-                                                                                             ('2024-02-01', 73, 90, 163, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-02', 31, 57, 88, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-03', 94, 94, 188, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-04', 73, 108, 181, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-05', 93, 97, 190, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-06', 80, 75, 155, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-07', 106, 75, 181, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-08', 54, 105, 159, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-09', 47, 123, 170, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-10', 27, 36, 63, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-11', 25, 82, 107, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-12', 83, 79, 162, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-13', 58, 73, 131, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-14', 113, 70, 183, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-15', 25, 91, 116, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-16', 41, 110, 151, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-17', 75, 92, 167, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-18', 71, 121, 192, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-19', 98, 32, 130, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-20', 84, 54, 138, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-21', 80, 77, 157, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-22', 70, 122, 192, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-23', 77, 92, 169, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-24', 54, 103, 157, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-25', 95, 51, 146, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-26', 89, 95, 184, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-02-27', 71, 51, 122, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-02')),
-                                                                                             ('2024-03-01', 102, 60, 162, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-02', 104, 94, 198, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-03', 45, 118, 163, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-04', 92, 84, 176, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-05', 87, 85, 172, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-06', 102, 91, 193, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-07', 105, 63, 168, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-08', 58, 62, 120, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-09', 57, 46, 103, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-10', 112, 97, 209, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-11', 71, 101, 172, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-12', 74, 81, 155, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-13', 55, 46, 101, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-14', 38, 82, 120, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-15', 52, 77, 129, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-16', 33, 33, 66, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-17', 30, 42, 72, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-18', 32, 53, 85, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-19', 49, 111, 160, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-20', 57, 73, 130, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-21', 52, 42, 94, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-22', 101, 57, 158, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-23', 43, 63, 106, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-24', 52, 70, 122, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-25', 81, 36, 117, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-26', 28, 60, 88, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-27', 71, 45, 116, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-28', 85, 77, 162, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-29', 53, 112, 165, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-03-30', 64, 47, 111, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
-                                                                                             ('2024-02-01', 51, 64, 115, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-02', 61, 39, 100, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-03', 89, 115, 204, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-04', 56, 68, 124, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-05', 72, 102, 174, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-06', 111, 60, 171, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-07', 62, 37, 99, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-08', 62, 30, 92, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-09', 45, 94, 139, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-10', 60, 58, 118, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-11', 78, 63, 141, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-12', 42, 90, 132, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-13', 94, 113, 207, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-14', 36, 47, 83, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-15', 98, 66, 164, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-16', 52, 77, 129, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-17', 33, 103, 136, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-18', 98, 106, 204, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-19', 51, 61, 112, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-20', 25, 43, 68, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-21', 61, 108, 169, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-22', 74, 53, 127, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-23', 78, 96, 174, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-24', 65, 93, 158, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-25', 71, 73, 144, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-26', 98, 92, 190, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02')),
-                                                                                             ('2024-02-27', 47, 33, 80, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-02'));
--- changeset liquibase:28
-select createMonthlyAnalysisEntriesForFloors();
 -- changeset liquibase:29
+select createemptymonthlyanalysisentries();
+
+-- changeset liquibase:30
+insert into dailybookings(day, morning, afternoon, total, fk_floor, fk_monthlybookingid) values
+('2024-03-01', 58, 61, 119, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-02', 92, 102, 194, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-03', 167, 113, 280, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-04', 153, 29, 182, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-05', 17, 129, 146, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-06', 125, 151, 276, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-07', 89, 163, 252, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-08', 21, 10, 31, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-09', 79, 57, 136, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-10', 160, 128, 288, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-11', 50, 190, 240, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-12', 175, 82, 257, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-13', 135, 99, 234, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-14', 51, 177, 228, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-15', 166, 137, 303, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-16', 96, 26, 122, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-17', 124, 51, 175, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-18', 170, 171, 341, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-19', 148, 151, 299, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-20', 122, 170, 292, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-21', 38, 92, 130, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-22', 45, 55, 100, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-23', 22, 58, 80, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-24', 100, 185, 285, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-25', 42, 129, 171, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-26', 113, 59, 172, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-27', 119, 40, 159, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-28', 114, 185, 299, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-29', 141, 70, 211, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-03-30', 84, 56, 140, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-03')),
+('2024-04-01', 180, 156, 336, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-02', 153, 163, 316, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-03', 84, 169, 253, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-04', 149, 120, 269, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-05', 137, 75, 212, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-06', 79, 62, 141, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-07', 35, 30, 65, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-08', 111, 163, 274, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-09', 66, 87, 153, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-10', 107, 168, 275, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-11', 118, 119, 237, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-12', 90, 87, 177, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-13', 109, 14, 123, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-14', 98, 66, 164, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-15', 138, 75, 213, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-16', 134, 67, 201, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-17', 70, 67, 137, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-18', 116, 163, 279, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-19', 110, 77, 187, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-20', 15, 77, 92, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-21', 85, 176, 261, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-22', 99, 195, 294, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-23', 130, 149, 279, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-24', 57, 192, 249, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-25', 76, 180, 256, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-26', 166, 79, 245, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-27', 157, 57, 214, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-28', 80, 77, 157, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-29', 125, 84, 209, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-04-30', 15, 95, 110, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-04')),
+('2024-05-01', 76, 65, 141, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-02', 27, 55, 82, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-03', 85, 136, 221, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-04', 23, 80, 103, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-05', 112, 27, 139, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-06', 145, 162, 307, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-07', 135, 20, 155, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-08', 165, 171, 336, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-09', 63, 156, 219, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-10', 21, 73, 94, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-11', 178, 195, 373, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-05-12', 142, 161, 303, (select f.pk_floorid from floors f where f.floorname = '4'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '4') and month = '2024-05')),
+('2024-03-01', 39, 13, 52, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-02', 156, 41, 197, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-03', 22, 107, 129, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-04', 54, 186, 240, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-05', 71, 72, 143, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-06', 67, 54, 121, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-07', 32, 68, 100, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-08', 50, 101, 151, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-09', 165, 23, 188, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-10', 87, 131, 218, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-11', 69, 162, 231, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-12', 83, 184, 267, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-13', 177, 39, 216, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-14', 168, 66, 234, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-15', 136, 34, 170, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-16', 60, 13, 73, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-17', 80, 36, 116, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-18', 55, 57, 112, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-19', 148, 61, 209, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-20', 107, 147, 254, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-21', 167, 7, 174, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-22', 119, 87, 206, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-23', 83, 26, 109, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-24', 158, 157, 315, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-25', 33, 21, 54, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-26', 56, 182, 238, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-27', 113, 143, 256, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-28', 140, 99, 239, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-29', 50, 48, 98, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-03-30', 166, 123, 289, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-03')),
+('2024-04-01', 68, 42, 110, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-02', 85, 177, 262, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-03', 57, 179, 236, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-04', 163, 116, 279, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-05', 14, 69, 83, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-06', 81, 59, 140, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-07', 36, 192, 228, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-08', 49, 118, 167, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-09', 38, 102, 140, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-10', 157, 157, 314, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-11', 130, 33, 163, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-12', 89, 146, 235, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-13', 41, 148, 189, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-14', 165, 175, 340, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-15', 137, 76, 213, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-16', 61, 9, 70, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-17', 59, 148, 207, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-18', 63, 128, 191, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-19', 148, 179, 327, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-20', 131, 155, 286, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-21', 26, 57, 83, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-22', 151, 96, 247, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-23', 175, 150, 325, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-24', 46, 171, 217, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-25', 178, 195, 373, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-26', 123, 12, 135, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-27', 115, 189, 304, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-28', 48, 189, 237, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-29', 138, 70, 208, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-04-30', 61, 61, 122, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-04')),
+('2024-05-01', 40, 157, 197, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-02', 108, 74, 182, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-03', 136, 118, 254, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-04', 176, 189, 365, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-05', 107, 157, 264, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-06', 145, 116, 261, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-07', 117, 184, 301, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-08', 46, 70, 116, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-09', 42, 112, 154, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-10', 144, 158, 302, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-11', 15, 43, 58, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-05-12', 15, 159, 174, (select f.pk_floorid from floors f where f.floorname = '8'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '8') and month = '2024-05')),
+('2024-03-01', 14, 8, 22, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-02', 84, 93, 177, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-03', 140, 170, 310, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-04', 78, 25, 103, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-05', 38, 152, 190, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-06', 165, 70, 235, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-07', 181, 91, 272, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-08', 62, 121, 183, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-09', 102, 144, 246, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-10', 154, 77, 231, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-11', 149, 20, 169, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-12', 66, 124, 190, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-13', 48, 70, 118, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-14', 49, 55, 104, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-15', 126, 76, 202, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-16', 17, 41, 58, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-17', 175, 132, 307, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-18', 65, 125, 190, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-19', 123, 23, 146, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-20', 110, 133, 243, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-21', 92, 132, 224, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-22', 56, 165, 221, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-23', 44, 93, 137, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-24', 133, 154, 287, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-25', 75, 186, 261, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-26', 52, 150, 202, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-27', 140, 102, 242, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-28', 151, 93, 244, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-29', 84, 139, 223, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-03-30', 100, 148, 248, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-03')),
+('2024-04-01', 49, 122, 171, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-02', 62, 67, 129, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-03', 16, 40, 56, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-04', 24, 75, 99, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-05', 122, 127, 249, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-06', 78, 162, 240, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-07', 28, 120, 148, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-08', 39, 190, 229, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-09', 108, 137, 245, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-10', 64, 98, 162, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-11', 32, 174, 206, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-12', 71, 162, 233, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-13', 131, 82, 213, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-14', 75, 184, 259, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-15', 81, 72, 153, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-16', 120, 149, 269, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-17', 112, 90, 202, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-18', 28, 156, 184, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-19', 145, 152, 297, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-20', 54, 32, 86, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-21', 72, 133, 205, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-22', 120, 73, 193, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-23', 128, 44, 172, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-24', 84, 22, 106, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-25', 132, 188, 320, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-26', 84, 38, 122, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-27', 172, 18, 190, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-28', 41, 43, 84, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-29', 106, 106, 212, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-04-30', 13, 189, 202, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-04')),
+('2024-05-01', 158, 60, 218, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-02', 69, 26, 95, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-03', 138, 133, 271, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-04', 58, 131, 189, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-05', 109, 148, 257, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-06', 161, 37, 198, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-07', 41, 52, 93, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-08', 93, 49, 142, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-09', 98, 58, 156, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-10', 44, 96, 140, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-11', 150, 16, 166, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-05-12', 146, 190, 336, (select f.pk_floorid from floors f where f.floorname = '9'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '9') and month = '2024-05')),
+('2024-03-01', 27, 30, 57, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-02', 122, 39, 161, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-03', 46, 140, 186, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-04', 160, 43, 203, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-05', 44, 9, 53, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-06', 85, 51, 136, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-07', 106, 115, 221, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-08', 34, 156, 190, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-09', 170, 9, 179, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-10', 56, 106, 162, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-11', 83, 118, 201, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-12', 36, 119, 155, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-13', 33, 194, 227, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-14', 75, 59, 134, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-15', 176, 64, 240, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-16', 138, 46, 184, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-17', 179, 173, 352, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-18', 137, 137, 274, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-19', 39, 92, 131, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-20', 120, 130, 250, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-21', 129, 183, 312, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-22', 130, 78, 208, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-23', 51, 83, 134, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-24', 36, 7, 43, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-25', 108, 87, 195, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-26', 93, 12, 105, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-27', 173, 103, 276, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-28', 129, 110, 239, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-29', 63, 162, 225, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-03-30', 18, 192, 210, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-03')),
+('2024-04-01', 107, 85, 192, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-02', 25, 169, 194, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-03', 82, 178, 260, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-04', 31, 24, 55, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-05', 151, 183, 334, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-06', 35, 79, 114, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-07', 81, 130, 211, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-08', 156, 124, 280, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-09', 63, 90, 153, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-10', 137, 36, 173, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-11', 119, 32, 151, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-12', 19, 94, 113, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-13', 97, 72, 169, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-14', 101, 136, 237, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-15', 126, 180, 306, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-16', 83, 44, 127, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-17', 96, 193, 289, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-18', 111, 31, 142, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-19', 76, 116, 192, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-20', 66, 143, 209, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-21', 22, 28, 50, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-22', 65, 86, 151, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-23', 60, 57, 117, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-24', 54, 172, 226, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-25', 131, 74, 205, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-26', 79, 156, 235, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-27', 27, 147, 174, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-28', 16, 104, 120, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-29', 163, 51, 214, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-04-30', 53, 128, 181, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-04')),
+('2024-05-01', 47, 47, 94, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-02', 128, 95, 223, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-03', 66, 112, 178, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-04', 64, 160, 224, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-05', 68, 105, 173, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-06', 130, 118, 248, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-07', 72, 126, 198, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-08', 83, 88, 171, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-09', 35, 19, 54, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-10', 39, 30, 69, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-11', 47, 112, 159, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-05-12', 132, 99, 231, (select f.pk_floorid from floors f where f.floorname = '50'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '50') and month = '2024-05')),
+('2024-03-01', 92, 26, 118, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-02', 139, 182, 321, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-03', 75, 29, 104, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-04', 18, 38, 56, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-05', 16, 160, 176, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-06', 16, 80, 96, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-07', 62, 119, 181, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-08', 106, 62, 168, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-09', 108, 98, 206, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-10', 85, 63, 148, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-11', 168, 100, 268, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-12', 144, 123, 267, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-13', 88, 20, 108, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-14', 142, 78, 220, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-15', 39, 126, 165, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-16', 165, 173, 338, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-17', 108, 116, 224, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-18', 68, 55, 123, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-19', 48, 106, 154, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-20', 107, 76, 183, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-21', 147, 176, 323, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-22', 154, 130, 284, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-23', 122, 60, 182, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-24', 133, 175, 308, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-25', 33, 27, 60, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-26', 132, 43, 175, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-27', 131, 20, 151, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-28', 66, 71, 137, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-29', 33, 28, 61, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-03-30', 15, 167, 182, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-03')),
+('2024-04-01', 141, 82, 223, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-02', 59, 93, 152, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-03', 115, 34, 149, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-04', 71, 162, 233, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-05', 105, 17, 122, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-06', 136, 65, 201, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-07', 122, 116, 238, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-08', 148, 189, 337, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-09', 121, 103, 224, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-10', 82, 28, 110, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-11', 65, 75, 140, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-12', 34, 105, 139, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-13', 73, 181, 254, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-14', 152, 173, 325, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-15', 115, 80, 195, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-16', 157, 42, 199, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-17', 133, 42, 175, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-18', 130, 139, 269, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-19', 36, 182, 218, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-20', 159, 50, 209, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-21', 59, 190, 249, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-22', 179, 184, 363, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-23', 157, 175, 332, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-24', 138, 140, 278, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-25', 159, 118, 277, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-26', 53, 56, 109, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-27', 178, 186, 364, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-28', 59, 76, 135, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-29', 51, 13, 64, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-04-30', 124, 180, 304, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-04')),
+('2024-05-01', 182, 147, 329, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-02', 172, 17, 189, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-03', 161, 173, 334, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-04', 110, 100, 210, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-05', 87, 22, 109, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-06', 56, 46, 102, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-07', 149, 98, 247, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-08', 157, 84, 241, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-09', 50, 132, 182, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-10', 13, 157, 170, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-11', 139, 145, 284, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05')),
+('2024-05-12', 182, 55, 237, (select f.pk_floorid from floors f where f.floorname = '66'), (select m.pk_monthlybookingid from monthlybookings m where fk_floor = (select f.pk_floorid from floors f where f.floorname = '66') and month = '2024-05'));
+
+-- changeset liquibase:32
 insert into DailyBookings(day, morning, afternoon, total, fk_building, fk_monthlyBookingId)
 SELECT day,
        SUM(d.morning),
@@ -477,7 +570,7 @@ FROM DailyBookings d
          JOIN Floors f ON d.fk_floor = f.pk_floorId
 WHERE d.fk_floor IS NOT NULL
 GROUP BY f.fk_buildingid, day;
--- changeset liquibase:30
+-- changeset liquibase:33
 insert into DailyBookings(day, morning, afternoon, total, fk_location, fk_monthlyBookingId)
 SELECT day,
        SUM(d.morning),
@@ -493,7 +586,398 @@ FROM DailyBookings d
          JOIN Buildings b ON d.fk_building = b.pk_buildingId
 WHERE d.fk_building IS NOT NULL
 GROUP BY b.fk_locationid, day;
--- changeset liquibase:31
-select runMonthlyAnalysisFunctions(),
-       runQuarterlyAnalysisFunctions(),
-       runYearlyAnalysisFunctions();
+
+-- changeset liquibase:34
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, d.fk_monthlybookingid
+              from dailybookings d
+              where d.fk_floor is not null
+                and Left(d.day, 7) = to_char(CURRENT_DATE  - INTERVAL '2 month', 'YYYY-MM'))
+
+update monthlybookings m
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    days                     = (select count(*) from Days d where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    amountOfDesks            = getamountofseatsinfloorbyid(m.fk_floor),
+    morning_highestbooking   = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning DESC
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    morning_lowestBooking    = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestbooking = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon DESC
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    afternoon_lowestbooking  = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where month = to_char(CURRENT_DATE  - INTERVAL '2 month', 'YYYY-MM')
+  and m.fk_floor is not null;
+
+-- changeset liquibase:35
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, d.fk_monthlybookingid
+              from dailybookings d
+              where d.fk_building is not null
+                and Left(d.day, 7) = to_char(CURRENT_DATE  - INTERVAL '2 month', 'YYYY-MM'))
+
+update monthlybookings m
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    days                     = (select count(*) from Days d where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    amountOfDesks            = getamountofseatsinbuildingbyid(m.fk_building),
+    morning_highestbooking   = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning DESC
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    morning_lowestBooking    = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestbooking = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon DESC
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    afternoon_lowestbooking  = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where month = to_char(CURRENT_DATE  - INTERVAL '2 month', 'YYYY-MM')
+  and m.fk_building is not null;
+
+-- changeset liquibase:36
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, d.fk_monthlybookingid
+              from dailybookings d
+              where d.fk_location is not null
+                and Left(d.day, 7) = to_char(CURRENT_DATE  - INTERVAL '2 month', 'YYYY-MM'))
+
+update monthlybookings m
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    days                     = (select count(*) from Days d where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    amountOfDesks            = getamountofseatsinbuildingbyid(m.fk_building),
+    morning_highestbooking   = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning DESC
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    morning_lowestBooking    = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestbooking = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon DESC
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    afternoon_lowestbooking  = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where month = to_char(CURRENT_DATE  - INTERVAL '2 month', 'YYYY-MM')
+  and m.fk_location is not null;
+
+-- changeset liquibase:37
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, q.pk_quarterlyBookingId
+              from dailybookings d
+                       join monthlybookings m on d.fk_monthlyBookingId = m.pk_monthlyBookingId
+                       join quarterlybookings q on m.fk_quarterlybookingid = q.pk_quarterlyBookingId
+              where d.fk_floor is not null
+                and q.quarter = getcurrentquarter() - 1
+                and q.year = to_char(CURRENT_DATE, 'YYYY'))
+
+update quarterlybookings q
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    days                     = (select count(*)
+                                from Days d
+                                where q.pk_quarterlybookingid = d.pk_quarterlybookingid),
+    amountOfDesks            = getamountofseatsinfloorbyid(q.fk_floor),
+    morning_highestBooking   = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.morning Desc
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    morning_lowestBooking    = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestBooking = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.afternoon Desc
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    afternoon_lowestBooking  = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where quarter = getcurrentquarter() - 1
+  and year = to_char(CURRENT_DATE, 'YYYY')
+  and q.fk_floor is not null;
+-- changeset liquibase:38
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, q.pk_quarterlyBookingId
+              from dailybookings d
+                       join monthlybookings m on d.fk_monthlyBookingId = m.pk_monthlyBookingId
+                       join quarterlybookings q on m.fk_quarterlybookingid = q.pk_quarterlyBookingId
+              where d.fk_building is not null
+                and q.quarter = getcurrentquarter() - 1
+                and q.year = to_char(CURRENT_DATE, 'YYYY'))
+
+update quarterlybookings q
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    days                     = (select count(*)
+                                from Days d
+                                where q.pk_quarterlybookingid = d.pk_quarterlybookingid),
+    amountOfDesks            = getamountofseatsinbuildingbyid(q.fk_floor),
+    morning_highestBooking   = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.morning Desc
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    morning_lowestBooking    = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestBooking = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.afternoon Desc
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    afternoon_lowestBooking  = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where quarter = getcurrentquarter() -1
+  and year = to_char(CURRENT_DATE, 'YYYY')
+  and q.fk_building is not null;
+-- changeset liquibase:39
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, q.pk_quarterlyBookingId
+              from dailybookings d
+                       join monthlybookings m on d.fk_monthlyBookingId = m.pk_monthlyBookingId
+                       join quarterlybookings q on m.fk_quarterlybookingid = q.pk_quarterlyBookingId
+              where d.fk_location is not null
+                and q.quarter = getcurrentquarter() - 1
+                and q.year = to_char(CURRENT_DATE, 'YYYY'))
+
+update quarterlybookings q
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    days                     = (select count(*)
+                                from Days d
+                                where q.pk_quarterlybookingid = d.pk_quarterlybookingid),
+    amountOfDesks            = getamountofseatsinlocationbyid(q.fk_floor),
+    morning_highestBooking   = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.morning Desc
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    morning_lowestBooking    = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestBooking = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.afternoon Desc
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId),
+    afternoon_lowestBooking  = (select pk_dailyBookingId
+                                from Days d
+                                where q.pk_quarterlyBookingId = d.pk_quarterlyBookingId
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where quarter = getcurrentquarter() - 1
+  and year = to_char(CURRENT_DATE, 'YYYY')
+  and q.fk_location is not null;
+
+
+-- changeset liquibase:40
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, d.fk_monthlybookingid
+              from dailybookings d
+              where d.fk_floor is not null
+                and Left(d.day, 7) = to_char(CURRENT_DATE  - INTERVAL '1 month', 'YYYY-MM'))
+
+update monthlybookings m
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    days                     = (select count(*) from Days d where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    amountOfDesks            = getamountofseatsinfloorbyid(m.fk_floor),
+    morning_highestbooking   = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning DESC
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    morning_lowestBooking    = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestbooking = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon DESC
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    afternoon_lowestbooking  = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where month = to_char(CURRENT_DATE  - INTERVAL '1 month', 'YYYY-MM')
+  and m.fk_floor is not null;
+
+-- changeset liquibase:41
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, d.fk_monthlybookingid
+              from dailybookings d
+              where d.fk_building is not null
+                and Left(d.day, 7) = to_char(CURRENT_DATE  - INTERVAL '1 month', 'YYYY-MM'))
+
+update monthlybookings m
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    days                     = (select count(*) from Days d where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    amountOfDesks            = getamountofseatsinbuildingbyid(m.fk_building),
+    morning_highestbooking   = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning DESC
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    morning_lowestBooking    = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestbooking = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon DESC
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    afternoon_lowestbooking  = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where month = to_char(CURRENT_DATE  - INTERVAL '1 month', 'YYYY-MM')
+  and m.fk_building is not null;
+
+-- changeset liquibase:42
+With Days as (select d.pk_dailybookingid, d.morning, d.afternoon, d.total, d.fk_monthlybookingid
+              from dailybookings d
+              where d.fk_location is not null
+                and Left(d.day, 7) = to_char(CURRENT_DATE  - INTERVAL '1 month', 'YYYY-MM'))
+
+update monthlybookings m
+set total                    = (select COALESCE(sum(d.total), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    days                     = (select count(*) from Days d where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    amountOfDesks            = getamountofseatsinbuildingbyid(m.fk_building),
+    morning_highestbooking   = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning DESC
+                                LIMIT 1),
+    morning_averageBooking   = (select COALESCE(round(avg(d.morning),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    morning_lowestBooking    = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.morning ASC
+                                LIMIT 1),
+    afternoon_highestbooking = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon DESC
+                                LIMIT 1),
+    afternoon_averageBooking = (select COALESCE(round(avg(d.afternoon),2), 0)
+                                from Days d
+                                where m.pk_monthlyBookingId = d.fk_monthlybookingid),
+    afternoon_lowestbooking  = (select pk_dailybookingid
+                                from Days d
+                                where d.fk_monthlybookingid = m.pk_monthlybookingid
+                                order by d.afternoon ASC
+                                LIMIT 1),
+    updatedOn                = current_timestamp
+where month = to_char(CURRENT_DATE  - INTERVAL '1 month', 'YYYY-MM')
+  and m.fk_location is not null;
