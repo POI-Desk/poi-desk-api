@@ -24,7 +24,7 @@ public class AuthHelper {
             String jwtToken = authorizationHeader.substring(7).strip(); // Remove "Bearer " prefix
             DecodedJWT jwt;
             try {
-                Algorithm algorithm = Algorithm.HMAC256("lol");
+                Algorithm algorithm = Algorithm.HMAC256(environment_var.get("JWT_SECRET"));
                 JWTVerifier verifier = JWT.require(algorithm)
                         .withIssuer("POIDesk")
                         .build();
@@ -43,7 +43,9 @@ public class AuthHelper {
                         me = peopleService.people().get("people/me").setPersonFields("names,emailAddresses").execute();
                     }
                     catch (Exception e){
-                        GoogleRefreshTokenRequest refreshTokenRequest = new GoogleRefreshTokenRequest(new NetHttpTransport(), new GsonFactory(), user.getRefresh_token(),environment_var.get("GOOGLE_CLIENT_ID"), environment_var.get("GOOGLE_CLIENT_SECRET"));
+                        GoogleRefreshTokenRequest refreshTokenRequest = new GoogleRefreshTokenRequest(new NetHttpTransport(), 
+                        new GsonFactory(), user.getRefresh_token(),environment_var.get("GOOGLE_CLIENT_ID"), 
+                        environment_var.get("GOOGLE_CLIENT_SECRET"));
                         var tokenResponse = refreshTokenRequest.execute();
                         credential.setAccessToken(tokenResponse.getAccessToken());
                         user.setAccess_token(credential.getAccessToken());

@@ -211,7 +211,8 @@ public class UserController {
     @MutationMapping
     public String loginWizzGoogol(@Argument String authToken, DataFetchingEnvironment env) throws IOException {
         // the google auth token workflow
-        List<String> scopes = new ArrayList<String>(Arrays.asList("https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"));
+        List<String> scopes = new ArrayList<String>(Arrays.asList("https://www.googleapis.com/auth/userinfo.profile", 
+        "https://www.googleapis.com/auth/userinfo.email"));
         Map<String, String> environment_var = System.getenv();
         GoogleAuthorizationCodeFlow a = new GoogleAuthorizationCodeFlow(new NetHttpTransport(),
                 new GsonFactory(),
@@ -247,11 +248,9 @@ public class UserController {
 
             // after the successful token request, we create a new account if it doesn't exist yet
             Account account = new Account(userIdentifier,"google", tokenResponse.getAccessToken(), tokenResponse.getRefreshToken());
-
-
             // the username should ideally be set by the user themselves, so we temp. set it to the email
-            User user = new User(userEmail.split("@")[0], locationRepo.findByLocationname("Wien"), roleRepo.findByRolename("Standard"), account);
-
+            User user = new User(userEmail.split("@")[0], locationRepo.findByLocationname("Wien"),
+            roleRepo.findByRolename("Standard"), account);
 
             if (!accountRepo.existsById(userIdentifier)){
                 accountRepo.save(account);
@@ -259,7 +258,7 @@ public class UserController {
             }
 
             try{
-                Algorithm algorithm = Algorithm.HMAC256("lol"); // TODO: change!!!!!!!
+                Algorithm algorithm = Algorithm.HMAC256(environment_var.get("JWT_SECRET"));
                 String token = JWT.create()
                         .withClaim("email", userEmail)
                         .withClaim("name", name)
