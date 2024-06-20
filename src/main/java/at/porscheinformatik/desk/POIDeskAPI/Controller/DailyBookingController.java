@@ -15,7 +15,7 @@ public class DailyBookingController {
     @Autowired
     private DailyBookingService dailyBookingService;
     @QueryMapping
-    public List<DailyBooking> Last30DaysByLocation(@Argument UUID locationId) throws ExecutionException, InterruptedException {
-        return dailyBookingService.getLast30DaysByLocation(locationId).get();
+    public List<DailyBooking> getLast30DaysByLocation(@Argument UUID locationId) throws ExecutionException, InterruptedException {
+        return dailyBookingService.Last30DaysByLocation(locationId).get();
     }
 }
