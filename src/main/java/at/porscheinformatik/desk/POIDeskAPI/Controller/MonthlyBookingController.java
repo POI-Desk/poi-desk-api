@@ -35,11 +35,4 @@ public class MonthlyBookingController {
     public MonthlyBookingPrediction[] getMonthlyBookingPrediction(@Argument UUID identifier, @Argument IdentifierType identifierType) throws ExecutionException, InterruptedException {
         return monthlyBookingService.getMonthlyBookingPrediction(identifier, identifierType).get();
     }
-    /*
-    @SchemaMapping
-    public List<DailyBooking> dailyBooking(MonthlyBooking monthlyBooking){
-        List<DailyBooking> dailyBookingList = monthlyBooking.getDailyBookings();
-        Collections.sort(dailyBookingList);
-        return dailyBookingList;
-    }*/
 }
