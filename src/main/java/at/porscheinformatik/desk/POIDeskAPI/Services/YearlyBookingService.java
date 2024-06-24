@@ -1,7 +1,6 @@
 package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.YearlyBookingRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.YearlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.YearlyBookingPrediction;

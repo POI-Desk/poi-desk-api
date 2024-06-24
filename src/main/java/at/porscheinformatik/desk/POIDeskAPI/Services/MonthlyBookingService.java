@@ -13,8 +13,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.calculateDifference;
 import static at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Prediction.predictNextValue;
 

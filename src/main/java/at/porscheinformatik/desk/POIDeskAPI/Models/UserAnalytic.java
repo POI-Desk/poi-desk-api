@@ -5,11 +5,8 @@ import lombok.Setter;
 import net.minidev.json.JSONObject;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.Year;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Getter

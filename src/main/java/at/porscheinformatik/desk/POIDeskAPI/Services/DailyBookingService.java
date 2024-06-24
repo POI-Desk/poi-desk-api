@@ -2,15 +2,12 @@ package at.porscheinformatik.desk.POIDeskAPI.Services;
 
 import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.DailyBookingRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.DailyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
-import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 
 @Service
 public class DailyBookingService {

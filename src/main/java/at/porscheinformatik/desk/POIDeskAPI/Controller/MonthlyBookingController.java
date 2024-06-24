@@ -1,23 +1,16 @@
 package at.porscheinformatik.desk.POIDeskAPI.Controller;
 
-import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.MonthlyBookingRepo;
-import at.porscheinformatik.desk.POIDeskAPI.Models.DailyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.Models.MonthlyBooking;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.MonthlyBookingPrediction;
 import at.porscheinformatik.desk.POIDeskAPI.ModelsClasses.Types.IdentifierType;
-import at.porscheinformatik.desk.POIDeskAPI.Services.FloorService;
 import at.porscheinformatik.desk.POIDeskAPI.Services.MonthlyBookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
-import org.springframework.graphql.data.method.annotation.SchemaMapping;
 import org.springframework.stereotype.Controller;
 
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.function.Function;
 @Controller
 public class MonthlyBookingController {
     @Autowired

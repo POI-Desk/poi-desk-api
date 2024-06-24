@@ -1,6 +1,5 @@
 package at.porscheinformatik.desk.POIDeskAPI.ControllerRepos;
 
-import at.porscheinformatik.desk.POIDeskAPI.Models.Desk;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Floor;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Location;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;

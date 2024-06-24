@@ -1,6 +1,5 @@
 package at.porscheinformatik.desk.POIDeskAPI.ModelsClasses;
 
-import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 

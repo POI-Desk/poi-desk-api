@@ -4,11 +4,8 @@ import at.porscheinformatik.desk.POIDeskAPI.ControllerRepos.InteriorRepo;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Inputs.InteriorInput;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Interior;
 import at.porscheinformatik.desk.POIDeskAPI.Models.Map;
-import at.porscheinformatik.desk.POIDeskAPI.Models.Room;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.graphql.data.method.annotation.Argument;
-import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
